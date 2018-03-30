@@ -1,0 +1,196 @@
+/*
+* Copyright © 2016-2017 by IntegrIT S.A. dba Hackolade.  All rights reserved.
+*
+* The copyright to the computer software herein is the property of IntegrIT S.A.
+* The software may be used and/or copied only with the written permission of 
+* IntegrIT S.A. or in accordance with the terms and conditions stipulated in 
+* the agreement/contract under which the software has been supplied. 
+
+
+In order to define custom properties for any object's properties pane, you may copy/paste from the following,
+making sure that you maintain a proper JSON format.
+
+			{
+				"propertyName": "Simple text",
+				"propertyKeyword": "simpletextProp",
+				"shouldValidate": false,
+				"propertyType": "text",
+				"sampleGen": "&containerName|&entityName|&random|<value>"
+			},
+			{
+				"propertyName": "Text area",
+				"propertyKeyword": "textareaProp",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Dropdown selection",
+				"propertyKeyword": "dropdownProp",
+				"shouldValidate": false,
+				"propertyTooltip": "Select from list of options",
+				"propertyType": "select",
+				"options": [
+					"Option 1",
+					"Option 2",
+					"Option 3",
+					"Option 4"
+				]
+			},
+			{
+				"propertyName": "Numeric",
+				"propertyKeyword": "numericProp",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"sampleGen": "&containerName|&entityName|&random|<value>"
+			},
+			{
+				"propertyName": "Checkbox",
+				"propertyKeyword": "checkboxProp",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Group",
+				"propertyType": "group",
+				"propertyKeyword": "grpProp",
+				"shouldValidate": true,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Simple Grp Text",
+						"propertyKeyword": "simpleGrpText",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Group Number",
+						"propertyKeyword": "grpNumber",
+						"propertyValidate": true,
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					}
+				]
+			}
+
+*/
+
+[
+	{
+		"lowerTab": "Details",
+		"structure": [
+			{
+				"propertyName": "Comments",
+				"propertyKeyword": "comments",
+				"shouldValidate": false,
+				"propertyTooltip": "comments",
+				"propertyType": "details",
+				"template": "textarea",
+				"valueType": "string"
+			}
+		]
+	},
+	{
+		"lowerTab": "Constraints",
+		"structure": [{
+			"propertyName": "Constraint",
+			"propertyType": "group",
+			"propertyKeyword": "Cnstrnt",
+			"shouldValidate": false,
+			"propertyTooltip": "",
+			"structure": [
+				{
+					"propertyName": "Name",
+					"propertyKeyword": "name",
+					"shouldValidate": false,
+					"propertyTooltip": "",
+					"propertyType": "text"
+				},
+				{
+					"propertyName": "Key",
+					"propertyKeyword": "key",
+					"shouldValidate": false,
+					"propertyType": "fieldList",
+					"template": "orderedList"
+				},
+				{
+					"propertyName": "Id",
+					"propertyKeyword": "CnstrntID",
+					"shouldValidate": false,
+					"propertyTooltip": "Constraint ID",
+					"propertyType": "text"
+				},
+				{
+					"propertyName": "Description",
+					"propertyKeyword": "IdxDescription",
+					"shouldValidate": false,
+					"propertyTooltip": "description",
+					"propertyType": "details",
+					"template": "textarea"
+				},
+				{
+					"propertyName": "Comments",
+					"propertyKeyword": "storedProcComments",
+					"shouldValidate": false,
+					"propertyTooltip": "comments",
+					"propertyType": "details",
+					"template": "textarea"
+				}
+			]
+		}]
+	},
+	{
+		"lowerTab": "Indexes",
+		"structure": [{
+			"propertyName": "Index",
+			"propertyType": "group",
+			"propertyKeyword": "IDxs",
+			"shouldValidate": false,
+			"propertyTooltip": "",
+			"structure": [
+				{
+					"propertyName": "Name",
+					"propertyKeyword": "name",
+					"shouldValidate": false,
+					"propertyTooltip": "",
+					"propertyType": "text"
+				},
+				{
+					"propertyName": "Key",
+					"propertyKeyword": "key",
+					"shouldValidate": false,
+					"propertyType": "fieldList",
+					"template": "orderedList"
+				},
+				{
+					"propertyName": "Id",
+					"propertyKeyword": "IdxID",
+					"shouldValidate": false,
+					"propertyTooltip": "Index ID",
+					"propertyType": "text"
+				},
+				{
+					"propertyName": "Description",
+					"propertyKeyword": "IdxDescription",
+					"shouldValidate": false,
+					"propertyTooltip": "description",
+					"propertyType": "details",
+					"template": "textarea"
+				},
+				{
+					"propertyName": "Comments",
+					"propertyKeyword": "storedProcComments",
+					"shouldValidate": false,
+					"propertyTooltip": "comments",
+					"propertyType": "details",
+					"template": "textarea"
+				}
+			]
+		}]
+	}
+]

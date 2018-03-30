@@ -1,0 +1,16 @@
+{
+	"name": "list",
+	"erdAbbreviation": "<arr>",
+	"dtdAbbreviation": "[...]",
+	"parentType": "array",
+	"sample": ["sample"],
+	"useSample": true,
+	"defaultValues": {
+		"properties": [],
+		"primaryKey": false,
+		"additionalItems": true,
+		"minItems": "",
+		"maxItems": "",
+		"uniqueItems": false
+	}
+}

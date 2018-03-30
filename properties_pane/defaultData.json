@@ -1,0 +1,34 @@
+{
+	"model": {
+		"modelName": "New model",
+		"dbVersion": "3.x",
+		"dbVendor": "Neo4j"
+	},
+	"container": {
+		"name": "New database",
+		"indexes": []
+	},
+	"collection": {
+		"collectionName": "New node label",
+		"collectionUsers": [],
+		"collation": {}
+	},
+	"field": {
+		"name": "New property key"
+	},
+	"patternField": {
+		"name": "^[a-zA-Z0-9_.-]{20}$"
+	},
+	"multipleField": {
+		"primaryKey": false
+	},
+	"subschema": {},
+	"arrayItem": {},
+	"choice": {},
+	"relationship": {},
+	"user": {},
+	"view": {
+		"viewOn": "",
+		"pipeline": ""
+	}
+}

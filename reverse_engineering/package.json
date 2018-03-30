@@ -1,0 +1,9 @@
+{
+  "name": "FIRESTORE",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Hackolade",
+  "dependencies": {
+    "node-neo4j": "^2.0.0"
+  }
+}

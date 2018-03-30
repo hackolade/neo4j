@@ -1,0 +1,24 @@
+[
+	{
+		"lowerTab": "Connection",
+		"structure": [
+			{
+				"inputLabel": "Name",
+				"inputKeyword": "name",
+				"inputType": "text",
+				"inputPlaceholder": "Name"
+				
+			},
+			{
+				"inputLabel": "Host",
+				"inputKeyword": "host",
+				"inputType": "text"
+			},
+			{
+				"inputLabel": "Port",
+				"inputKeyword": "port",
+				"inputType": "numeric"
+			}
+		]
+	}
+]

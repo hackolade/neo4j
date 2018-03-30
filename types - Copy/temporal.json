@@ -1,0 +1,16 @@
+{
+	"name": "temporal",
+	"erdAbbreviation": "<tmp>",
+	"dtdAbbreviation": "{tm}",
+	"useSample": true,
+	"defaultValues": {
+		"primaryKey": false,
+		"relationshipType": "",
+		"parentRelationship": "",
+		"childRelationships": [],
+		"foreignEntity": "",
+		"foreignField": [],
+		"default": "",
+		"sample": ""
+	}
+}

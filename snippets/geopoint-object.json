@@ -1,0 +1,11 @@
+{
+	"name": "geopoint-object",
+	"parentType": "document",
+	"properties": [{
+		"name": "lat",
+		"type": "number"
+	}, {
+		"name": "lon",
+		"type": "number"
+	}]
+}

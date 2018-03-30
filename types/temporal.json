@@ -1,0 +1,17 @@
+{
+	"name": "temporal",
+	"erdAbbreviation": "<tmp>",
+	"dtdAbbreviation": "{tmp}",
+	"parentType": "string",
+	"useSample": true,
+	"sample":"2014-12-03",
+	"defaultValues": {
+		"primaryKey": false,
+		"default": "",
+		"enum": [],
+		"sample":"",
+		"comments":"",
+		"pattern":"",
+		"format": ""
+	}
+}
