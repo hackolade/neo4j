@@ -4,6 +4,7 @@
   "description": "",
   "author": "Hackolade",
   "dependencies": {
+    "async": "^2.6.0",
     "lodash": "^4.17.5",
     "neo4j-driver": "^1.5.3"
   }

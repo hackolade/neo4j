@@ -1,5 +1,5 @@
 const _ = require('lodash');
-var neo4j = require('neo4j-driver').v1;
+const neo4j = require('neo4j-driver').v1;
 let driver;
 
 const connect = (info) => {
@@ -50,6 +50,20 @@ const execute = (command) => {
 	});
 };
 
+const castInteger = (properties) => {
+	let result = Array.isArray(properties) ? [] : {};
+	for (let prop in properties) {
+		let value = properties[prop];
+		if (neo4j.isInt(value)) {
+			value = value.toInt();
+		} else if (typeof value === 'object') {
+			value = castInteger(value);
+		}
+		result[prop] = value;
+	}
+	return result;
+};
+
 const getLabels = () => {
 	return execute('MATCH (n) RETURN DISTINCT labels(n) as label').then((data) => {
 			let labels = [];
@@ -57,13 +71,6 @@ const getLabels = () => {
 				labels = labels.concat(record.label);
 			});
 			return labels
-		});
-};
-
-const getRelationships = () => {
-	return execute('MATCH (n)-[r]-() RETURN DISTINCT type(r) as relationship')
-		.then((result) => {
-			return result.map(record => record.relationship);
 		});
 };
 
@@ -100,13 +107,38 @@ const getDatabaseName = () => {
 	});
 };
 
+const getNodes = (label, limit = 100) => {
+	return execute(`MATCH (row:${label}) RETURN row LIMIT ${limit}`)
+		.then((result) => {
+			return result.map(record => castInteger(record.row.properties));
+		});
+};
+
+const getRelationshipData = (labelName, relationship, limit = 100) => {
+	return execute(`MATCH (:${labelName})-[row:${relationship}]-() RETURN row LIMIT ${limit}`)
+		.then((result) => {
+			return result.map(record => castInteger(record.row.properties));
+		});
+};
+
+const getNodesCount = (label) => {
+	return execute(`MATCH (a:${label}) RETURN count(a) AS count`).then(result => castInteger(result[0]).count);
+};
+
+const getCountRelationshipsData = (label, relationship) => {
+	return execute(`MATCH (:${label})-[rel:${relationship}]-() RETURN count(rel) AS count`).then(result => castInteger(result[0]).count);
+};
+
 module.exports = {
 	connect,
 	close,
 	getLabels,
-	getRelationships,
+	getRelationshipData,
 	getSchema,
-	getDatabaseName
+	getDatabaseName,
+	getNodes,
+	getNodesCount,
+	getCountRelationshipsData
 };
 
 // MATCH (a:Author)-[n]->() RETURN DISTINCT type(n) - relationships by label
