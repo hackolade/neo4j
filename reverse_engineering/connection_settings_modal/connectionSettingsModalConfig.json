@@ -12,12 +12,36 @@
 			{
 				"inputLabel": "Host",
 				"inputKeyword": "host",
-				"inputType": "text"
+				"inputType": "text",
+				"inputPlaceholder": "localhost",
+				"defaultValue": "localhost"
 			},
 			{
 				"inputLabel": "Port",
 				"inputKeyword": "port",
-				"inputType": "numeric"
+				"inputType": "numeric",
+				"inputPlaceholder": "7687",
+				"defaultValue": 7687
+			}
+		]
+	},
+	{
+		"lowerTab": "Authentication",
+		"structure": [
+			{
+				"inputLabel": "User Name",
+				"inputKeyword": "username",
+				"inputType": "text",
+				"inputPlaceholder": "User Name"
+				
+			},
+			{
+				"inputLabel": "Password",
+				"inputKeyword": "password",
+				"inputType": "password",
+				"inputTooltip": "Password",
+				"isHiddenKey": true,
+				"defaultValue": ""
 			}
 		]
 	}
