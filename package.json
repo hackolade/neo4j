@@ -21,7 +21,8 @@
             "nestedCollections": false,
             "graphDB": true,
             "relationships": {
-                "connectOnEntityLevel": true
+                "connectOnEntityLevel": true,
+                "hasData": true
             }
         }
     },
