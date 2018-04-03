@@ -18,7 +18,11 @@
 		},
         "features": {
             "jaySchemaHasRequiredPatternField": false,
-            "nestedCollections": false
+            "nestedCollections": false,
+            "graphDB": true,
+            "relationships": {
+                "connectOnEntityLevel": true
+            }
         }
     },
     "description": "Hackolade plugin for Neo4j",
