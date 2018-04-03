@@ -56,46 +56,36 @@ module.exports = {
 		const includeEmptyCollection = data.includeEmptyCollection;
 		const includeSystemCollection = data.includeSystemCollection;
 		const recordSamplingSettings = data.recordSamplingSettings;
-		const packages = packageCreator(data);
+		let packages = {
+			labels: [],
+			relationships: []
+		};
 
 		async.map(dataBaseNames, (dbName, next) => {
-			const labels = collections[dbName];
-			packages.setDbName(dbName);
-			neo4j.getSchema().then((schema) => {
-				let relationships = {};
-				schema.forEach(data => {
-					if (labels.indexOf(data.start)) {
-						if (!relationships[data.start]) {
-							relationships[data.start] = [];
-						}
-						relationships[data.start].push(data.relationship);
-					}
-				})
-				return relationships;
-			}).then(relationships => {
-				async.map(labels, (labelName, nextlabel) => {
-					neo4j.getNodesCount(labelName).then(quantity => {
-						const count = getCount(quantity, recordSamplingSettings);
-						return neo4j.getNodes(labelName, count);
-					}).then((documents) => {
-						packages.setLabelName(labelName);
-						packages.add(documents);
-						return getRelationshipData(labelName, _.uniq(relationships[labelName] || []), recordSamplingSettings, packages);
-					}).then(() => {
-						nextlabel(null);
-					});
-				}, (err) => {
-					if (err) {
-						next(err);
-					} else {
-						next(null);
-					}
+			let labels = collections[dbName];
+
+			getNodesData(dbName, labels, {
+				recordSamplingSettings,
+				fieldInference,
+				includeEmptyCollection
+			}).then((labelPackages) => {
+				packages.labels.push(labelPackages);
+				labels = labelPackages.reduce((result, packageData) => result.concat([packageData.collectionName]), []);
+				return neo4j.getSchema();
+			}).then((schema) => {
+				return schema.filter(data => {
+					return (labels.indexOf(data.start) !== -1 && labels.indexOf(data.end) !== -1);
 				});
+			}).then((schema) => {
+				return getRelationshipData(schema, dbName, recordSamplingSettings);
+			}).then((relationships) => {
+				packages.relationships.push(relationships);
+				next(null);
 			}).catch(error => {
 				next(error);
 			});
 		}, (err) => {
-			cb(err, packages.get(), {});
+			cb(err, packages.labels, {}, packages.relationships);
 		});
 	}
 };
@@ -116,71 +106,81 @@ const isEmptyLabel = (documents) => {
 	return documents.reduce((result, doc) => result && _.isEmpty(doc), true);
 };
 
-const getRelationshipData = (labelName, relationships, recordSamplingSettings, packages) => {
+const getTemplate = (documents) => {
+	return documents.reduce((tpl, doc) => _.merge(tpl, doc), {});
+};
+
+const getNodesData = (dbName, labels, data) => {
 	return new Promise((resolve, reject) => {
-		async.map(relationships, (relationship, nextRelationship) => {
-			neo4j.getCountRelationshipsData(labelName, relationship).then((quantity) => {
-				const count = getCount(quantity, recordSamplingSettings);
-				return neo4j.getRelationshipData(labelName, relationship, count);
-			}).then((data) => {
-				packages.setLabelName(relationship);
-				packages.add(data);
-				nextRelationship(null);
-			}).catch(nextRelationship);
+		let packages = [];
+		async.map(labels, (labelName, nextLabel) => {
+			neo4j.getNodesCount(labelName).then(quantity => {
+				const count = getCount(quantity, data.recordSamplingSettings);
+
+				return neo4j.getNodes(labelName, count);
+			}).then((documents) => {
+				const packageData = getLabelPackage(dbName, labelName, documents, data.includeEmptyCollection, data.fieldInference);
+				if (packageData) {
+					packages.push(packageData);
+				}
+				nextLabel(null);
+			}).catch(nextLabel);
 		}, (err) => {
 			if (err) {
 				reject(err);
 			} else {
-				resolve();
+				resolve(packages);
 			}
 		});
 	});
 };
 
-const packageCreator = (params) => {
-	const includeEmptyCollection = params.includeEmptyCollection;
-	const fieldInference = params.fieldInference;
-	let dbName;
-	let labelName;
-	let packages = [];
-
-	return {
-		add(documents) {
-			let packageData = {
-				dbName: dbName,
-				collectionName: labelName,
-				documents,
-				indexes: [],
-				bucketIndexes: [],
-				views: [],
-				validation: false,
-				emptyBucket: false,
-				bucketInfo: {}
-			};
-
-			if (fieldInference.active === 'field') {
-				packageData.documentTemplate = this.getTemplate(documents);
+const getRelationshipData = (schema, dbName, recordSamplingSettings) => {
+	return new Promise((resolve, reject) => {
+		async.map(schema, (chain, nextChain) => {
+			neo4j.getCountRelationshipsData(chain.start, chain.relationship, chain.end).then((quantity) => {
+				const count = getCount(quantity, recordSamplingSettings);
+				return neo4j.getRelationshipData(chain.start, chain.relationship, chain.end, count);
+			}).then((documents) => {
+				nextChain(null, {
+					dbName,
+					start: chain.start, 
+					relationship: chain.relationship, 
+					end: chain.end,
+					documents
+				});
+			}).catch(nextChain);
+		}, (err, packages) => {
+			if (err) {
+				reject(err);
+			} else {
+				resolve(packages);
 			}
+		});
+	});
+};
 
-			if (includeEmptyCollection || !isEmptyLabel(documents)) {
-				packages.push(packageData);
-			}
-		},
-
-		getTemplate(documents) {
-			return documents.reduce((tpl, doc) => _.merge(tpl, doc), {});
-		},
-
-		get() {
-			return packages;
-		},
-
-		setDbName(name) {
-			dbName = name;
-		},
-
-		setLabelName(name) {
-			labelName = name;
-		}
+const getLabelPackage = (dbName, labelName, documents, includeEmptyCollection, fieldInference) => {
+	let packageData = {
+		dbName: dbName,
+		collectionName: labelName,
+		documents,
+		indexes: [],
+		bucketIndexes: [],
+		views: [],
+		validation: false,
+		emptyBucket: false,
+		bucketInfo: {}
 	};
-}
+
+	if (fieldInference.active === 'field') {
+		packageData.documentTemplate = getTemplate(documents);
+	}
+
+	if (includeEmptyCollection || !isEmptyLabel(documents)) {
+		return packageData;
+	} else {
+		return null;
+	}
+}; 
+
