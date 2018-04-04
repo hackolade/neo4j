@@ -77,7 +77,7 @@ module.exports = {
 					return (labels.indexOf(data.start) !== -1 && labels.indexOf(data.end) !== -1);
 				});
 			}).then((schema) => {
-				return getRelationshipData(schema, dbName, recordSamplingSettings);
+				return getRelationshipData(schema, dbName, recordSamplingSettings, fieldInference);
 			}).then((relationships) => {
 				packages.relationships.push(relationships);
 				next(null);
@@ -85,7 +85,7 @@ module.exports = {
 				next(error);
 			});
 		}, (err) => {
-			cb(err, packages.labels, {}, packages.relationships);
+			cb(err, packages.labels, {}, [].concat.apply([], packages.relationships));
 		});
 	}
 };
@@ -135,20 +135,26 @@ const getNodesData = (dbName, labels, data) => {
 	});
 };
 
-const getRelationshipData = (schema, dbName, recordSamplingSettings) => {
+const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInference) => {
 	return new Promise((resolve, reject) => {
 		async.map(schema, (chain, nextChain) => {
 			neo4j.getCountRelationshipsData(chain.start, chain.relationship, chain.end).then((quantity) => {
 				const count = getCount(quantity, recordSamplingSettings);
 				return neo4j.getRelationshipData(chain.start, chain.relationship, chain.end, count);
 			}).then((documents) => {
-				nextChain(null, {
+				let packageData = {
 					dbName,
-					start: chain.start, 
-					relationship: chain.relationship, 
-					end: chain.end,
+					parentCollection: chain.start, 
+					relationshipName: chain.relationship, 
+					childCollection: chain.end,
 					documents
-				});
+				};
+
+				if (fieldInference.active === 'field') {
+					packageData.documentTemplate = getTemplate(documents);
+				}
+
+				nextChain(null, packageData);
 			}).catch(nextChain);
 		}, (err, packages) => {
 			if (err) {
