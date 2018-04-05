@@ -116,5 +116,17 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			}
 		]
+	},
+	{
+		"lowerTab": "Relationships",
+		"structure": [
+			{
+				"propertyName": "Date",
+				"propertyKeyword": "date",
+				"shouldValidate": false,
+				"propertyTooltip": "date",
+				"propertyType": "text"
+			}
+		]
 	}
 ]
