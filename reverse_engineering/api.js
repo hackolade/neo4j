@@ -6,11 +6,14 @@ const neo4j = require('./neo4jHelper');
 
 module.exports = {
 	connect: function(connectionInfo, logger, cb){
+		logger.clear();
+		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 		neo4j.connect(connectionInfo).then(cb, cb);
 	},
 
 	disconnect: function(connectionInfo, cb){
 		neo4j.close();
+		cb();
 	},
 
 	testConnection: function(connectionInfo, logger, cb){
@@ -29,7 +32,6 @@ module.exports = {
 	},
 
 	getDbCollectionsNames: function(connectionInfo, logger, cb) {
-		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 		let result = {
 			dbName: '',
 			dbCollections: ''
@@ -63,11 +65,24 @@ module.exports = {
 
 		async.map(dataBaseNames, (dbName, next) => {
 			let labels = collections[dbName];
+			let metaData = {};
 
-			getNodesData(dbName, labels, {
-				recordSamplingSettings,
-				fieldInference,
-				includeEmptyCollection
+			neo4j.getIndexes().then((indexes) => {
+				metaData.indexes = prepareIndexes(indexes);
+
+				return neo4j.getConstraints();
+			}).then((constraints) => {
+				metaData.constraints = prepareConstraints(constraints);
+
+				return metaData;
+			}).then(metaData => {
+				return getNodesData(dbName, labels, {
+					recordSamplingSettings,
+					fieldInference,
+					includeEmptyCollection,
+					indexes: metaData.indexes,
+					constraints: metaData.constraints
+				});
 			}).then((labelPackages) => {
 				packages.labels.push(labelPackages);
 				labels = labelPackages.reduce((result, packageData) => result.concat([packageData.collectionName]), []);
@@ -82,7 +97,8 @@ module.exports = {
 				packages.relationships.push(relationships);
 				next(null);
 			}).catch(error => {
-				next(error);
+				logger.log('error', prepareError(error), "Error");
+				next(prepareError(error));
 			});
 		}, (err) => {
 			cb(err, packages.labels, {}, [].concat.apply([], packages.relationships));
@@ -119,7 +135,15 @@ const getNodesData = (dbName, labels, data) => {
 
 				return neo4j.getNodes(labelName, count);
 			}).then((documents) => {
-				const packageData = getLabelPackage(dbName, labelName, documents, data.includeEmptyCollection, data.fieldInference);
+				const packageData = getLabelPackage(
+					dbName, 
+					labelName, 
+					documents, 
+					data.includeEmptyCollection, 
+					data.fieldInference,
+					data.indexes[labelName],
+					data.constraints[labelName] 
+				);
 				if (packageData) {
 					packages.push(packageData);
 				}
@@ -166,7 +190,7 @@ const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInfere
 	});
 };
 
-const getLabelPackage = (dbName, labelName, documents, includeEmptyCollection, fieldInference) => {
+const getLabelPackage = (dbName, labelName, documents, includeEmptyCollection, fieldInference, indexes, constraints) => {
 	let packageData = {
 		dbName: dbName,
 		collectionName: labelName,
@@ -176,7 +200,11 @@ const getLabelPackage = (dbName, labelName, documents, includeEmptyCollection, f
 		views: [],
 		validation: false,
 		emptyBucket: false,
-		bucketInfo: {}
+		bucketInfo: {},
+		entityLevel: {
+			constraint: constraints,
+			index: indexes
+		}
 	};
 
 	if (fieldInference.active === 'field') {
@@ -190,3 +218,92 @@ const getLabelPackage = (dbName, labelName, documents, includeEmptyCollection, f
 	}
 }; 
 
+const prepareIndexes = (indexes) => {
+	const hasProperties = /INDEX\s+ON\s+\:(.*)\((.*)\)/i;
+	let map = {};
+
+	indexes.forEach((index, i) => {
+		if (index.properties) {
+			index.properties = index.properties;
+		} else if (hasProperties.test(index.description)) {
+			let parsedDescription = index.description.match(hasProperties);
+			index.label = parsedDescription[1];
+			index.properties = parsedDescription[2].split(',').map(s => s.trim());
+		} else {
+			index.properties = [];
+		}
+
+		if (!map[index.label]) {
+			map[index.label] = [];
+		}
+
+		map[index.label].push({
+			name: `Index :${index.label}.[${index.properties.join(',')}]`,
+			key: index.properties,
+			state: index.state,
+			type: index.type,
+			provider: JSON.stringify(index.provider, null , 4),
+			description: index.description
+		});
+	});
+
+	return map;
+};
+
+const prepareConstraints = (constraints) => {
+	const isUnique = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+.+\.([a-z0-9-_*\.]+)\s+IS\s+UNIQUE/i; // 1,2
+	const isNodeKey = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+\(\s*(.+)\s*\)\s+IS\s+NODE\s+KEY/i; // 1, 2
+	const isExists = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+exists\(\s*.+\.(.+)\s*\)/i; // 1, 2
+	let result = {};
+	const addToResult = (result, name, label, key, description) => {
+		if (!result[label]) {
+			result[label] = [];
+		}
+
+		result[label].push({ name, key, description });
+	};
+
+	constraints.forEach(c => {
+		const constraint = c.description.trim();
+
+		if (isUnique.test(constraint)) {
+			let data = constraint.match(isUnique);
+			let label = data[1];
+			let field = data[2];
+
+			addToResult(result, `Unique ${label}.${field}`, label, [field], constraint);
+		} else if (isExists.test(constraint)) {
+			let data = constraint.match(isExists);
+			let label = data[1];
+			let field = data[2];
+
+			addToResult(result, `Required ${label}.${field}`, label, [field], constraint);
+		} else if (isNodeKey.test(constraint)) {
+			let data = constraint.match(isNodeKey);
+			let label = data[1];
+			let fields = data[2];
+
+			if (fields) {
+				fields = fields.split(",").map(s => {
+					const field = s.trim().match(/.+\.(.+)/);
+					
+					if (field) {
+						return field[1].trim();
+					} else {
+						return s;
+					}
+				});
+				addToResult(result, `Node key :${label}`, label, fields, constraint);				
+			}
+		}
+	});
+
+	return result;
+};
+
+const prepareError = (error) => {
+	return {
+		message: error.message,
+		stack: error.stack
+	};
+};

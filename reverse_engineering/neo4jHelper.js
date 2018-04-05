@@ -129,6 +129,14 @@ const getCountRelationshipsData = (start, relationship, end) => {
 	return execute(`MATCH (:${start})-[rel:${relationship}]-(:${end}) RETURN count(rel) AS count`).then(result => castInteger(result[0]).count);
 };
 
+const getIndexes = () => {
+	return execute('CALL db.indexes()');
+};
+
+const getConstraints = () => {
+	return execute('CALL db.constraints()');
+};
+
 module.exports = {
 	connect,
 	close,
@@ -138,9 +146,7 @@ module.exports = {
 	getDatabaseName,
 	getNodes,
 	getNodesCount,
-	getCountRelationshipsData
+	getCountRelationshipsData,
+	getIndexes,
+	getConstraints
 };
-
-// MATCH (a:Author)-[n]->() RETURN DISTINCT type(n) - relationships by label
-// MATCH (labels)-[:LIKE]->() RETURN DISTINCT labels(labels) - labels by relationship
-// MATCH (who)-[how]->(whom) RETURN DISTINCT labels(who) as who, type(how) as how, labels(whom) as whom
