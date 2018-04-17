@@ -100,7 +100,7 @@ making sure that you maintain a proper JSON format.
 		"structure": [{
 			"propertyName": "Constraint",
 			"propertyType": "group",
-			"propertyKeyword": "Cnstrnt",
+			"propertyKeyword": "constraint",
 			"shouldValidate": false,
 			"propertyTooltip": "",
 			"structure": [
@@ -120,14 +120,14 @@ making sure that you maintain a proper JSON format.
 				},
 				{
 					"propertyName": "Id",
-					"propertyKeyword": "CnstrntID",
+					"propertyKeyword": "constraintId",
 					"shouldValidate": false,
 					"propertyTooltip": "Constraint ID",
 					"propertyType": "text"
 				},
 				{
 					"propertyName": "Description",
-					"propertyKeyword": "IdxDescription",
+					"propertyKeyword": "description",
 					"shouldValidate": false,
 					"propertyTooltip": "description",
 					"propertyType": "details",
@@ -149,10 +149,11 @@ making sure that you maintain a proper JSON format.
 		"structure": [{
 			"propertyName": "Index",
 			"propertyType": "group",
-			"propertyKeyword": "IDxs",
+			"propertyKeyword": "index",
 			"shouldValidate": false,
 			"propertyTooltip": "",
 			"structure": [
+
 				{
 					"propertyName": "Name",
 					"propertyKeyword": "name",
@@ -168,15 +169,30 @@ making sure that you maintain a proper JSON format.
 					"template": "orderedList"
 				},
 				{
-					"propertyName": "Id",
-					"propertyKeyword": "IdxID",
+					"propertyName": "State",
+					"propertyKeyword": "state",
 					"shouldValidate": false,
-					"propertyTooltip": "Index ID",
-					"propertyType": "text"
+					"propertyType": "text",
+					"propertyTooltip": "State"
+				},
+				{
+					"propertyName": "Type",
+					"propertyKeyword": "type",
+					"shouldValidate": false,
+					"propertyType": "text",
+					"propertyTooltip": "Type"
+				},
+				{
+					"propertyName": "Provider",
+					"propertyKeyword": "provider",
+					"shouldValidate": false,
+					"propertyType": "details",
+					"template": "textarea",
+					"propertyTooltip": "Provider"
 				},
 				{
 					"propertyName": "Description",
-					"propertyKeyword": "IdxDescription",
+					"propertyKeyword": "description",
 					"shouldValidate": false,
 					"propertyTooltip": "description",
 					"propertyType": "details",
