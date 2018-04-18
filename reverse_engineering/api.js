@@ -52,6 +52,9 @@ module.exports = {
 	},
 
 	getDbCollectionsData: function(data, logger, cb){
+		logger.clear();
+		logger.log('info', data, 'connectionInfo', data.hiddenKeys);
+
 		const collections = data.collectionData.collections;
 		const dataBaseNames = data.collectionData.dataBaseNames;
 		const fieldInference = data.fieldInference;
@@ -165,7 +168,8 @@ const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInfere
 			neo4j.getCountRelationshipsData(chain.start, chain.relationship, chain.end).then((quantity) => {
 				const count = getCount(quantity, recordSamplingSettings);
 				return neo4j.getRelationshipData(chain.start, chain.relationship, chain.end, count);
-			}).then((documents) => {
+			}).then((rawDocuments) => {
+				const documents = deserializeData(rawDocuments);
 				let packageData = {
 					dbName,
 					parentCollection: chain.start, 
@@ -190,7 +194,8 @@ const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInfere
 	});
 };
 
-const getLabelPackage = (dbName, labelName, documents, includeEmptyCollection, fieldInference, indexes, constraints) => {
+const getLabelPackage = (dbName, labelName, rawDocuments, includeEmptyCollection, fieldInference, indexes, constraints) => {
+	const documents = deserializeData(rawDocuments);
 	let packageData = {
 		dbName: dbName,
 		collectionName: labelName,
@@ -306,4 +311,26 @@ const prepareError = (error) => {
 		message: error.message,
 		stack: error.stack
 	};
+};
+
+const deserializeData = (documents) => {
+	const deserializator = (document) => {
+		let newDocument = {};
+
+		for (let field in document) {
+			if (typeof document[field] === 'string') {
+				try {
+					newDocument[field] = JSON.parse(document[field]);
+				} catch(e) {
+					newDocument[field] = document[field];
+				}
+			} else {
+				newDocument[field] = document[field];
+			}
+		}
+
+		return newDocument;
+	};
+
+	return Array.isArray(documents) ? documents.map(document => typeof document === 'object' ? deserializator(document) : {}) : [];
 };
