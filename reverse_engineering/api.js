@@ -18,7 +18,7 @@ module.exports = {
 
 	testConnection: function(connectionInfo, logger, cb){
 		this.connect(connectionInfo, logger, (error) => {
-			this.disconnect();
+			this.disconnect(connectionInfo, () => {});
 			cb(error);
 		});
 	},
