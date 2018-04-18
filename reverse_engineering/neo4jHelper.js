@@ -115,7 +115,7 @@ const getNodes = (label, limit = 100) => {
 };
 
 const getRelationshipData = (start, relationship, end, limit = 100) => {
-	return execute(`MATCH (:${start})-[row:${relationship}]-(:${start}) RETURN row LIMIT ${limit}`)
+	return execute(`MATCH (:${start})-[row:${relationship}]-(:${end}) RETURN row LIMIT ${limit}`)
 		.then((result) => {
 			return result.map(record => castInteger(record.row.properties));
 		});

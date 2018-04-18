@@ -3,7 +3,7 @@
 	"erdAbbreviation": "<map>",
 	"dtdAbbreviation": "{...}",
 	"parentType": "document",
-	"sample": ["sample"],
+	"sample": {},
 	"useSample": true,
 	"defaultValues": { 
 		"dependencies": [],
