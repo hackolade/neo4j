@@ -87,6 +87,7 @@
 	"MODAL_WINDOW___CONTAIN_BUCKET": "databases",
 	"MODAL_WINDOW___CONTAIN_COLLECTION": "node label",
 	"MODAL_WINDOW___DB_CONNECTION_PROCESS": "Neo4j Reverse-Engineering Process",
+	"MODAL_WINDOW___DB_CONNECTIONS_LIST_TITLE": "Neo4j Connections",
 	"PROGRESS_BAR___DATABASE": "Database",
 	"PROGRESS_BAR___COLLECTION": "Node label",
 	"PROGRESS_BAR___PROCESS": "Process",
