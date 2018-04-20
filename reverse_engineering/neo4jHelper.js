@@ -108,25 +108,25 @@ const getDatabaseName = () => {
 };
 
 const getNodes = (label, limit = 100) => {
-	return execute(`MATCH (row:${label}) RETURN row LIMIT ${limit}`)
+	return execute(`MATCH (row:\`${label}\`) RETURN row LIMIT ${limit}`)
 		.then((result) => {
 			return result.map(record => castInteger(record.row.properties));
 		});
 };
 
 const getRelationshipData = (start, relationship, end, limit = 100) => {
-	return execute(`MATCH (:${start})-[row:${relationship}]-(:${end}) RETURN row LIMIT ${limit}`)
+	return execute(`MATCH (:\`${start}\`)-[row:\`${relationship}\`]-(:\`${end}\`) RETURN row LIMIT ${limit}`)
 		.then((result) => {
 			return result.map(record => castInteger(record.row.properties));
 		});
 };
 
 const getNodesCount = (label) => {
-	return execute(`MATCH (a:${label}) RETURN count(a) AS count`).then(result => castInteger(result[0]).count);
+	return execute(`MATCH (a:\`${label}\`) RETURN count(a) AS count`).then(result => castInteger(result[0]).count);
 };
 
 const getCountRelationshipsData = (start, relationship, end) => {
-	return execute(`MATCH (:${start})-[rel:${relationship}]-(:${end}) RETURN count(rel) AS count`).then(result => castInteger(result[0]).count);
+	return execute(`MATCH (:\`${start}\`)-[rel:\`${relationship}\`]-(:\`${end}\`) RETURN count(rel) AS count`).then(result => castInteger(result[0]).count);
 };
 
 const getIndexes = () => {
