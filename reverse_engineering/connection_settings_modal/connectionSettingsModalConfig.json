@@ -14,14 +14,14 @@
 				"inputKeyword": "host",
 				"inputType": "text",
 				"inputPlaceholder": "localhost",
-				"defaultValue": "localhost"
+				"defaultValue": ""
 			},
 			{
 				"inputLabel": "Port",
 				"inputKeyword": "port",
 				"inputType": "numeric",
 				"inputPlaceholder": "7687",
-				"defaultValue": 7687
+				"defaultValue": ""
 			}
 		]
 	},
