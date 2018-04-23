@@ -248,7 +248,8 @@ const prepareIndexes = (indexes) => {
 			state: index.state,
 			type: index.type,
 			provider: JSON.stringify(index.provider, null , 4),
-			description: index.description
+			cypher_code: index.description,
+			description: ''
 		});
 	});
 
@@ -265,7 +266,7 @@ const prepareConstraints = (constraints) => {
 			result[label] = [];
 		}
 
-		result[label].push({ name, key, description });
+		result[label].push({ name, key, cypher_code: description, description: '' });
 	};
 
 	constraints.forEach(c => {
