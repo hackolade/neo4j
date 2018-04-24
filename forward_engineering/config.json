@@ -1,0 +1,10 @@
+{
+	"extension": "txt",
+	"filterName": "Plain text",
+	"namePrefix": "Cypher Code",
+	"hasUpdateScript": false,
+	"level": {
+		"container": true,
+		"entity": false
+	}
+}
