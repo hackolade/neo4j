@@ -119,6 +119,18 @@ making sure that you maintain a proper JSON format.
 					"template": "orderedList"
 				},
 				{
+					"propertyName": "Type",
+					"propertyKeyword": "type",
+					"shouldValidate": false,
+					"propertyType": "select",
+					"options": [
+						"UNIQUE",
+						"NODE KEY",
+						"EXISTS"
+					],
+					"defaultValue": "UNIQUE"
+				},
+				{
 					"propertyName": "Id",
 					"propertyKeyword": "constraintId",
 					"shouldValidate": false,

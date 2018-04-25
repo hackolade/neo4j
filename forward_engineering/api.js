@@ -154,5 +154,72 @@ module.exports = {
 		} else {
 			return JSON.stringify(data);
 		}
+	},
+
+	generateConstraints(collections) {
+		collections.reduce((result, collection) => {
+			if (collection.constraint && Array.isArray(collection.constraint)) {
+				collection.constraint.forEach(constraint => {
+					result.push(this.getConstraint(collection, constraint));
+				});
+			}
+
+			return result;
+		}, []);
+	},
+
+	getConstraint(collection, constraint) {
+		let keys = [];
+		if (constraint.key) {
+			keys = this.findFields(collection, constraint.key.map(key => key.key));
+		}
+		if (constraint.type === 'NODE KEY') {
+
+		} else if (constraint.type === 'EXISTS') {
+
+		} else {
+
+		}
+	},
+
+	findFields(collection, ids) {
+		let fields = [];
+		let properties;
+
+		if (collection.items) {
+			if (Array.isArray(collection.items)) {
+				properties = collection.items;
+			} else {
+				properties = [collection.items];
+			}
+		} else {
+			properties = collection.properties;
+		}
+
+		for (let fieldName in properties) {
+			const field = properties[fieldName];
+			const indexId = ids.indexOf(field.GUID);
+			if (indexId !== -1) {
+				if (fields.indexOf(field.name) === -1) {
+					fields.push(field.name);
+				}
+				ids.splice(indexId, 1);
+			}
+
+			if (field.properties || field.items) {
+				const fieldsAreFound = this.findFields(field, ids);
+
+				if (fieldsAreFound.length && fields.indexOf(field.name) === -1) {
+					fields.push(field.name);
+				}
+			}
+
+			if (!ids.length) {
+				return fields;
+			}
+
+		}
+
+		return fields;
 	}
 };
