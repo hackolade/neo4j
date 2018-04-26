@@ -247,9 +247,7 @@ const prepareIndexes = (indexes) => {
 			key: index.properties,
 			state: index.state,
 			type: index.type,
-			provider: JSON.stringify(index.provider, null , 4),
-			cypher_code: index.description,
-			description: ''
+			provider: JSON.stringify(index.provider, null , 4)
 		});
 	});
 
@@ -257,16 +255,16 @@ const prepareIndexes = (indexes) => {
 };
 
 const prepareConstraints = (constraints) => {
-	const isUnique = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+.+\.([a-z0-9-_*\.]+)\s+IS\s+UNIQUE/i; // 1,2
-	const isNodeKey = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+\(\s*(.+)\s*\)\s+IS\s+NODE\s+KEY/i; // 1, 2
-	const isExists = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+exists\(\s*.+\.(.+)\s*\)/i; // 1, 2
+	const isUnique = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+.+\.([a-z0-9-_*\.]+)\s+IS\s+UNIQUE/i;
+	const isNodeKey = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+\(\s*(.+)\s*\)\s+IS\s+NODE\s+KEY/i;
+	const isExists = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+exists\(\s*.+\.(.+)\s*\)/i;
 	let result = {};
 	const addToResult = (result, name, label, key, description) => {
 		if (!result[label]) {
 			result[label] = [];
 		}
 
-		result[label].push({ name, key, cypher_code: description, description: '' });
+		result[label].push({ name, key });
 	};
 
 	constraints.forEach(c => {

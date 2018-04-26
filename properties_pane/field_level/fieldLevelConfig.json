@@ -89,7 +89,12 @@ making sure that you maintain a proper JSON format.
 			"type",
 			"description",
 			"dependencies",
-			"required",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
 			"primaryKey",
 			"default",
 			"minLength",
@@ -122,7 +127,12 @@ making sure that you maintain a proper JSON format.
 			"type",
 			"description",
 			"dependencies",
-			"required",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
 			"default",
 			{
 				"propertyName": "Mode",
@@ -153,7 +163,12 @@ making sure that you maintain a proper JSON format.
 			"type",
 			"description",
 			"dependencies",
-			"required",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
 			"default",
 			"sample",
 			"comments"
@@ -164,7 +179,12 @@ making sure that you maintain a proper JSON format.
 			"type",
 			"description",
 			"dependencies",
-			"required",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
 			"default",
 			{
 				"propertyName": "Mode",
@@ -185,15 +205,55 @@ making sure that you maintain a proper JSON format.
 			"sample",
 			"comments"
 		],		
-		"map": "document",
-		"list": "array",
+		"map": [
+			"name",
+			"schemaId",
+			"type",
+			"description",
+			"dependencies",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			"primaryKey",
+			"minProperties",
+			"maxProperties",
+			"additionalProperties",
+			"comments"
+		],
+		"list": [
+			"name",
+			"schemaId",
+			"type",
+			"description",
+			"dependencies",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			"primaryKey",
+			"minItems",
+			"maxItems",
+			"uniqueItems",
+			"additionalItems",
+			"comments"
+		],
 		"null": [
 			"name",
 			"schemaId",
 			"type",
 			"description",
 			"dependencies",
-			"required",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
 			"default",
 			"sample",
 			"comments"

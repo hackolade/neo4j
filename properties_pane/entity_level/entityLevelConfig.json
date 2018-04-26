@@ -96,7 +96,7 @@ making sure that you maintain a proper JSON format.
 		]
 	},
 	{
-		"lowerTab": "Constraints",
+		"lowerTab": "Node key constraints",
 		"structure": [{
 			"propertyName": "Constraint",
 			"propertyType": "group",
@@ -119,31 +119,11 @@ making sure that you maintain a proper JSON format.
 					"template": "orderedList"
 				},
 				{
-					"propertyName": "Type",
-					"propertyKeyword": "type",
-					"shouldValidate": false,
-					"propertyType": "select",
-					"options": [
-						"UNIQUE",
-						"NODE KEY",
-						"EXISTS"
-					],
-					"defaultValue": "UNIQUE"
-				},
-				{
 					"propertyName": "Id",
 					"propertyKeyword": "constraintId",
 					"shouldValidate": false,
 					"propertyTooltip": "Constraint ID",
 					"propertyType": "text"
-				},
-				{
-					"propertyName": "Cypher Code",
-					"propertyKeyword": "cypher_code",
-					"shouldValidate": false,
-					"propertyTooltip": "Cypher code",
-					"propertyType": "details",
-					"template": "textarea"
 				},
 				{
 					"propertyName": "Description",
@@ -209,14 +189,6 @@ making sure that you maintain a proper JSON format.
 					"propertyType": "details",
 					"template": "textarea",
 					"propertyTooltip": "Provider"
-				},
-				{
-					"propertyName": "Cypher Code",
-					"propertyKeyword": "cypher_code",
-					"shouldValidate": false,
-					"propertyTooltip": "Cypher code",
-					"propertyType": "details",
-					"template": "textarea"
 				},
 				{
 					"propertyName": "Description",
