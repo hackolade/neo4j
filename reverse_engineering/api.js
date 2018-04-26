@@ -196,6 +196,8 @@ const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInfere
 
 const getLabelPackage = (dbName, labelName, rawDocuments, includeEmptyCollection, fieldInference, indexes, constraints) => {
 	const documents = deserializeData(rawDocuments);
+	const separatedConstraints = separateConstraintsByType(constraints);
+	const jsonSchema = createSchemaByConstraints(documents, [...separatedConstraints['UNIQUE'], ...separatedConstraints['EXISTS']]);
 	let packageData = {
 		dbName: dbName,
 		collectionName: labelName,
@@ -203,11 +205,11 @@ const getLabelPackage = (dbName, labelName, rawDocuments, includeEmptyCollection
 		indexes: [],
 		bucketIndexes: [],
 		views: [],
-		validation: false,
+		validation: { jsonSchema },
 		emptyBucket: false,
 		bucketInfo: {},
 		entityLevel: {
-			constraint: constraints,
+			constraint: separatedConstraints['NODE_KEY'],
 			index: indexes
 		}
 	};
@@ -259,12 +261,12 @@ const prepareConstraints = (constraints) => {
 	const isNodeKey = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+\(\s*(.+)\s*\)\s+IS\s+NODE\s+KEY/i;
 	const isExists = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+exists\(\s*.+\.(.+)\s*\)/i;
 	let result = {};
-	const addToResult = (result, name, label, key, description) => {
+	const addToResult = (result, name, label, key, type) => {
 		if (!result[label]) {
 			result[label] = [];
 		}
 
-		result[label].push({ name, key });
+		result[label].push({ name, key, type });
 	};
 
 	constraints.forEach(c => {
@@ -275,13 +277,13 @@ const prepareConstraints = (constraints) => {
 			let label = data[1];
 			let field = data[2];
 
-			addToResult(result, `Unique ${label}.${field}`, label, [field], constraint);
+			addToResult(result, `Unique ${label}.${field}`, label, [field], 'UNIQUE');
 		} else if (isExists.test(constraint)) {
 			let data = constraint.match(isExists);
 			let label = data[1];
 			let field = data[2];
 
-			addToResult(result, `Required ${label}.${field}`, label, [field], constraint);
+			addToResult(result, `Required ${label}.${field}`, label, [field], 'EXISTS');
 		} else if (isNodeKey.test(constraint)) {
 			let data = constraint.match(isNodeKey);
 			let label = data[1];
@@ -297,7 +299,7 @@ const prepareConstraints = (constraints) => {
 						return s;
 					}
 				});
-				addToResult(result, `Node key :${label}`, label, fields, constraint);				
+				addToResult(result, `Node key :${label}`, label, fields, 'NODE_KEY');				
 			}
 		}
 	});
@@ -332,4 +334,22 @@ const deserializeData = (documents) => {
 	};
 
 	return Array.isArray(documents) ? documents.map(document => typeof document === 'object' ? deserializator(document) : {}) : [];
+};
+
+const createSchemaByConstraints = (documents, constraints) => {
+	const template = getTemplate(documents);
+	constraints.reduce((jsonSchema, constraint) => {
+		jsonSchema.required.push(constraint.key);
+		return jsonSchema;
+	}, { required: [] });
+};
+
+const separateConstraintsByType = (constraints = []) => {
+	return constraints.reduce((result, constraint) => {
+		const type = constraint.type;
+		delete constraint.type;
+		result[type].push(constraint);
+
+		return result;
+	}, { 'UNIQUE': [], 'EXISTS': [], 'NODE_KEY': [] });
 };
