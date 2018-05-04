@@ -95,6 +95,12 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
 			"primaryKey",
 			"default",
 			"minLength",
@@ -130,6 +136,12 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
 				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
@@ -169,6 +181,12 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
 			"default",
 			"sample",
 			"comments"
@@ -182,6 +200,12 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
 				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
@@ -217,6 +241,12 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
 			"primaryKey",
 			"minProperties",
 			"maxProperties",
@@ -232,6 +262,12 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
 				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
@@ -251,6 +287,12 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
 				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},

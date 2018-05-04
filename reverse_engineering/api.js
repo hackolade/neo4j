@@ -95,7 +95,7 @@ module.exports = {
 					return (labels.indexOf(data.start) !== -1 && labels.indexOf(data.end) !== -1);
 				});
 			}).then((schema) => {
-				return getRelationshipData(schema, dbName, recordSamplingSettings, fieldInference);
+				return getRelationshipData(schema, dbName, recordSamplingSettings, fieldInference, metaData.constraints);
 			}).then((relationships) => {
 				packages.relationships.push(relationships);
 				next(null);
@@ -162,7 +162,7 @@ const getNodesData = (dbName, labels, data) => {
 	});
 };
 
-const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInference) => {
+const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInference, constraints) => {
 	return new Promise((resolve, reject) => {
 		async.map(schema, (chain, nextChain) => {
 			neo4j.getCountRelationshipsData(chain.start, chain.relationship, chain.end).then((quantity) => {
@@ -170,11 +170,16 @@ const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInfere
 				return neo4j.getRelationshipData(chain.start, chain.relationship, chain.end, count);
 			}).then((rawDocuments) => {
 				const documents = deserializeData(rawDocuments);
+				const separatedConstraints = separateConstraintsByType(constraints[chain.relationship] || []);
+				const jsonSchema = createSchemaByConstraints(documents, separatedConstraints);
 				let packageData = {
 					dbName,
 					parentCollection: chain.start, 
 					relationshipName: chain.relationship, 
 					childCollection: chain.end,
+					validation: {
+						jsonSchema
+					},
 					documents
 				};
 
@@ -197,7 +202,7 @@ const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInfere
 const getLabelPackage = (dbName, labelName, rawDocuments, includeEmptyCollection, fieldInference, indexes, constraints) => {
 	const documents = deserializeData(rawDocuments);
 	const separatedConstraints = separateConstraintsByType(constraints);
-	const jsonSchema = createSchemaByConstraints(documents, [...separatedConstraints['UNIQUE'], ...separatedConstraints['EXISTS']]);
+	const jsonSchema = createSchemaByConstraints(documents, separatedConstraints);
 	let packageData = {
 		dbName: dbName,
 		collectionName: labelName,
@@ -337,11 +342,19 @@ const deserializeData = (documents) => {
 };
 
 const createSchemaByConstraints = (documents, constraints) => {
-	const template = getTemplate(documents);
-	constraints.reduce((jsonSchema, constraint) => {
-		jsonSchema.required.push(constraint.key);
+	let jsonSchema = constraints['EXISTS'].reduce((jsonSchema, constraint) => {
+		jsonSchema.required = jsonSchema.required.concat(constraint.key);
 		return jsonSchema;
-	}, { required: [] });
+	}, { required: [], properties: {} });
+	return constraints['UNIQUE'].reduce((jsonSchema, constraint) => {
+		return constraint.key.reduce((jsonSchema, key) => {
+			if (!jsonSchema.properties[key]) {
+				jsonSchema.properties[key] = {};
+			}
+			jsonSchema.properties[key].unique = true;
+			return jsonSchema;
+		}, jsonSchema);
+	}, jsonSchema);
 };
 
 const separateConstraintsByType = (constraints = []) => {
