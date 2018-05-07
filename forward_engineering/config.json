@@ -1,6 +1,6 @@
 {
-	"extension": "txt",
-	"filterName": "Plain text",
+	"extension": "cypher",
+	"filterName": "Cypher script",
 	"namePrefix": "Cypher Code",
 	"hasUpdateScript": false,
 	"level": {

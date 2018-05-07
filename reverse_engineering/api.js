@@ -359,6 +359,7 @@ const createSchemaByConstraints = (documents, constraints) => {
 
 const separateConstraintsByType = (constraints = []) => {
 	return constraints.reduce((result, constraint) => {
+		constraint = Object.assign({}, constraint);
 		const type = constraint.type;
 		delete constraint.type;
 		result[type].push(constraint);

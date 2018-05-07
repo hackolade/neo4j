@@ -7,8 +7,10 @@ module.exports = {
 			relationships = relationships.map(JSON.parse);
 
 			const createScript = this.generateCreateBatch(collections, relationships, jsonData);
+			const constraints = this.generateConstraints(collections, relationships);
+			const indexes = [];
 
-			cb(null, createScript);
+			cb(null, this.getScript(createScript, constraints, indexes));
 		} catch(e) {
 			logger.log('error', { message: e.message, stack: e.stack }, 'Forward-Engineering Error');
 			setTimeout(() => {
@@ -16,6 +18,21 @@ module.exports = {
 			}, 150);
 			return;
 		}
+	},
+
+	getScript(createScript, constraints, indexes) {
+		const getTransaction = (script) => ':begin\n' + script + ';\n:commit\n';
+		let script = getTransaction(createScript);
+
+		if (Array.isArray(constraints) && constraints.length) {
+			script += getTransaction(constraints.join(';\n'));
+		}
+
+		if (Array.isArray(indexes) && indexes.length) {
+			script += getTransaction(indexes.join(';\n'));
+		}
+
+		return script;
 	},
 
 	generateCreateBatch(collections, relationships, jsonData) {
@@ -156,30 +173,78 @@ module.exports = {
 		}
 	},
 
-	generateConstraints(collections) {
-		collections.reduce((result, collection) => {
+	generateConstraints(collections, relationships) {
+		let result = [];
+
+		collections.forEach(collection => {
 			if (collection.constraint && Array.isArray(collection.constraint)) {
 				collection.constraint.forEach(constraint => {
-					result.push(this.getConstraint(collection, constraint));
+					const nodeKeyConstraint = this.getNodeKeyConstraint(collection, constraint);
+					if (nodeKeyConstraint) {
+						result.push(nodeKeyConstraint);
+					}
+				});
+			}
+			if (Array.isArray(collection.required)) {
+				collection.required.forEach(fieldName => {
+					if (fieldName) {
+						result.push(this.getExistsConstraint(collection.collectionName, fieldName));
+					}
+				});
+			}
+			if (collection.properties) {
+				Object.keys(collection.properties).forEach(fieldName => {
+					if (collection.properties[fieldName].unique) {
+						result.push(this.getUniqeConstraint(collection.collectionName, fieldName));
+					}
+				});
+			}
+		});
+
+		relationships.forEach(relationship => {
+			if (Array.isArray(relationship.required)) {
+				relationship.required.forEach(fieldName => {
+					if (fieldName) {
+						result.push(this.getExistsConstraint(relationship.name, fieldName));
+					}
 				});
 			}
 
-			return result;
-		}, []);
+			if (relationship.properties) {
+				Object.keys(relationship.properties).forEach(fieldName => {
+					if (relationship.properties[fieldName].unique) {
+						result.push(this.getUniqeConstraint(relationship.name, fieldName));
+					}
+				});
+			}
+		});
+
+		return result;		
 	},
 
-	getConstraint(collection, constraint) {
+	getNodeKeyConstraint(collection, constraint) {
 		let keys = [];
 		if (constraint.key) {
-			keys = this.findFields(collection, constraint.key.map(key => key.key));
+			keys = this.findFields(collection, constraint.key.map(key => key.keyId));
+			if (Array.isArray(keys) && keys.length) {
+				const labelName = collection.collectionName;
+				const varLabelName = collection.collectionName.toLowerCase();
+
+				return `CREATE CONSTRAINT ON (${varLabelName}:\`${labelName}\`) ASSERT (${keys.map(key => `${varLabelName}.${key}`).join(', ')}) IS NODE KEY`;
+			}
 		}
-		if (constraint.type === 'NODE KEY') {
+	},
 
-		} else if (constraint.type === 'EXISTS') {
+	getExistsConstraint(labelName, fieldName) {
+		const varLabelName = labelName.toLowerCase();
 
-		} else {
+		return `CREATE CONSTRAINT ON (${varLabelName}:\`${labelName}\`) ASSERT exists(${varLabelName}.${fieldName})`;
+	},
 
-		}
+	getUniqeConstraint(labelName, fieldName) {
+		const varLabelName = labelName.toLowerCase();
+
+		return `CREATE CONSTRAINT ON (${varLabelName}:\`${labelName}\`) ASSERT ${varLabelName}.${fieldName} IS UNIQUE`;
 	},
 
 	findFields(collection, ids) {
@@ -200,8 +265,8 @@ module.exports = {
 			const field = properties[fieldName];
 			const indexId = ids.indexOf(field.GUID);
 			if (indexId !== -1) {
-				if (fields.indexOf(field.name) === -1) {
-					fields.push(field.name);
+				if (fields.indexOf(fieldName) === -1) {
+					fields.push(fieldName);
 				}
 				ids.splice(indexId, 1);
 			}
