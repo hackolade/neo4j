@@ -8,7 +8,7 @@ module.exports = {
 
 			const createScript = this.generateCreateBatch(collections, relationships, jsonData);
 			const constraints = this.generateConstraints(collections, relationships);
-			const indexes = [];
+			const indexes = this.getIndexes(collections);
 
 			cb(null, this.getScript(createScript, constraints, indexes));
 		} catch(e) {
@@ -286,5 +286,23 @@ module.exports = {
 		}
 
 		return fields;
+	},
+
+	getIndexes(collections) {
+		let result = [];
+		collections.forEach(collection => {
+			if (collection.index) {
+				collection.index.forEach(index => {
+					if (index.key) {
+						const fields = this.findFields(collection, index.key.map(key => key.keyId));
+						if (fields.length) {
+							const indexScript = `CREATE INDEX ON :${collection.collectionName}(${fields.join(', ')})`;
+							result.push(indexScript);
+						}
+					}
+				});
+			}
+		});
+		return result;
 	}
 };
