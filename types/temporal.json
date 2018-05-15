@@ -12,6 +12,7 @@
 		"sample":"",
 		"comments":"",
 		"pattern":"",
-		"format": ""
+		"format": "",
+		"unique": false
 	}
 }

@@ -22,6 +22,7 @@
 		"foreignField": [],
 		"enum": [],
 		"mode": "",
-		"sample": ""
+		"sample": "",
+		"unique": false
 	}
 }

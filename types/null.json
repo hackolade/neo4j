@@ -11,6 +11,7 @@
 		"childRelationships": [],
 		"foreignEntity": "",
 		"foreignField": [],
-		"format": ""
+		"format": "",
+		"unique": false
 	}
 }

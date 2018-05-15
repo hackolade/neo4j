@@ -23,7 +23,8 @@
             "relationships": {
                 "connectOnEntityLevel": true,
                 "hasData": true
-            }
+            },
+            "enableForwardEngineering": true
         }
     },
     "description": "Hackolade plugin for Neo4j",
