@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const neo4j = require('neo4j-driver').v1;
 let driver;
+const fs = require('fs');
 
 const connect = (info) => {
 	return new Promise((resolve, reject) => {
@@ -149,17 +150,20 @@ const getSSLConfig = (info) => {
 		case "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES":
 			return config;
 		case "TRUST_CUSTOM_CA_SIGNED_CERTIFICATES":
-			return config.trustedCertificates = [info.certAuthority];
+			config.trustedCertificates = [info.certAuthority];
+			return config;
 		case "TRUST_SERVER_CLIENT_CERTIFICATES":
 			config.trustedCertificates = [info.certAuthority];
 			config.key = info.clientPrivateKey;
 			config.cert = info.clientCert;
-			return config.passphrase = info.passphrase;
+			config.passphrase = info.passphrase;
+			return config;
 		case "Off":
 		default: 
 			return {};
 	}
 };
+
 module.exports = {
 	connect,
 	close,
