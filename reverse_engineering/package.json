@@ -8,5 +8,5 @@
     "lodash": "^4.17.5",
     "neo4j-driver": "git+https://git@github.com/EdikDolynskyi/neo4j-javascript-driver.git#develop_1.7"
   },
-  "installed": true
+  "installed": false
 }
