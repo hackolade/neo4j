@@ -15,6 +15,7 @@
 		"foreignCollection": "",
 		"foreignField": [],
 		"enum": [],
-		"sample": ""
+		"sample": "",
+		"unique": false
 	}
 }

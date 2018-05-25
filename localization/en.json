@@ -9,6 +9,7 @@
 	"MAIN_MENU___INSERT_FIELD": "Insert Property Key",
 	"MAIN_MENU___APPEND_FIELD": "Append Property Key",
 	"MAIN_MENU___REVERSE_DB_COLLECTIONS": "Neo4j database...",
+	"MAIN_MENU___FORWARD_DB_COLLECTIONS": "Cypher",
 	"TOOLBAR___ADD_BUCKET": "Add Database",
 	"TOOLBAR___ADD_COLLECTION": "Add Nodel Label",
 	"TOOLBAR___ADD_CHILD_COLLECTION": "Add Child node label",
@@ -144,5 +145,7 @@
 	"CONTEXT_MENU___GO_TO_DEFINITION": "Go to Model Definition",
 	"DOCUMENTATION___DB_DEFINITIONS": "Model Definitions",
 	"CONTEXT_MENU___CONVERT_TO_PATTERN_FIELD": "Convert to Pattern Property Key",
-	"CONTEXT_MENU___CONVERT_PATTERN_TO_REGULAR_FIELD": "Convert to Regular Property Key"
+	"CONTEXT_MENU___CONVERT_PATTERN_TO_REGULAR_FIELD": "Convert to Regular Property Key",
+	"CENTRAL_PANE___FE_SCRIPT": "Cypher",
+	"MAIN_MENU___FORWARD_DB_BUCKETS": "Cypher Script..."
 }

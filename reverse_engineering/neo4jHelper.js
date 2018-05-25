@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const neo4j = require('neo4j-driver').v1;
 let driver;
+const fs = require('fs');
 
 const connect = (info) => {
 	return new Promise((resolve, reject) => {
@@ -8,8 +9,9 @@ const connect = (info) => {
 		const port = info.port;
 		const username = info.username;
 		const password = info.password;
+		const sslOptions = getSSLConfig(info);
 
-		driver = neo4j.driver(`bolt://${host}:${port}`, neo4j.auth.basic(username, password));
+		driver = neo4j.driver(`bolt://${host}:${port}`, neo4j.auth.basic(username, password), sslOptions);
 
 		driver.onCompleted = () => {
 			resolve();
@@ -135,6 +137,31 @@ const getIndexes = () => {
 
 const getConstraints = () => {
 	return execute('CALL db.constraints()');
+};
+
+const getSSLConfig = (info) => {
+	let config = {
+		encrypted: 'ENCRYPTION_ON',
+		trust: info.sslType
+	};
+
+	switch(info.sslType) {
+		case "TRUST_ALL_CERTIFICATES":
+		case "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES":
+			return config;
+		case "TRUST_CUSTOM_CA_SIGNED_CERTIFICATES":
+			config.trustedCertificates = [info.certAuthority];
+			return config;
+		case "TRUST_SERVER_CLIENT_CERTIFICATES":
+			config.trustedCertificates = [info.certAuthority];
+			config.key = info.clientPrivateKey;
+			config.cert = info.clientCert;
+			config.passphrase = info.passphrase;
+			return config;
+		case "Off":
+		default: 
+			return {};
+	}
 };
 
 module.exports = {

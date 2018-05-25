@@ -1,11 +1,12 @@
 {
-  "name": "FIRESTORE",
+  "name": "NEO4j",
   "version": "1.0.0",
   "description": "",
   "author": "Hackolade",
   "dependencies": {
     "async": "^2.6.0",
     "lodash": "^4.17.5",
-    "neo4j-driver": "^1.5.3"
-  }
+    "neo4j-driver": "git+https://git@github.com/EdikDolynskyi/neo4j-javascript-driver.git#develop_1.7"
+  },
+  "installed": true
 }
