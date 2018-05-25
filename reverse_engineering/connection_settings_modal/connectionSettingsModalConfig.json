@@ -46,74 +46,73 @@
 		]
 	},
 	{
+		"tab": "SSL",
+		"structure": [
+			{
+				"inputLabel": "SSL",
+				"inputKeyword": "sslType",
+				"inputType": "select",
+				"options": [{
+					"value": "Off", 
+					"label": "Off"
+				}, {
+					"value": "TRUST_ALL_CERTIFICATES",
+					"label": "Unvalidated"
+				},{
+					"value": "TRUST_CUSTOM_CA_SIGNED_CERTIFICATES",
+					"label": "Server validation"
 
-			"tab": "SSL",
-			"structure": [
-				{
-					"inputLabel": "SSL",
-					"inputKeyword": "sslType",
-					"inputType": "select",
-					"options": [{
-						"value": "Off", 
-						"label": "Off"
-					}, {
-						"value": "TRUST_ALL_CERTIFICATES",
-						"label": "Unvalidated"
-					},{
-						"value": "TRUST_CUSTOM_CA_SIGNED_CERTIFICATES",
-						"label": "Server validation"
-
-					},{
-						"value": "TRUST_SERVER_CLIENT_CERTIFICATES",
-						"label": "Server and client validation"
-					},{
-						"value": "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES", 
-						"label": "SYSTEMCA"
-					}]
-				},
-				{
-					"inputLabel": "Certificate Authority",
-					"inputKeyword": "certAuthority",
-					"inputType": "file",
-					"inputPlaceholder": "Certificate Authority",
-					"extensions": ["pem", "crt", "key"],
-					"dependency": {
-						"key": "sslType",
-						"value": ["TRUST_CUSTOM_CA_SIGNED_CERTIFICATES", "TRUST_SERVER_CLIENT_CERTIFICATES"]
-					}
-				},
-				{
-					"inputLabel": "Client Certificate",
-					"inputKeyword": "clientCert",
-					"inputType": "file",
-					"inputPlaceholder": "Client Certificate",
-					"extensions": ["pem", "crt", "key"],
-					"dependency": {
-						"key": "sslType",
-						"value": "TRUST_SERVER_CLIENT_CERTIFICATES"
-					}
-				},
-				{
-					"inputLabel": "Client Private Key",
-					"inputKeyword": "clientPrivateKey",
-					"inputType": "file",
-					"inputPlaceholder": "Client Private Key",
-					"extensions": ["pem", "crt", "key"],
-					"dependency": {
-						"key": "sslType",
-						"value": "TRUST_SERVER_CLIENT_CERTIFICATES"
-					}
-				},
-				{
-					"inputLabel": "Passphrase",
-					"inputKeyword": "passphrase",
-					"inputType": "password",
-					"inputPlaceholder": "Passphrase",
-					"dependency": {
-						"key": "sslType",
-						"value": "TRUST_SERVER_CLIENT_CERTIFICATES"
-					}
+				},{
+					"value": "TRUST_SERVER_CLIENT_CERTIFICATES",
+					"label": "Server and client validation"
+				},{
+					"value": "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES", 
+					"label": "SYSTEMCA"
+				}]
+			},
+			{
+				"inputLabel": "Certificate Authority",
+				"inputKeyword": "certAuthority",
+				"inputType": "file",
+				"inputPlaceholder": "Certificate Authority",
+				"extensions": ["pem", "crt", "key"],
+				"dependency": {
+					"key": "sslType",
+					"value": ["TRUST_CUSTOM_CA_SIGNED_CERTIFICATES", "TRUST_SERVER_CLIENT_CERTIFICATES"]
 				}
-			]
-		}
+			},
+			{
+				"inputLabel": "Client Certificate",
+				"inputKeyword": "clientCert",
+				"inputType": "file",
+				"inputPlaceholder": "Client Certificate",
+				"extensions": ["pem", "crt", "key"],
+				"dependency": {
+					"key": "sslType",
+					"value": "TRUST_SERVER_CLIENT_CERTIFICATES"
+				}
+			},
+			{
+				"inputLabel": "Client Private Key",
+				"inputKeyword": "clientPrivateKey",
+				"inputType": "file",
+				"inputPlaceholder": "Client Private Key",
+				"extensions": ["pem", "crt", "key"],
+				"dependency": {
+					"key": "sslType",
+					"value": "TRUST_SERVER_CLIENT_CERTIFICATES"
+				}
+			},
+			{
+				"inputLabel": "Passphrase",
+				"inputKeyword": "passphrase",
+				"inputType": "password",
+				"inputPlaceholder": "Passphrase",
+				"dependency": {
+					"key": "sslType",
+					"value": "TRUST_SERVER_CLIENT_CERTIFICATES"
+				}
+			}
+		]
+	}
 ]
