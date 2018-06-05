@@ -22,7 +22,10 @@ module.exports = {
 
 	getScript(createScript, constraints, indexes) {
 		const getTransaction = (script) => ':begin\n' + script + ';\n:commit\n';
-		let script = getTransaction(createScript);
+		let script = getTransaction(
+			'// cat <path to cypher file> | ./bin/cypher-shell -a <address> -u <user> -p <password>\n\n' +
+			createScript
+		);
 
 		if (Array.isArray(constraints) && constraints.length) {
 			script += getTransaction(constraints.join(';\n'));
@@ -55,14 +58,14 @@ module.exports = {
 			parentName = branchData.parent.collectionName;
 
 			if (createdHash[parentName]) {
-				parent = `(${parentName.toLowerCase()})`;
+				parent = `(${screen(parentName).toLowerCase()})`;
 			} else {
 				let parentData = '';
 				if (jsonData[branchData.parent.GUID]) {
 					parentData = ' ' + this.prepareData(jsonData[branchData.parent.GUID]);
 				}
 	
-				parent = `(${parentName.toLowerCase()}:\`${parentName}\`${parentData})`;
+				parent = `(${screen(parentName).toLowerCase()}:${screen(parentName)}${parentData})`;
 				createdHash[parentName] = true;
 			}
 
@@ -71,23 +74,23 @@ module.exports = {
 				if (branchData.relationship && jsonData[branchData.relationship.GUID]) {
 					relationshipData = ' ' + this.prepareData(jsonData[branchData.relationship.GUID]);
 				}
-				relationship = `[:\`${relationshipName}\`${relationshipData}]`;
+				relationship = `[:${screen(relationshipName)}${relationshipData}]`;
 
 				childName = branchData.child.collectionName;
 				if (createdHash[childName]) {
-					child = `(${childName.toLowerCase()})`;
+					child = `(${screen(childName).toLowerCase()})`;
 				} else {
 					if (branchData.child && jsonData[branchData.child.GUID]) {
 						childData = ' ' + this.prepareData(jsonData[branchData.child.GUID]);
 					}
-					child = `(${childName.toLowerCase()}:\`${childName}\`${childData})`;
+					child = `(${screen(childName).toLowerCase()}:${screen(childName)}${childData})`;
 					createdHash[childName] = true;
 				}
 
 				batch.push(`${parent}-${relationship}->${child}`);
 
 				if (branchData.bidirectional) {
-					batch.push(`(${childName.toLowerCase()})-${relationship}->(${parentName.toLowerCase()})`);
+					batch.push(`(${screen(childName).toLowerCase()})-${relationship}->(${screen(parentName).toLowerCase()})`);
 				}
 			} else {
 				batch.push(parent);
@@ -99,7 +102,7 @@ module.exports = {
 		let script = `CREATE ${labels}`;
 
 		if (Object.keys(createdHash).length) {
-			script +=  ` RETURN ${Object.keys(createdHash).join(',').toLowerCase()}`;
+			script +=  ` RETURN ${Object.keys(createdHash).map(screen).join(',').toLowerCase()}`;
 		}
 
 		return script;
@@ -109,9 +112,9 @@ module.exports = {
 		const data = JSON.parse(serializedData);
 		return '{ ' + Object.keys(data).reduce((result, field) => {
 			if (typeof data[field] === 'object' && !Array.isArray(data[field])) {
-				result.push(`\`${field}\`: apoc.convert.toJson(${this.toCypherJson(data[field])})`);
+				result.push(`${screen(field)}: apoc.convert.toJson(${this.toCypherJson(data[field])})`);
 			} else {
-				result.push(`\`${field}\`: ${JSON.stringify(data[field])}`);
+				result.push(`${screen(field)}: ${JSON.stringify(data[field])}`);
 			}
 
 			return result;
@@ -165,7 +168,7 @@ module.exports = {
 	toCypherJson(data) {
 		if (typeof data === 'object' && !Array.isArray(data)) {
 			return '{ ' + Object.keys(data).reduce((result, field) => {
-				result.push(`\`${field}\`: ${this.toCypherJson(data[field])}`);
+				result.push(`${screen(field)}: ${this.toCypherJson(data[field])}`);
 				return result;
 			}, []).join(', ') + ' }';
 		} else {
@@ -230,7 +233,7 @@ module.exports = {
 				const labelName = collection.collectionName;
 				const varLabelName = collection.collectionName.toLowerCase();
 
-				return `CREATE CONSTRAINT ON (${varLabelName}:\`${labelName}\`) ASSERT (${keys.map(key => `${varLabelName}.${key}`).join(', ')}) IS NODE KEY`;
+				return `CREATE CONSTRAINT ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT (${keys.map(key => `${screen(varLabelName)}.${screen(key)}`).join(', ')}) IS NODE KEY`;
 			}
 		}
 	},
@@ -238,13 +241,13 @@ module.exports = {
 	getExistsConstraint(labelName, fieldName) {
 		const varLabelName = labelName.toLowerCase();
 
-		return `CREATE CONSTRAINT ON (${varLabelName}:\`${labelName}\`) ASSERT exists(${varLabelName}.${fieldName})`;
+		return `CREATE CONSTRAINT ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT exists(${screen(varLabelName)}.${screen(fieldName)})`;
 	},
 
 	getUniqeConstraint(labelName, fieldName) {
 		const varLabelName = labelName.toLowerCase();
 
-		return `CREATE CONSTRAINT ON (${varLabelName}:\`${labelName}\`) ASSERT ${varLabelName}.${fieldName} IS UNIQUE`;
+		return `CREATE CONSTRAINT ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT ${screen(varLabelName)}.${screen(fieldName)} IS UNIQUE`;
 	},
 
 	findFields(collection, ids) {
@@ -296,7 +299,7 @@ module.exports = {
 					if (index.key) {
 						const fields = this.findFields(collection, index.key.map(key => key.keyId));
 						if (fields.length) {
-							const indexScript = `CREATE INDEX ON :${collection.collectionName}(${fields.join(', ')})`;
+							const indexScript = this.getIndex(collection.collectionName, fields);
 							result.push(indexScript);
 						}
 					}
@@ -304,5 +307,11 @@ module.exports = {
 			}
 		});
 		return result;
+	},
+
+	getIndex(collectionName, fields) {
+		return `CREATE INDEX ON :${screen(collectionName)}(${fields.map(screen).join(', ')})`;
 	}
 };
+
+const screen = (s) => `\`${s}\``;

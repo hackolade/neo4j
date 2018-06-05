@@ -250,7 +250,7 @@ const prepareIndexes = (indexes) => {
 		}
 
 		map[index.label].push({
-			name: `Index :${index.label}.[${index.properties.join(',')}]`,
+			name: `:${index.label}.[${index.properties.join(',')}]`,
 			key: index.properties,
 			state: index.state,
 			type: index.type,
@@ -262,16 +262,17 @@ const prepareIndexes = (indexes) => {
 };
 
 const prepareConstraints = (constraints) => {
-	const isUnique = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+.+\.([a-z0-9-_*\.]+)\s+IS\s+UNIQUE/i;
-	const isNodeKey = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+\(\s*(.+)\s*\)\s+IS\s+NODE\s+KEY/i;
-	const isExists = /^constraint\s+on\s+\(\s*.+\:([a-z0-9-_*\.]+)\s+\)\s+assert\s+exists\(\s*.+\.(.+)\s*\)/i;
+	const isUnique = /^constraint\s+on\s+\([\s\S]+\:([\S\s]+)\s*\)\s+assert\s+[\s\S]+\.([\s\S]+)\s+IS\s+UNIQUE/i;
+	const isNodeKey = /^constraint\s+on\s+\([\s\S]+\:\s*([\S\s]+)\s*\)\s+assert\s+(?:\(\s*([\s\S]+)\s*\)|[\s\S]+\.\s*([\S\s]+)\s*)\s+IS\s+NODE\s+KEY/i;
+	const isExists = /^constraint\s+on\s+\([\s\S]+\:([\s\S]+)\s*\)\s+assert\s+exists\([\s\S]+\.([\s\S]+)\s*\)/i;
 	let result = {};
 	const addToResult = (result, name, label, key, type) => {
-		if (!result[label]) {
-			result[label] = [];
+		const labelName = label.trim();
+		if (!result[labelName]) {
+			result[labelName] = [];
 		}
 
-		result[label].push({ name, key, type });
+		result[labelName].push({ name, key, type });
 	};
 
 	constraints.forEach(c => {
@@ -292,11 +293,11 @@ const prepareConstraints = (constraints) => {
 		} else if (isNodeKey.test(constraint)) {
 			let data = constraint.match(isNodeKey);
 			let label = data[1];
-			let fields = data[2];
+			let fields = [];
 
-			if (fields) {
-				fields = fields.split(",").map(s => {
-					const field = s.trim().match(/.+\.(.+)/);
+			if (data[2]) {
+				fields = data[2].split(",").map(s => {
+					const field = s.trim().match(/[\s\S]+\.([\s\S]+)/);
 					
 					if (field) {
 						return field[1].trim();
@@ -304,7 +305,12 @@ const prepareConstraints = (constraints) => {
 						return s;
 					}
 				});
-				addToResult(result, `Node key :${label}`, label, fields, 'NODE_KEY');				
+			} else if (data[3]) {
+				fields = [data[3].trim()];
+			}
+
+			if (fields.length) {
+				addToResult(result, `:${label}`, label, fields, 'NODE_KEY');							
 			}
 		}
 	});
