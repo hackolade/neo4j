@@ -22,7 +22,10 @@ module.exports = {
 
 	getScript(createScript, constraints, indexes) {
 		const getTransaction = (script) => ':begin\n' + script + ';\n:commit\n';
-		let script = getTransaction(createScript);
+		let script = getTransaction(
+			'// cat <path to cypher file> | ./bin/cypher-shell -a <address> -u <user> -p <password>\n\n' +
+			createScript
+		);
 
 		if (Array.isArray(constraints) && constraints.length) {
 			script += getTransaction(constraints.join(';\n'));
