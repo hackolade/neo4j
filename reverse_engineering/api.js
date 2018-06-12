@@ -250,7 +250,7 @@ const prepareIndexes = (indexes) => {
 		}
 
 		map[index.label].push({
-			name: `:${index.label}.[${index.properties.join(',')}]`,
+			name: `${index.label}.[${index.properties.join(',')}]`,
 			key: index.properties,
 			state: index.state,
 			type: index.type,
