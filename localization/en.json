@@ -74,7 +74,7 @@
 	"MODAL_WINDOW___CANNOT_CONNECT_TO_DB": "Cannot connect to Neo4j",
 	"MODAL_WINDOW___SUCCESSFULLY_CONNECT_TO_DB": "Successfully connected to Neo4j",
 	"MODAL_WINDOW___UNABLE_CONNECT_TO_DB": "Unable to connect to Neo4j",
-	"MODAL_WINDOW___DB_ENTITIES_SELECTION_TITLE": "Type selection",
+	"MODAL_WINDOW___DB_ENTITIES_SELECTION_TITLE": "Node label selection",
 	"MODAL_WINDOW___RECORDS_MAX": "Records max",
 	"MODAL_WINDOW___SUBDOCUMENT_IN_CHILD": "Sub-document in child",
 	"MODAL_WINDOW___ARRAY_IN_PARENT": "Array in parent",
