@@ -1,0 +1,13 @@
+{
+	"name": "point-wgs-84",
+	"parentType": "document",
+	"properties": [{
+		"name": "latitude",
+		"type": "number",
+		"mode": "float"
+	}, {
+		"name": "longitude",
+		"type": "number",
+		"mode": "float"
+	}]
+}

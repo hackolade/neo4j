@@ -1,0 +1,21 @@
+{
+	"name": "spatial",
+	"erdAbbreviation": "<spat>",
+	"dtdAbbreviation": "{...}",
+	"parentType": "document",
+	"useSample": false,
+	"defaultValues": {
+		"dependencies": [],
+		"primaryKey": false,
+		"properties": [],
+		"additionalProperties": false,
+		"properties": [],
+		"mode": "point",
+		"subTypes": [
+			{ "name": "WGS-84", "snippet": "point-wgs-84" },
+			{ "name": "WGS-84-3D", "snippet": "point-wgs-84-3d" },
+			{ "name": "Cartesian", "snippet": "cartesian" },
+			{ "name": "Cartesian 3D", "snippet": "cartesian-3d" }
+		]
+	}
+}

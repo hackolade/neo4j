@@ -278,7 +278,7 @@ making sure that you maintain a proper JSON format.
 			"additionalItems",
 			"comments"
 		],
-		"null": [
+		"spatial": [
 			"name",
 			"schemaId",
 			"type",
@@ -288,7 +288,11 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"shouldValidate": false,
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
 			},
 			{
 				"propertyName": "Unique constraint",
@@ -296,8 +300,33 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
-			"default",
-			"sample",
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			{
+				"propertyName": "Mode",
+				"propertyKeyword": "mode",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"point"
+				],
+				"data": "options",
+				"valueType": "string"
+			},
+			"subtype",
 			"comments"
 		]
 	}
