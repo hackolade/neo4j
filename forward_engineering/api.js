@@ -42,8 +42,6 @@ module.exports = {
 		let createdHash = {};
 
 		let labels = this.createMap(collections, relationships).reduce((batch, branchData) => {
-			let branch = '';
-
 			let parent = '';
 			let child = '';
 			let relationship = '';
@@ -62,7 +60,7 @@ module.exports = {
 			} else {
 				let parentData = '';
 				if (jsonData[branchData.parent.GUID]) {
-					parentData = ' ' + this.prepareData(jsonData[branchData.parent.GUID]);
+					parentData = ' ' + this.prepareData(jsonData[branchData.parent.GUID], branchData.parent);
 				}
 	
 				parent = `(${screen(parentName).toLowerCase()}:${screen(parentName)}${parentData})`;
@@ -72,7 +70,7 @@ module.exports = {
 			if (branchData.relationship && branchData.child) {
 				relationshipName = branchData.relationship.name;			
 				if (branchData.relationship && jsonData[branchData.relationship.GUID]) {
-					relationshipData = ' ' + this.prepareData(jsonData[branchData.relationship.GUID]);
+					relationshipData = ' ' + this.prepareData(jsonData[branchData.relationship.GUID], branchData.relationship);
 				}
 				relationship = `[:${screen(relationshipName)}${relationshipData}]`;
 
@@ -81,7 +79,7 @@ module.exports = {
 					child = `(${screen(childName).toLowerCase()})`;
 				} else {
 					if (branchData.child && jsonData[branchData.child.GUID]) {
-						childData = ' ' + this.prepareData(jsonData[branchData.child.GUID]);
+						childData = ' ' + this.prepareData(jsonData[branchData.child.GUID], branchData.child);
 					}
 					child = `(${screen(childName).toLowerCase()}:${screen(childName)}${childData})`;
 					createdHash[childName] = true;
@@ -108,11 +106,16 @@ module.exports = {
 		return script;
 	},
 
-	prepareData(serializedData) {
+	prepareData(serializedData, schema) {
 		const data = JSON.parse(serializedData);
 		return '{ ' + Object.keys(data).reduce((result, field) => {
 			if (typeof data[field] === 'object' && !Array.isArray(data[field])) {
-				result.push(`${screen(field)}: apoc.convert.toJson(${this.toCypherJson(data[field])})`);
+				result.push(`${screen(field)}: ${this.getObjectValueBySchema(data[field], schema.properties[field])}`);
+			} else if (Array.isArray(data[field])) {
+				result.push(`${screen(field)}: [ ${this.getArrayValueBySchema(
+					data[field],
+					schema.properties[field].items
+				).join(', ')} ]`);
 			} else {
 				result.push(`${screen(field)}: ${JSON.stringify(data[field])}`);
 			}
@@ -311,6 +314,31 @@ module.exports = {
 
 	getIndex(collectionName, fields) {
 		return `CREATE INDEX ON :${screen(collectionName)}(${fields.map(screen).join(', ')})`;
+	},
+
+	getObjectValueBySchema(data, fieldSchema) {
+		if (fieldSchema && fieldSchema.type === 'spatial') {
+			if (fieldSchema.mode === 'point') {
+				return `point(${this.toCypherJson(data)})`;
+			}
+		}
+
+		return `apoc.convert.toJson(${this.toCypherJson(data)})`;
+	},
+
+	getArrayValueBySchema(data, arraySchema) {
+		return data.map((item, i) => {
+			if (typeof item === 'object' && !Array.isArray(item)) {
+				return this.getObjectValueBySchema(
+					item, 
+					Array.isArray(arraySchema) ? arraySchema[i] : arraySchema
+				);
+			} else if (Array.isArray(item)) {
+				return `[ ${ this.getArrayValueBySchema(item, (Array.isArray(arraySchema) ? arraySchema[i] : arraySchema).items).join(', ')} ]`;
+			} else {
+				return JSON.stringify(item);
+			}
+		});
 	}
 };
 
