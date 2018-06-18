@@ -93,7 +93,11 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"shouldValidate": false,
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
 			},
 			{
 				"propertyName": "Unique constraint",
@@ -101,7 +105,21 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
-			"primaryKey",
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
 			"default",
 			"minLength",
 			"maxLength",
@@ -137,13 +155,32 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"shouldValidate": false,
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
 			},
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
 				"shouldValidate": false,
 				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
 			},
 			"default",
 			{
@@ -179,13 +216,32 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"shouldValidate": false,
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
 			},
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
 				"shouldValidate": false,
 				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
 			},
 			"default",
 			"sample",
@@ -201,13 +257,32 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"shouldValidate": false,
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
 			},
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
 				"shouldValidate": false,
 				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
 			},
 			"default",
 			{
@@ -239,7 +314,11 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"shouldValidate": false,
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
 			},
 			{
 				"propertyName": "Unique constraint",
@@ -247,7 +326,21 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
-			"primaryKey",
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
 			"minProperties",
 			"maxProperties",
 			"additionalProperties",
@@ -263,7 +356,11 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"shouldValidate": false,
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
 			},
 			{
 				"propertyName": "Unique constraint",
@@ -271,7 +368,21 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
-			"primaryKey",
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
 			"minItems",
 			"maxItems",
 			"uniqueItems",
@@ -288,13 +399,32 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"shouldValidate": false,
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
 			},
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
 				"shouldValidate": false,
 				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
 			},
 			"default",
 			"sample",
