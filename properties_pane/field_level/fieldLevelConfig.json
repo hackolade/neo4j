@@ -388,47 +388,6 @@ making sure that you maintain a proper JSON format.
 			"uniqueItems",
 			"additionalItems",
 			"comments"
-		],
-		"null": [
-			"name",
-			"schemaId",
-			"type",
-			"description",
-			"dependencies",
-			{
-				"propertyName": "Required constraint",
-				"propertyKeyword": "required",
-				"shouldValidate": false,
-				"propertyType": "checkbox",
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
-			},
-			{
-				"propertyName": "Unique constraint",
-				"propertyKeyword": "unique",
-				"shouldValidate": false,
-				"propertyType": "checkbox"
-			},
-			{
-				"propertyName": "Node key",
-				"propertyKeyword": "compositeNodeKey",
-				"shouldValidate": false,
-				"propertyType": "checkbox",
-				"valueType": "boolean",
-				"dependency": {
-					"key": "compositeNodeKey",
-					"value": true
-				},
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
-			},
-			"default",
-			"sample",
-			"comments"
 		]
 	}
 }
