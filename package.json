@@ -1,0 +1,32 @@
+{
+    "name": "Neo4j",
+    "version": "0.0.9",
+    "versionDate": "2018-06-19",
+    "author": "hackolade",
+    "engines": {
+        "hackolade": "2.0.x",
+        "hackoladePlugin": "1.0.0"
+    },
+    "contributes": {
+        "target": {
+            "applicationTarget": "NEO4J",
+            "title": "Neo4j",
+			"versions": [
+				"2.x",
+				"3.x"
+			]
+		},
+        "features": {
+            "jaySchemaHasRequiredPatternField": false,
+            "nestedCollections": false,
+            "graphDB": true,
+            "relationships": {
+                "connectOnEntityLevel": true,
+                "hasData": true
+            },
+            "enableForwardEngineering": true
+        }
+    },
+    "description": "Hackolade plugin for Neo4j",
+    "disabled": false
+}

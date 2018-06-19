@@ -1,0 +1,10 @@
+{
+	"extension": "cypher",
+	"filterName": "Cypher script",
+	"namePrefix": "Cypher Code",
+	"hasUpdateScript": false,
+	"level": {
+		"container": true,
+		"entity": false
+	}
+}

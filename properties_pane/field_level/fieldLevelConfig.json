@@ -1,0 +1,444 @@
+/*
+* Copyright © 2016-2017 by IntegrIT S.A. dba Hackolade.  All rights reserved.
+*
+* The copyright to the computer software herein is the property of IntegrIT S.A.
+* The software may be used and/or copied only with the written permission of 
+* IntegrIT S.A. or in accordance with the terms and conditions stipulated in 
+* the agreement/contract under which the software has been supplied. 
+
+
+In order to define custom properties for any object's properties pane, you may copy/paste from the following,
+making sure that you maintain a proper JSON format.
+
+			{
+				"propertyName": "Simple text",
+				"propertyKeyword": "simpletextProp",
+				"shouldValidate": false,
+				"propertyType": "text",
+				"sampleGen": "&containerName|&entityName|&random|<value>"
+			},
+			{
+				"propertyName": "Text area",
+				"propertyKeyword": "textareaProp",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Dropdown selection",
+				"propertyKeyword": "dropdownProp",
+				"shouldValidate": false,
+				"propertyTooltip": "Select from list of options",
+				"propertyType": "select",
+				"options": [
+					"Option 1",
+					"Option 2",
+					"Option 3",
+					"Option 4"
+				]
+			},
+			{
+				"propertyName": "Numeric",
+				"propertyKeyword": "numericProp",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"sampleGen": "&containerName|&entityName|&random|<value>"
+			},
+			{
+				"propertyName": "Checkbox",
+				"propertyKeyword": "checkboxProp",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Group",
+				"propertyType": "group",
+				"propertyKeyword": "grpProp",
+				"shouldValidate": true,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Simple Grp Text",
+						"propertyKeyword": "simpleGrpText",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Group Number",
+						"propertyKeyword": "grpNumber",
+						"propertyValidate": true,
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					}
+				]
+			}
+
+*/
+
+{
+	"lowerTab": "JsonDetails",
+	"structure": {
+		"string": [
+			"name",
+			"schemaId",
+			"type",
+			"description",
+			"dependencies",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			"default",
+			"minLength",
+			"maxLength",
+			"pattern",
+			"format",
+			"enum",
+			"sample",
+			"comments",
+			{
+				"propertyName": "Other Attribute",
+				"propertyKeyword": "otherAttrib",
+				"shouldValidate": false,
+				"propertyType": "text",
+				"arrayItemDisabled": true,
+				"enableForReference": true,
+				"disabledOnCondition": [{
+						"key": "key",
+						"value": true
+					}, {
+						"key": "documentKind",
+						"value": true
+					}
+				]
+			}
+		],
+		"number": [
+			"name",
+			"schemaId",
+			"type",
+			"description",
+			"dependencies",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			"default",
+			{
+				"propertyName": "Mode",
+				"propertyKeyword": "mode",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"integer",
+					"float"
+				],
+				"data": "options",
+				"valueType": "string"
+			},
+			"unit",
+			"minimum",
+			"exclusiveMinimum",
+			"maximum",
+			"exclusiveMaximum",
+			"multipleOf",
+			"divisibleBy",
+			"enum",
+			"sample",
+			"comments"
+		],
+		"boolean": [
+			"name",
+			"schemaId",
+			"type",
+			"description",
+			"dependencies",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			"default",
+			"sample",
+			"comments"
+		],
+		"temporal": [
+			"name",
+			"schemaId",
+			"type",
+			"description",
+			"dependencies",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			"default",
+			{
+				"propertyName": "Mode",
+				"propertyKeyword": "mode",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"date",
+					"time",
+					"localtime",
+					"datetime",
+					"localdatetime",
+					"duration"
+				],
+				"data": "options",
+				"valueType": "string"
+			},
+			"sample",
+			"comments"
+		],		
+		"map": [
+			"name",
+			"schemaId",
+			"type",
+			"description",
+			"dependencies",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			"minProperties",
+			"maxProperties",
+			"additionalProperties",
+			"comments"
+		],
+		"list": [
+			"name",
+			"schemaId",
+			"type",
+			"description",
+			"dependencies",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			"minItems",
+			"maxItems",
+			"uniqueItems",
+			"additionalItems",
+			"comments"
+		],
+		"spatial": [
+			"name",
+			"schemaId",
+			"type",
+			"description",
+			"dependencies",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
+				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			{
+				"propertyName": "Mode",
+				"propertyKeyword": "mode",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"point"
+				],
+				"data": "options",
+				"valueType": "string"
+			},
+			"subtype",
+			"comments"
+		]
+	}
+}
