@@ -3,7 +3,6 @@
 	"erdAbbreviation": "<arr>",
 	"dtdAbbreviation": "[...]",
 	"parentType": "array",
-	"sample": [],
 	"useSample": true,
 	"defaultValues": {
 		"properties": [],

@@ -3,6 +3,14 @@
 const async = require('async');
 const _ = require('lodash');
 const neo4j = require('./neo4jHelper');
+const snippetsPath = "../snippets/";
+
+const snippets = {
+	"Cartesian 3D": require(snippetsPath + "cartesian-3d.json"),
+	"Cartesian": require(snippetsPath + "cartesian.json"),
+	"WGS-84-3D": require(snippetsPath + "point-wgs-84-3d.json"),
+	"WGS-84": require(snippetsPath + "point-wgs-84.json")
+};
 
 module.exports = {
 	connect: function(connectionInfo, logger, cb){
@@ -352,7 +360,7 @@ const createSchemaByConstraints = (documents, constraints) => {
 		jsonSchema.required = jsonSchema.required.concat(constraint.key);
 		return jsonSchema;
 	}, { required: [], properties: {} });
-	return constraints['UNIQUE'].reduce((jsonSchema, constraint) => {
+	jsonSchema = constraints['UNIQUE'].reduce((jsonSchema, constraint) => {
 		return constraint.key.reduce((jsonSchema, key) => {
 			if (!jsonSchema.properties[key]) {
 				jsonSchema.properties[key] = {};
@@ -361,6 +369,103 @@ const createSchemaByConstraints = (documents, constraints) => {
 			return jsonSchema;
 		}, jsonSchema);
 	}, jsonSchema);
+
+	documents.forEach(document => setDocumentInSchema(document, jsonSchema));
+
+	return jsonSchema;
+};
+
+const setDocumentInSchema = (document, jsonSchema) => {
+	const has = Function.prototype.call.bind(Object.prototype.hasOwnProperty);
+
+	Object.keys(document).forEach(fieldName => {
+		const value = document[fieldName];
+
+		if (_.isPlainObject(value)) {
+			if (!has(jsonSchema.properties || {}, fieldName)) {
+				if (value.srid) {
+					jsonSchema.properties[fieldName] = getSchemaSpatialType(value);
+				}
+			}
+			if (value.srid) {
+				delete document[fieldName];
+			}
+		} else if (Array.isArray(value)) {
+			const items = getSchemaArrayItems(value);
+			if (items.length) {
+				if (!has(jsonSchema.properties || {}, fieldName)) {
+					jsonSchema.properties[fieldName] = {
+						type: "list",
+						items
+					};
+				}
+			}
+		}
+	});
+
+	return jsonSchema;
+};
+
+const getSchemaArrayItems = (arrValue) => {
+	const items = [];
+	let ofs = 0;
+
+	[...arrValue].forEach((item, i) => {
+		if (_.isPlainObject(item) && item.srid) {
+			items.push(getSchemaSpatialType(item));
+			arrValue.splice(i - ofs, 1);
+			ofs++;
+		} else if (Array.isArray(item)) {
+			items.push(getSchemaArrayType(item));
+		}
+	});
+
+	return items;
+};
+
+const getSchemaSpatialType = (value) => {
+	switch(Number(value.srid)) {
+		case 4326:
+			return {
+				type: "spatial",
+				mode: "point",
+				subType: "WGS-84",
+				properties: getSnippetPropertiesByName("WGS-84")
+			};
+		case 4979:
+			return {
+				type: "spatial",
+				mode: "point",
+				subType: "WGS-84-3D",
+				properties: getSnippetPropertiesByName("WGS-84-3D")
+			};
+		case 7203:
+			return {
+				type: "spatial",
+				mode: "point",
+				subType: "Cartesian",
+				properties: getSnippetPropertiesByName("Cartesian")
+			};
+		case 9157:
+			return {
+				type: "spatial",
+				mode: "point",
+				subType: "Cartesian 3D",
+				properties: getSnippetPropertiesByName("Cartesian 3D")
+			};
+	}
+};
+
+const getSnippetPropertiesByName = (name) => {
+	const snippet = snippets[name] || snippets["WGS-84"];
+	const properties = {};
+
+	snippet.properties.forEach(fieldSchema => {
+		properties[fieldSchema.name] = Object.assign({}, fieldSchema);
+		delete properties[fieldSchema.name].name;
+	});
+
+	return properties;
 };
 
 const separateConstraintsByType = (constraints = []) => {
