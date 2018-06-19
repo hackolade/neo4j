@@ -113,10 +113,10 @@ making sure that you maintain a proper JSON format.
 				},
 				{
 					"propertyName": "Key",
-					"propertyKeyword": "key",
+					"propertyKeyword": "compositeNodeKey",
 					"shouldValidate": false,
-					"propertyType": "fieldList",
-					"template": "orderedList"
+					"propertyType": "primaryKeySetter",
+					"abbr": "nk"
 				},
 				{
 					"propertyName": "Id",

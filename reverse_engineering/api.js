@@ -274,13 +274,13 @@ const prepareConstraints = (constraints) => {
 	const isNodeKey = /^constraint\s+on\s+\([\s\S]+\:\s*([\S\s]+)\s*\)\s+assert\s+(?:\(\s*([\s\S]+)\s*\)|[\s\S]+\.\s*([\S\s]+)\s*)\s+IS\s+NODE\s+KEY/i;
 	const isExists = /^constraint\s+on\s+\([\s\S]+\:([\s\S]+)\s*\)\s+assert\s+exists\([\s\S]+\.([\s\S]+)\s*\)/i;
 	let result = {};
-	const addToResult = (result, name, label, key, type) => {
+	const addToResult = (result, name, label, key, type, keyName = "key") => {
 		const labelName = label.trim();
 		if (!result[labelName]) {
 			result[labelName] = [];
 		}
 
-		result[labelName].push({ name, key, type });
+		result[labelName].push({ [keyName]: key, name, type });
 	};
 
 	constraints.forEach(c => {
@@ -318,7 +318,7 @@ const prepareConstraints = (constraints) => {
 			}
 
 			if (fields.length) {
-				addToResult(result, `:${label}`, label, fields, 'NODE_KEY');							
+				addToResult(result, `${label}`, label, fields, 'NODE_KEY', 'compositeNodeKey');							
 			}
 		}
 	});

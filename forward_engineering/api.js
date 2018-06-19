@@ -230,8 +230,8 @@ module.exports = {
 
 	getNodeKeyConstraint(collection, constraint) {
 		let keys = [];
-		if (constraint.key) {
-			keys = this.findFields(collection, constraint.key.map(key => key.keyId));
+		if (constraint.compositeNodeKey) {
+			keys = this.findFields(collection, constraint.compositeNodeKey.map(key => key.keyId));
 			if (Array.isArray(keys) && keys.length) {
 				const labelName = collection.collectionName;
 				const varLabelName = collection.collectionName.toLowerCase();
