@@ -291,11 +291,11 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyType": "select",
 				"options": [
-					"datetime",
-					"localdatetime",
 					"date",
 					"time",
 					"localtime",
+					"datetime",
+					"localdatetime",
 					"duration"
 				],
 				"data": "options",
