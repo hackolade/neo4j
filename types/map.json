@@ -5,6 +5,7 @@
 	"parentType": "document",
 	"sample": {},
 	"useSample": true,
+	"default": true,
 	"defaultValues": { 
 		"dependencies": [],
 		"primaryKey": false,
