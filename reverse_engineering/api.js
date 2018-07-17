@@ -334,19 +334,27 @@ const prepareError = (error) => {
 };
 
 const deserializeData = (documents) => {
+	const deserializeObject = (value) => {
+		try {
+			return JSON.parse(value);
+		} catch(e) {
+			return value;
+		}
+	};
+	const handleField = (value) => {
+		if (typeof value === 'string') {
+			return deserializeObject(value);
+		} else if (Array.isArray(value)) {
+			return value.map(handleField);
+		} else {
+			return value;
+		}
+	};
 	const deserializator = (document) => {
 		let newDocument = {};
 
 		for (let field in document) {
-			if (typeof document[field] === 'string') {
-				try {
-					newDocument[field] = JSON.parse(document[field]);
-				} catch(e) {
-					newDocument[field] = document[field];
-				}
-			} else {
-				newDocument[field] = document[field];
-			}
+			newDocument[field] = handleField(document[field]);
 		}
 
 		return newDocument;
@@ -381,16 +389,7 @@ const setDocumentInSchema = (document, jsonSchema) => {
 	Object.keys(document).forEach(fieldName => {
 		const value = document[fieldName];
 
-		if (_.isPlainObject(value)) {
-			if (!has(jsonSchema.properties || {}, fieldName)) {
-				if (value.srid) {
-					jsonSchema.properties[fieldName] = getSchemaSpatialType(value);
-				}
-			}
-			if (value.srid) {
-				delete document[fieldName];
-			}
-		} else if (Array.isArray(value)) {
+		if (Array.isArray(value)) {
 			const items = getSchemaArrayItems(value);
 			if (items.length) {
 				if (!has(jsonSchema.properties || {}, fieldName)) {
@@ -399,6 +398,25 @@ const setDocumentInSchema = (document, jsonSchema) => {
 						items
 					};
 				}
+			}
+		} else if (Object(value) === value) {
+			if (!has(jsonSchema.properties || {}, fieldName)) {
+				if (value.srid) {
+					jsonSchema.properties[fieldName] = getSchemaSpatialType(value);
+				} else {
+					jsonSchema.properties[fieldName] = setDocumentInSchema(value, { properties: {} });
+				}
+			}
+			if (value.srid) {
+				delete document[fieldName];
+			}
+		} else if (typeof value === 'number') {
+			if (!has(jsonSchema.properties || {}, fieldName)) {
+				jsonSchema.properties[fieldName] = {
+					type: "number",
+					mode: (value % 1) == 0 ? 'integer' : 'float',
+					sample: value
+				};
 			}
 		}
 	});
@@ -416,7 +434,18 @@ const getSchemaArrayItems = (arrValue) => {
 			arrValue.splice(i - ofs, 1);
 			ofs++;
 		} else if (Array.isArray(item)) {
-			items.push(getSchemaArrayType(item));
+			items.push({
+				type: "list",
+				items: getSchemaArrayItems(item)
+			});
+		} else if (typeof item === 'number') {
+			items.push({
+				type: "number",
+				mode: (item % 1) == 0 ? 'integer' : 'float',
+				sample: item
+			});
+			arrValue.splice(i - ofs, 1);
+			ofs++;
 		}
 	});
 
