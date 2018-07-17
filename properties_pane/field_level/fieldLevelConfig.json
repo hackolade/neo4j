@@ -184,7 +184,7 @@ making sure that you maintain a proper JSON format.
 			},
 			"default",
 			{
-				"propertyName": "Mode",
+				"propertyName": "Subtype",
 				"propertyKeyword": "mode",
 				"shouldValidate": false,
 				"propertyType": "select",
