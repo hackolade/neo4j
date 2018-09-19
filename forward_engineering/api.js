@@ -109,7 +109,7 @@ module.exports = {
 	prepareData(serializedData, schema) {
 		const data = JSON.parse(serializedData);
 		return '{ ' + Object.keys(data).reduce((result, field) => {
-			if (typeof data[field] === 'object' && !Array.isArray(data[field])) {
+			if (Object(data[field]) === data[field] && !Array.isArray(data[field])) {
 				result.push(`${screen(field)}: ${this.getObjectValueBySchema(data[field], schema.properties[field])}`);
 			} else if (Array.isArray(data[field])) {
 				result.push(`${screen(field)}: [ ${this.getArrayValueBySchema(
@@ -169,7 +169,7 @@ module.exports = {
 	},
 
 	toCypherJson(data) {
-		if (typeof data === 'object' && !Array.isArray(data)) {
+		if (Object(data) === data && !Array.isArray(data)) {
 			return '{ ' + Object.keys(data).reduce((result, field) => {
 				result.push(`${screen(field)}: ${this.toCypherJson(data[field])}`);
 				return result;
@@ -328,7 +328,7 @@ module.exports = {
 
 	getArrayValueBySchema(data, arraySchema) {
 		return data.map((item, i) => {
-			if (typeof item === 'object' && !Array.isArray(item)) {
+			if (Object(item) === item && !Array.isArray(item)) {
 				return this.getObjectValueBySchema(
 					item, 
 					Array.isArray(arraySchema) ? arraySchema[i] : arraySchema
