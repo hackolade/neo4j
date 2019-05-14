@@ -188,6 +188,7 @@ making sure that you maintain a proper JSON format.
 					"shouldValidate": false,
 					"propertyType": "details",
 					"template": "textarea",
+					"markdown": false,
 					"propertyTooltip": "Provider"
 				},
 				{
