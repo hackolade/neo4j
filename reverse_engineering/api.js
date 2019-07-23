@@ -16,7 +16,13 @@ module.exports = {
 	connect: function(connectionInfo, logger, cb){
 		logger.clear();
 		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
-		neo4j.connect(connectionInfo).then(cb, cb);
+		neo4j.connect(connectionInfo).then(cb, (error) => {
+			logger.log('error', prepareError(error), 'Connection error');
+			
+			setTimeout(() => {
+				cb(prepareError(error));
+			}, 1000);
+		});
 	},
 
 	disconnect: function(connectionInfo, cb){
@@ -40,11 +46,13 @@ module.exports = {
 	},
 
 	getDbCollectionsNames: function(connectionInfo, logger, cb) {
+		logger.clear();
+		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 		let result = {
 			dbName: '',
 			dbCollections: ''
 		};
-		neo4j.connect(connectionInfo).then(() => {
+		neo4j.connect(connectionInfo).then((info) => {
 			return neo4j.getLabels();
 		}).then((labels) => {
 			result.dbCollections = labels;
@@ -55,7 +63,11 @@ module.exports = {
 			
 			cb(null, [result]);
 		}).catch((error) => {
-			cb(error || 'error');
+			logger.log('error', prepareError(error), 'Connection error');
+
+			setTimeout(() => {
+				cb(error || 'error');
+			}, 1000);
 		});
 	},
 
@@ -112,7 +124,9 @@ module.exports = {
 				next(prepareError(error));
 			});
 		}, (err) => {
-			cb(err, packages.labels, {}, [].concat.apply([], packages.relationships));
+			setTimeout(() => {
+				cb(err, packages.labels, {}, [].concat.apply([], packages.relationships));
+			}, 1000);
 		});
 	}
 };
