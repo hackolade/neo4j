@@ -121,7 +121,8 @@
 			{
 				"inputLabel": "Use SSH Tunnel",
 				"inputKeyword": "ssh",
-				"inputType": "checkbox"
+				"inputType": "checkbox",
+				"defaultValue": false
 			},
 			{
 				"inputLabel": "SSH Address",
@@ -130,7 +131,7 @@
 				"inputPlaceholder": "SSH Address",
 				"disable": {
 					"key": "ssh",
-					"value": true
+					"value": false
 				}
 			},
 			{
@@ -141,7 +142,7 @@
 				"defaultValue": 22,
 				"disable": {
 					"key": "ssh",
-					"value": true
+					"value": false
 				}
 			},
 			{
@@ -151,7 +152,7 @@
 				"inputPlaceholder": "SSH User Name",
 				"disable": {
 					"key": "ssh",
-					"value": true
+					"value": false
 				}
 			},
 			{
@@ -159,16 +160,17 @@
 				"inputKeyword": "ssh_method",
 				"inputType": "select",
 				"options": [{
-					"value": "Private Key", 
-					"label": "privateKey"
+					"value": "privateKey", 
+					"label": "Private Key"
 				}, {
-					"value": "Password",
-					"label": "password"
+					"value": "password",
+					"label": "Password"
 				}],
 				"disable": {
 					"key": "ssh",
-					"value": true
-				}
+					"value": false
+				},
+				"defaultValue": "privateKey"
 			},
 			{
 				"inputLabel": "Private Key",
@@ -178,11 +180,11 @@
 				"extensions": ["*"],
 				"dependency": {
 					"key": "ssh_method",
-					"value": "privateKey"
+					"value": ["privateKey", ""]
 				},
 				"disable": {
 					"key": "ssh",
-					"value": true
+					"value": false
 				}
 			},
 			{
@@ -190,13 +192,14 @@
 				"inputKeyword": "ssh_key_passphrase",
 				"inputType": "password",
 				"inputPlaceholder": "Passphrase",
+				"isHiddenKey": true,
 				"dependency": {
 					"key": "ssh_method",
-					"value": "privateKey"
+					"value": ["privateKey", ""]
 				},
 				"disable": {
 					"key": "ssh",
-					"value": true
+					"value": false
 				}
 			},
 			{
@@ -204,13 +207,14 @@
 				"inputKeyword": "ssh_password",
 				"inputType": "password",
 				"inputPlaceholder": "Password",
+				"isHiddenKey": true,
 				"dependency": {
 					"key": "ssh_method",
-					"value": "password"
+					"value": ["password", ""]
 				},
 				"disable": {
 					"key": "ssh",
-					"value": true
+					"value": false
 				}
 			}
 		]

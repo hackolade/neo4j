@@ -223,7 +223,14 @@ const getSSLConfig = (info) => {
 	}
 };
 
+const checkConnection = () => {
+	return driver._connectionProvider.acquireConnection().then(conn => {
+		return driver._validateConnection(conn);
+	});
+}
+
 module.exports = {
+	checkConnection,
 	connect,
 	close,
 	getLabels,

@@ -31,7 +31,7 @@ module.exports = {
 		cb();
 	},
 
-	testConnection: function(connectionInfo, logger, cb){
+	testConnection: function(connectionInfo, logger, cb, app){
 		this.connect(connectionInfo, logger, (error) => {
 			this.disconnect(connectionInfo, () => {});
 			cb(error);
