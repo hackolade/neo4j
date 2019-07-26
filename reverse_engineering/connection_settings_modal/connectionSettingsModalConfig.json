@@ -114,5 +114,105 @@
 				}
 			}
 		]
+	},
+	{
+		"tab": "SSH",
+		"structure": [
+			{
+				"inputLabel": "Use SSH Tunnel",
+				"inputKeyword": "ssh",
+				"inputType": "checkbox"
+			},
+			{
+				"inputLabel": "SSH Address",
+				"inputKeyword": "ssh_host",
+				"inputType": "text",
+				"inputPlaceholder": "SSH Address",
+				"disable": {
+					"key": "ssh",
+					"value": true
+				}
+			},
+			{
+				"inputLabel": "Port",
+				"inputKeyword": "ssh_port",
+				"inputType": "numeric",
+				"inputPlaceholder": "22",
+				"defaultValue": 22,
+				"disable": {
+					"key": "ssh",
+					"value": true
+				}
+			},
+			{
+				"inputLabel": "SSH User Name",
+				"inputKeyword": "ssh_user",
+				"inputType": "text",
+				"inputPlaceholder": "SSH User Name",
+				"disable": {
+					"key": "ssh",
+					"value": true
+				}
+			},
+			{
+				"inputLabel": "SSH Auth Method",
+				"inputKeyword": "ssh_method",
+				"inputType": "select",
+				"options": [{
+					"value": "Private Key", 
+					"label": "privateKey"
+				}, {
+					"value": "Password",
+					"label": "password"
+				}],
+				"disable": {
+					"key": "ssh",
+					"value": true
+				}
+			},
+			{
+				"inputLabel": "Private Key",
+				"inputKeyword": "ssh_key_file",
+				"inputType": "file",
+				"inputPlaceholder": "Private Key",
+				"extensions": ["*"],
+				"dependency": {
+					"key": "ssh_method",
+					"value": "privateKey"
+				},
+				"disable": {
+					"key": "ssh",
+					"value": true
+				}
+			},
+			{
+				"inputLabel": "Passphrase",
+				"inputKeyword": "ssh_key_passphrase",
+				"inputType": "password",
+				"inputPlaceholder": "Passphrase",
+				"dependency": {
+					"key": "ssh_method",
+					"value": "privateKey"
+				},
+				"disable": {
+					"key": "ssh",
+					"value": true
+				}
+			},
+			{
+				"inputLabel": "Password",
+				"inputKeyword": "ssh_password",
+				"inputType": "password",
+				"inputPlaceholder": "Password",
+				"dependency": {
+					"key": "ssh_method",
+					"value": "password"
+				},
+				"disable": {
+					"key": "ssh",
+					"value": true
+				}
+			}
+		]
 	}
 ]
