@@ -5,8 +5,9 @@
   "author": "Hackolade",
   "dependencies": {
     "async": "^2.6.0",
-    "lodash": "^4.17.5",
-    "neo4j-driver": "https://github.com/hackolade/neo4j-javascript-driver/tarball/develop_1.7"
+    "lodash": "^4.17.15",
+    "neo4j-driver": "https://github.com/hackolade/neo4j-javascript-driver/tarball/develop_1.7",
+    "tunnel-ssh": "^4.1.4"
   },
   "installed": true
 }
