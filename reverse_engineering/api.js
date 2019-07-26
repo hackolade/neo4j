@@ -13,10 +13,11 @@ const snippets = {
 };
 
 module.exports = {
-	connect: function(connectionInfo, logger, cb){
+	connect: function(connectionInfo, logger, cb, app){
 		logger.clear();
 		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
-		neo4j.connect(connectionInfo).then(cb, (error) => {
+
+		neo4j.connect(connectionInfo, app).then(cb, (error) => {
 			logger.log('error', prepareError(error), 'Connection error');
 			
 			setTimeout(() => {
@@ -30,11 +31,11 @@ module.exports = {
 		cb();
 	},
 
-	testConnection: function(connectionInfo, logger, cb){
+	testConnection: function(connectionInfo, logger, cb, app){
 		this.connect(connectionInfo, logger, (error) => {
 			this.disconnect(connectionInfo, () => {});
 			cb(error);
-		});
+		}, app);
 	},
 
 	getDatabases: function(connectionInfo, logger, cb){
@@ -45,14 +46,14 @@ module.exports = {
 		cb();
 	},
 
-	getDbCollectionsNames: function(connectionInfo, logger, cb) {
+	getDbCollectionsNames: function(connectionInfo, logger, cb, app) {
 		logger.clear();
 		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 		let result = {
 			dbName: '',
 			dbCollections: ''
 		};
-		neo4j.connect(connectionInfo).then((info) => {
+		neo4j.connect(connectionInfo, app).then((info) => {
 			return neo4j.getLabels();
 		}).then((labels) => {
 			result.dbCollections = labels;
