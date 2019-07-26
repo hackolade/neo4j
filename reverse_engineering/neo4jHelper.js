@@ -1,9 +1,50 @@
 const _ = require('lodash');
 const neo4j = require('neo4j-driver').v1;
 let driver;
+let sshTunnel;
 const fs = require('fs');
+const ssh = require('tunnel-ssh');
 
-const connect = (info) => {
+const getSshConfig = (info) => {
+	const config = {
+		username: info.ssh_user,
+		host: info.ssh_host,
+		port: info.ssh_port,
+		dstHost: info.host,
+		dstPort: info.port,
+		localHost: '127.0.0.1',
+		localPort: info.port,
+		keepAlive: true
+	};
+
+	if (info.ssh_method === 'privateKey') {
+		return Object.assign({}, config, {
+			privateKey: fs.readFileSync(info.ssh_key_file),
+			passphrase: info.ssh_key_passphrase
+		});
+	} else {
+		return Object.assign({}, config, {
+			password: info.ssh_password
+		});
+	}
+};
+
+const connectViaSsh = (info, app) => new Promise((resolve, reject) => {
+	ssh(getSshConfig(info), (err, tunnel) => {
+		if (err) {
+			reject(err);
+		} else {
+			resolve({
+				tunnel,
+				info: Object.assign({}, info, {
+					host: '127.0.0.1'
+				})
+			});
+		}
+	});
+});
+
+const connectToInstance = (info) => {
 	return new Promise((resolve, reject) => {
 		const host = info.host;
 		const port = info.port;
@@ -24,10 +65,28 @@ const connect = (info) => {
 	});
 };
 
+const connect = (info, app) => {
+	if (info.ssh) {
+		return connectViaSsh(info, app)
+			.then(({ info, tunnel }) => {
+				sshTunnel = tunnel;
+
+				return connectToInstance(info);
+			});
+	} else {
+		return connectToInstance(info);
+	}
+};
+
 const close = () => {
 	if (driver) {
 		driver.close();
 		driver = null;
+	}
+
+	if (sshTunnel) {
+		sshTunnel.close();
+		sshTunnel = null;
 	}
 };
 
