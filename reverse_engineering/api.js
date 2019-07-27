@@ -4,6 +4,7 @@ const async = require('async');
 const _ = require('lodash');
 const neo4j = require('./neo4jHelper');
 const snippetsPath = "../snippets/";
+const logHelper = require('./logHelper');
 
 const snippets = {
 	"Cartesian 3D": require(snippetsPath + "cartesian-3d.json"),
@@ -14,10 +15,11 @@ const snippets = {
 
 module.exports = {
 	connect: function(connectionInfo, logger, cb, app){
-		logger.clear();
-		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+		neo4j.connect(connectionInfo, checkConnection(logger)).then(() => {
+			logger.log('info', 'Successfully connected to the database instance', 'Connection');
 
-		neo4j.connect(connectionInfo, app).then(cb, (error) => {
+			cb();
+		}, (error) => {
 			logger.log('error', prepareError(error), 'Connection error');
 			
 			setTimeout(() => {
@@ -32,6 +34,8 @@ module.exports = {
 	},
 
 	testConnection: function(connectionInfo, logger, cb, app){
+		logInfo('Test connection', connectionInfo, logger)
+
 		this.connect(connectionInfo, logger, (error) => {
 			this.disconnect(connectionInfo, () => {});
 			cb(error);
@@ -47,24 +51,46 @@ module.exports = {
 	},
 
 	getDbCollectionsNames: function(connectionInfo, logger, cb, app) {
-		logger.clear();
-		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+		logInfo('Retrieving labels information', connectionInfo, logger)
+		
 		let result = {
 			dbName: '',
 			dbCollections: ''
 		};
-		neo4j.connect(connectionInfo, app).then((info) => {
+		neo4j.connect(connectionInfo, checkConnection(logger)).then((info) => {
+			logger.log('info', 'Successfully connected to the database instance', 'Connection');
+			
 			return neo4j.getLabels();
+		}, (error) => {
+			error.step = 'Connection Error';
+
+			return Promise.reject(error);
 		}).then((labels) => {
+			logger.log('info', 'Labels successfully retrieved', 'Retrieving labels information');
+
 			result.dbCollections = labels;
+		}, (error) => {
+			error.step = error.step || 'Error of retrieving labels';
+
+			return Promise.reject(error);
 		}).then(() => {
 			return neo4j.getDatabaseName();
 		}).then(dbName => {
+			logger.log('info', 'Name of database successfully retrieved', 'Retrieving labels information');
+			logger.log('info', 'Information about labels successfully retrieved', 'Retrieving labels information');
+
 			result.dbName = dbName;
 			
 			cb(null, [result]);
+		}, (error) => {
+			error.step = error.step || 'Error of retrieving database name';
+
+			return Promise.reject(error);
 		}).catch((error) => {
-			logger.log('error', prepareError(error), 'Connection error');
+			logger.log('error', {
+				message: error.step || 'Process of retrieving labels was interrupted by error',
+				error: prepareError(error)
+			}, 'Retrieving labels information');
 
 			setTimeout(() => {
 				cb(error || 'error');
@@ -73,8 +99,7 @@ module.exports = {
 	},
 
 	getDbCollectionsData: function(data, logger, cb){
-		logger.clear();
-		logger.log('info', data, 'connectionInfo', data.hiddenKeys);
+		logInfo('Retrieving schema for chosen labels', data, logger);
 
 		const collections = data.collectionData.collections;
 		const dataBaseNames = data.collectionData.dataBaseNames;
@@ -121,7 +146,7 @@ module.exports = {
 				packages.relationships.push(relationships);
 				next(null);
 			}).catch(error => {
-				logger.log('error', prepareError(error), "Error");
+				logger.log('error', prepareError(error), "Error of retrieving schema");
 				next(prepareError(error));
 			});
 		}, (err) => {
@@ -150,6 +175,23 @@ const isEmptyLabel = (documents) => {
 
 const getTemplate = (documents) => {
 	return documents.reduce((tpl, doc) => _.merge(tpl, doc), {});
+};
+
+const checkConnection = (logger) => (host, port) => {
+	return logHelper.checkConnection(host, port).then(
+		() => {
+			logger.log('info', 'Socket ' + host + ':' + port + ' is available.', 'Host availability');
+		},
+		(error) => {
+			logger.log('error', prepareError(error), 'Socket ' + host + ':' + port + ' is not available.', 'Host availability');
+		}
+	);
+};
+
+const logInfo = (step, connectionInfo, logger) => {
+	logger.clear();
+	logger.log('info', logHelper.getSystemInfo(connectionInfo.appVersion), step);
+	logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 };
 
 const getNodesData = (dbName, labels, data) => {
