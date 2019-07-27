@@ -29,7 +29,7 @@ const getSshConfig = (info) => {
 	}
 };
 
-const connectViaSsh = (info, app) => new Promise((resolve, reject) => {
+const connectViaSsh = (info) => new Promise((resolve, reject) => {
 	ssh(getSshConfig(info), (err, tunnel) => {
 		if (err) {
 			reject(err);
@@ -44,8 +44,9 @@ const connectViaSsh = (info, app) => new Promise((resolve, reject) => {
 	});
 });
 
-const connectToInstance = (info) => {
-	return new Promise((resolve, reject) => {
+const connectToInstance = (info, checkConnection) => {
+	return checkConnection(info.host, info.port)
+	.then(() => new Promise((resolve, reject) => {
 		const host = info.host;
 		const port = info.port;
 		const username = info.username;
@@ -62,19 +63,19 @@ const connectToInstance = (info) => {
 			driver = null;
 			reject(error);
 		};
-	});
+	}));
 };
 
-const connect = (info, app) => {
+const connect = (info, checkConnection) => {
 	if (info.ssh) {
-		return connectViaSsh(info, app)
+		return connectViaSsh(info)
 			.then(({ info, tunnel }) => {
 				sshTunnel = tunnel;
 
-				return connectToInstance(info);
+				return connectToInstance(info, checkConnection);
 			});
 	} else {
-		return connectToInstance(info);
+		return connectToInstance(info, checkConnection);
 	}
 };
 
