@@ -138,7 +138,7 @@
 				"inputLabel": "Port",
 				"inputKeyword": "ssh_port",
 				"inputType": "numeric",
-				"inputPlaceholder": "22",
+				"inputPlaceholder": "Port",
 				"defaultValue": 22,
 				"disable": {
 					"key": "ssh",
@@ -203,7 +203,7 @@
 				}
 			},
 			{
-				"inputLabel": "Password",
+				"inputLabel": "Client key password",
 				"inputKeyword": "ssh_password",
 				"inputType": "password",
 				"inputPlaceholder": "Password",
