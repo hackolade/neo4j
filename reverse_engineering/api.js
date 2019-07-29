@@ -99,7 +99,7 @@ module.exports = {
 	},
 
 	getDbCollectionsData: function(data, logger, cb){
-		logInfo('Retrieving schema for chosen labels', data, logger);
+		logger.log('info', data, 'Retrieving schema for chosen labels', data.hiddenKeys);
 
 		const collections = data.collectionData.collections;
 		const dataBaseNames = data.collectionData.dataBaseNames;
