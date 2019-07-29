@@ -163,9 +163,11 @@ const getSchema = () => {
 	});
 };
 
-const getDatabaseName = () => {
+const getDatabaseName = (defaultDbName) => {
 	return execute('call dbms.listConfig("active_database")').then(result => {
 		return result[0].value;
+	}, () => {
+		return defaultDbName;
 	});
 };
 

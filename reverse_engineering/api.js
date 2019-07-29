@@ -74,7 +74,7 @@ module.exports = {
 
 			return Promise.reject(error);
 		}).then(() => {
-			return neo4j.getDatabaseName();
+			return neo4j.getDatabaseName('graph.db');
 		}).then(dbName => {
 			logger.log('info', 'Name of database successfully retrieved', 'Retrieving labels information');
 			logger.log('info', 'Information about labels successfully retrieved', 'Retrieving labels information');
