@@ -1,10 +1,52 @@
 const _ = require('lodash');
 const neo4j = require('neo4j-driver').v1;
 let driver;
+let sshTunnel;
 const fs = require('fs');
+const ssh = require('tunnel-ssh');
 
-const connect = (info) => {
-	return new Promise((resolve, reject) => {
+const getSshConfig = (info) => {
+	const config = {
+		username: info.ssh_user,
+		host: info.ssh_host,
+		port: info.ssh_port,
+		dstHost: info.host,
+		dstPort: info.port,
+		localHost: '127.0.0.1',
+		localPort: info.port,
+		keepAlive: true
+	};
+
+	if (info.ssh_method === 'privateKey') {
+		return Object.assign({}, config, {
+			privateKey: fs.readFileSync(info.ssh_key_file),
+			passphrase: info.ssh_key_passphrase
+		});
+	} else {
+		return Object.assign({}, config, {
+			password: info.ssh_password
+		});
+	}
+};
+
+const connectViaSsh = (info) => new Promise((resolve, reject) => {
+	ssh(getSshConfig(info), (err, tunnel) => {
+		if (err) {
+			reject(err);
+		} else {
+			resolve({
+				tunnel,
+				info: Object.assign({}, info, {
+					host: '127.0.0.1'
+				})
+			});
+		}
+	});
+});
+
+const connectToInstance = (info, checkConnection) => {
+	return checkConnection(info.host, info.port)
+	.then(() => new Promise((resolve, reject) => {
 		const host = info.host;
 		const port = info.port;
 		const username = info.username;
@@ -21,13 +63,31 @@ const connect = (info) => {
 			driver = null;
 			reject(error);
 		};
-	});
+	}));
+};
+
+const connect = (info, checkConnection) => {
+	if (info.ssh) {
+		return connectViaSsh(info)
+			.then(({ info, tunnel }) => {
+				sshTunnel = tunnel;
+
+				return connectToInstance(info, checkConnection);
+			});
+	} else {
+		return connectToInstance(info, checkConnection);
+	}
 };
 
 const close = () => {
 	if (driver) {
 		driver.close();
 		driver = null;
+	}
+
+	if (sshTunnel) {
+		sshTunnel.close();
+		sshTunnel = null;
 	}
 };
 
@@ -103,9 +163,11 @@ const getSchema = () => {
 	});
 };
 
-const getDatabaseName = () => {
+const getDatabaseName = (defaultDbName) => {
 	return execute('call dbms.listConfig("active_database")').then(result => {
 		return result[0].value;
+	}, () => {
+		return defaultDbName;
 	});
 };
 
@@ -164,7 +226,14 @@ const getSSLConfig = (info) => {
 	}
 };
 
+const checkConnection = () => {
+	return driver._connectionProvider.acquireConnection().then(conn => {
+		return driver._validateConnection(conn);
+	});
+}
+
 module.exports = {
+	checkConnection,
 	connect,
 	close,
 	getLabels,

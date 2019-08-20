@@ -1,5 +1,5 @@
 /*
-* Copyright © 2016-2017 by IntegrIT S.A. dba Hackolade.  All rights reserved.
+* Copyright © 2016-2019 by IntegrIT S.A. dba Hackolade.  All rights reserved.
 *
 * The copyright to the computer software herein is the property of IntegrIT S.A.
 * The software may be used and/or copied only with the written permission of 
@@ -13,14 +13,12 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Simple text",
 				"propertyKeyword": "simpletextProp",
-				"shouldValidate": false,
 				"propertyType": "text",
 				"sampleGen": "&containerName|&entityName|&random|<value>"
 			},
 			{
 				"propertyName": "Text area",
 				"propertyKeyword": "textareaProp",
-				"propertyValidate": false,
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
 				"template": "textarea"
@@ -28,7 +26,6 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Dropdown selection",
 				"propertyKeyword": "dropdownProp",
-				"shouldValidate": false,
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
 				"options": [
@@ -50,31 +47,68 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Checkbox",
 				"propertyKeyword": "checkboxProp",
-				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
 			{
 				"propertyName": "Group",
 				"propertyType": "group",
 				"propertyKeyword": "grpProp",
-				"shouldValidate": true,
 				"propertyTooltip": "",
 				"structure": [
 					{
 						"propertyName": "Simple Grp Text",
 						"propertyKeyword": "simpleGrpText",
-						"shouldValidate": false,
 						"propertyTooltip": "",
 						"propertyType": "text"
 					},
 					{
 						"propertyName": "Group Number",
 						"propertyKeyword": "grpNumber",
-						"propertyValidate": true,
 						"propertyType": "numeric",
 						"valueType": "number",
 						"allowNegative": false
 					}
+				]
+			},
+// “groupInput” can have the following states - 0 items, 1 item, and many items.
+// “blockInput” has only 2 states - 0 items or 1 item. 
+// This gives us an easy way to represent it as an object and not as an array internally which is beneficial for processing 
+// and forward-engineering in particular.
+			{
+				"propertyName": "Block",
+				"propertyType": "block",
+				"propertyKeyword": "grpProp",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Simple Grp Text",
+						"propertyKeyword": "simpleGrpText",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Group Number",
+						"propertyKeyword": "grpNumber",
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					}
+				]
+			},
+			{
+				"propertyName": "Field List",
+				"propertyKeyword": "keyList",
+				"propertyType": "fieldList",
+				"template": "orderedList"
+			}, 
+			{
+				"propertyName": "List with attribute",
+				"propertyKeyword": "keyListOrder",
+				"propertyType": "fieldList",
+				"template": "orderedList",
+				"attributeList": [
+					"ascending",
+					"descending"
 				]
 			}
 
@@ -86,13 +120,18 @@ making sure that you maintain a proper JSON format.
 		"string": [
 			"name",
 			"schemaId",
-			"type",
 			"description",
+			"type",
+			"minLength",
+			"maxLength",
+			"pattern",
+			"format",
+			"default",
+			"enum",
 			"dependencies",
 			{
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
-				"shouldValidate": false,
 				"propertyType": "checkbox",
 				"disabledOnCondition": [{
 					"key": "compositeNodeKey",
@@ -102,13 +141,11 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
 			{
 				"propertyName": "Node key",
 				"propertyKeyword": "compositeNodeKey",
-				"shouldValidate": false,
 				"propertyType": "checkbox",
 				"valueType": "boolean",
 				"dependency": {
@@ -120,39 +157,17 @@ making sure that you maintain a proper JSON format.
 					"value": true
 				}]
 			},
-			"default",
-			"minLength",
-			"maxLength",
-			"pattern",
-			"format",
-			"enum",
 			"sample",
-			"comments",
-			{
-				"propertyName": "Other Attribute",
-				"propertyKeyword": "otherAttrib",
-				"shouldValidate": false,
-				"propertyType": "text",
-				"arrayItemDisabled": true,
-				"enableForReference": true,
-				"disabledOnCondition": [{
-						"key": "key",
-						"value": true
-					}, {
-						"key": "documentKind",
-						"value": true
-					}
-				]
-			}
+			"comments"
 		],
 		"number": [
 			"name",
 			"schemaId",
+			"description",
 			"type",
 			{
 				"propertyName": "Subtype",
 				"propertyKeyword": "mode",
-				"shouldValidate": false,
 				"propertyType": "select",
 				"options": [
 					"integer",
@@ -161,12 +176,19 @@ making sure that you maintain a proper JSON format.
 				"data": "options",
 				"valueType": "string"
 			},
-			"description",
+			"unit",
+			"minimum",
+			"exclusiveMinimum",
+			"maximum",
+			"exclusiveMaximum",
+			"multipleOf",
+			"divisibleBy",
+			"default",
+			"enum",
 			"dependencies",
 			{
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
-				"shouldValidate": false,
 				"propertyType": "checkbox",
 				"disabledOnCondition": [{
 					"key": "compositeNodeKey",
@@ -176,7 +198,6 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
 			{
@@ -194,28 +215,18 @@ making sure that you maintain a proper JSON format.
 					"value": true
 				}]
 			},
-			"default",
-			"unit",
-			"minimum",
-			"exclusiveMinimum",
-			"maximum",
-			"exclusiveMaximum",
-			"multipleOf",
-			"divisibleBy",
-			"enum",
 			"sample",
 			"comments"
 		],
 		"boolean": [
 			"name",
 			"schemaId",
-			"type",
 			"description",
+			"type",
 			"dependencies",
 			{
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
-				"shouldValidate": false,
 				"propertyType": "checkbox",
 				"disabledOnCondition": [{
 					"key": "compositeNodeKey",
@@ -225,13 +236,11 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
 			{
 				"propertyName": "Node key",
 				"propertyKeyword": "compositeNodeKey",
-				"shouldValidate": false,
 				"propertyType": "checkbox",
 				"valueType": "boolean",
 				"dependency": {
@@ -250,45 +259,11 @@ making sure that you maintain a proper JSON format.
 		"temporal": [
 			"name",
 			"schemaId",
-			"type",
 			"description",
-			"dependencies",
+			"type",
 			{
-				"propertyName": "Required constraint",
-				"propertyKeyword": "required",
-				"shouldValidate": false,
-				"propertyType": "checkbox",
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
-			},
-			{
-				"propertyName": "Unique constraint",
-				"propertyKeyword": "unique",
-				"shouldValidate": false,
-				"propertyType": "checkbox"
-			},
-			{
-				"propertyName": "Node key",
-				"propertyKeyword": "compositeNodeKey",
-				"shouldValidate": false,
-				"propertyType": "checkbox",
-				"valueType": "boolean",
-				"dependency": {
-					"key": "compositeNodeKey",
-					"value": true
-				},
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
-			},
-			"default",
-			{
-				"propertyName": "Mode",
+				"propertyName": "Subtype",
 				"propertyKeyword": "mode",
-				"shouldValidate": false,
 				"propertyType": "select",
 				"options": [
 					"date",
@@ -301,19 +276,10 @@ making sure that you maintain a proper JSON format.
 				"data": "options",
 				"valueType": "string"
 			},
-			"sample",
-			"comments"
-		],		
-		"map": [
-			"name",
-			"schemaId",
-			"type",
-			"description",
 			"dependencies",
 			{
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
-				"shouldValidate": false,
 				"propertyType": "checkbox",
 				"disabledOnCondition": [{
 					"key": "compositeNodeKey",
@@ -323,13 +289,49 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
 			{
 				"propertyName": "Node key",
 				"propertyKeyword": "compositeNodeKey",
-				"shouldValidate": false,
+				"propertyType": "checkbox",
+				"valueType": "boolean",
+				"dependency": {
+					"key": "compositeNodeKey",
+					"value": true
+				},
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			"default",
+			"sample",
+			"comments"
+		],		
+		"map": [
+			"name",
+			"schemaId",
+			"description",
+			"type",
+			"dependencies",
+			{
+				"propertyName": "Required constraint",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"disabledOnCondition": [{
+					"key": "compositeNodeKey",
+					"value": true
+				}]
+			},
+			{
+				"propertyName": "Unique constraint",
+				"propertyKeyword": "unique",
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Node key",
+				"propertyKeyword": "compositeNodeKey",
 				"propertyType": "checkbox",
 				"valueType": "boolean",
 				"dependency": {
@@ -349,13 +351,12 @@ making sure that you maintain a proper JSON format.
 		"list": [
 			"name",
 			"schemaId",
-			"type",
 			"description",
+			"type",
 			"dependencies",
 			{
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
-				"shouldValidate": false,
 				"propertyType": "checkbox",
 				"disabledOnCondition": [{
 					"key": "compositeNodeKey",
@@ -365,13 +366,11 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
 			{
 				"propertyName": "Node key",
 				"propertyKeyword": "compositeNodeKey",
-				"shouldValidate": false,
 				"propertyType": "checkbox",
 				"valueType": "boolean",
 				"dependency": {
@@ -392,11 +391,11 @@ making sure that you maintain a proper JSON format.
 		"spatial": [
 			"name",
 			"schemaId",
+			"description",
 			"type",
 			{
 				"propertyName": "Mode",
 				"propertyKeyword": "mode",
-				"shouldValidate": false,
 				"propertyType": "select",
 				"options": [
 					"point"
@@ -405,12 +404,10 @@ making sure that you maintain a proper JSON format.
 				"valueType": "string"
 			},
 			"subtype",
-			"description",
 			"dependencies",
 			{
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
-				"shouldValidate": false,
 				"propertyType": "checkbox",
 				"disabledOnCondition": [{
 					"key": "compositeNodeKey",
@@ -420,13 +417,11 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"shouldValidate": false,
 				"propertyType": "checkbox"
 			},
 			{
 				"propertyName": "Node key",
 				"propertyKeyword": "compositeNodeKey",
-				"shouldValidate": false,
 				"propertyType": "checkbox",
 				"valueType": "boolean",
 				"dependency": {

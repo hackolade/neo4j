@@ -114,5 +114,109 @@
 				}
 			}
 		]
+	},
+	{
+		"tab": "SSH",
+		"structure": [
+			{
+				"inputLabel": "Use SSH Tunnel",
+				"inputKeyword": "ssh",
+				"inputType": "checkbox",
+				"defaultValue": false
+			},
+			{
+				"inputLabel": "SSH Address",
+				"inputKeyword": "ssh_host",
+				"inputType": "text",
+				"inputPlaceholder": "SSH Address",
+				"disable": {
+					"key": "ssh",
+					"value": false
+				}
+			},
+			{
+				"inputLabel": "Port",
+				"inputKeyword": "ssh_port",
+				"inputType": "numeric",
+				"inputPlaceholder": "Port",
+				"defaultValue": 22,
+				"disable": {
+					"key": "ssh",
+					"value": false
+				}
+			},
+			{
+				"inputLabel": "SSH User Name",
+				"inputKeyword": "ssh_user",
+				"inputType": "text",
+				"inputPlaceholder": "SSH User Name",
+				"disable": {
+					"key": "ssh",
+					"value": false
+				}
+			},
+			{
+				"inputLabel": "SSH Auth Method",
+				"inputKeyword": "ssh_method",
+				"inputType": "select",
+				"options": [{
+					"value": "privateKey", 
+					"label": "Private Key"
+				}, {
+					"value": "password",
+					"label": "Password"
+				}],
+				"disable": {
+					"key": "ssh",
+					"value": false
+				},
+				"defaultValue": "privateKey"
+			},
+			{
+				"inputLabel": "Private Key",
+				"inputKeyword": "ssh_key_file",
+				"inputType": "file",
+				"inputPlaceholder": "Private Key",
+				"extensions": ["*"],
+				"dependency": {
+					"key": "ssh_method",
+					"value": ["privateKey", ""]
+				},
+				"disable": {
+					"key": "ssh",
+					"value": false
+				}
+			},
+			{
+				"inputLabel": "Passphrase",
+				"inputKeyword": "ssh_key_passphrase",
+				"inputType": "password",
+				"inputPlaceholder": "Passphrase",
+				"isHiddenKey": true,
+				"dependency": {
+					"key": "ssh_method",
+					"value": ["privateKey", ""]
+				},
+				"disable": {
+					"key": "ssh",
+					"value": false
+				}
+			},
+			{
+				"inputLabel": "Client key password",
+				"inputKeyword": "ssh_password",
+				"inputType": "password",
+				"inputPlaceholder": "Password",
+				"isHiddenKey": true,
+				"dependency": {
+					"key": "ssh_method",
+					"value": ["password", ""]
+				},
+				"disable": {
+					"key": "ssh",
+					"value": false
+				}
+			}
+		]
 	}
 ]
