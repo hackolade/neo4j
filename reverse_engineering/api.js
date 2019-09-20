@@ -183,7 +183,9 @@ const checkConnection = (logger) => (host, port) => {
 			logger.log('info', 'Socket ' + host + ':' + port + ' is available.', 'Host availability');
 		},
 		(error) => {
-			logger.log('error', prepareError(error), 'Socket ' + host + ':' + port + ' is not available.', 'Host availability');
+			const errorMessage = 'Socket ' + host + ':' + port + ' is not available.';
+			logger.log('error', prepareError(error), errorMessage, 'Host availability');
+			throw new Error(errorMessage);
 		}
 	);
 };
