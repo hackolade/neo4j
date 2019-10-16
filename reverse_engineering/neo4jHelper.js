@@ -137,7 +137,13 @@ const getLabels = () => {
 };
 
 const getSchema = () => {
-	return execute('CALL db.schema()').then(result => {
+	
+	return execute('call apoc.meta.subGraph({labels: []})')
+	.then(
+		result => result,
+		() => execute('CALL db.schema()')
+	)
+	.then(result => {
 		const nodes = result[0].nodes;
 		const relationships = result[0].relationships;
 		let data = [];

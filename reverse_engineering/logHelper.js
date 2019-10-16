@@ -8,7 +8,7 @@ const checkConnection = (host, port, timeout = 5000) => new Promise((resolve, re
 		reject(new Error('Connection takes more than ' + 5000 + ' ms'));
 	}, timeout);
 
-	const socket = net.createConnection(port, host, () => {
+	const socket = net.createConnection(port || 7687, host, () => {
 		socket.end();
 		clearTimeout(timer);
 		resolve();
