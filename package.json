@@ -24,7 +24,20 @@
                 "connectOnEntityLevel": true,
                 "hasData": true
             },
-            "enableForwardEngineering": true
+            "enableForwardEngineering": {
+				"jsonDocument": false,
+				"jsonSchema": false,
+				"excel": false,
+				"plugin": true
+			},
+			"enableReverseEngineering": {
+				"jsonDocument": false,
+				"jsonSchema": false,
+				"ddl": true,
+				"xsd": true,
+				"excel": false,
+				"plugin": true 
+			}
         }
     },
     "description": "Hackolade plugin for Neo4j",
