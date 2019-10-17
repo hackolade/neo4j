@@ -111,17 +111,29 @@ module.exports = {
 			labels: [],
 			relationships: []
 		};
+		logger.progress = logger.progress || (() => {});
+
+		logger.progress({message: 'Start Reverse Engineering Neo4j', containerName: '', entityName: ''});
 
 		async.map(dataBaseNames, (dbName, next) => {
 			let labels = collections[dbName];
 			let metaData = {};
 
+			logger.progress({message: 'Start retrieving indexes', containerName: dbName, entityName: ''});
+
 			neo4j.getIndexes().then((indexes) => {
 				metaData.indexes = prepareIndexes(indexes);
 
+				const countIndexes = (indexes && indexes.length) || 0;
+				logger.progress({message: 'Indexes retrieved successfully. Found ' + countIndexes + ' index(es)', containerName: dbName, entityName: ''});
+				logger.progress({message: 'Start retrieving constraints', containerName: dbName, entityName: ''});
+				
 				return neo4j.getConstraints();
 			}).then((constraints) => {
 				metaData.constraints = prepareConstraints(constraints);
+
+				const countConstraints = (constraints && constraints.length) || 0;
+				logger.progress({message: 'Constraints retrieved successfully. Found ' + countConstraints + ' constraint(s)', containerName: dbName, entityName: ''});
 
 				return metaData;
 			}).then(metaData => {
@@ -131,18 +143,27 @@ module.exports = {
 					includeEmptyCollection,
 					indexes: metaData.indexes,
 					constraints: metaData.constraints
-				});
+				}, (entityName, message) => logger.progress({message, containerName: dbName, entityName}));
 			}).then((labelPackages) => {
 				packages.labels.push(labelPackages);
 				labels = labelPackages.reduce((result, packageData) => result.concat([packageData.collectionName]), []);
+
+				logger.progress({message: 'Start getting schema...', containerName: dbName, entityName: ''});
+
 				return neo4j.getSchema();
 			}).then((schema) => {
+				logger.progress({message: 'Schema has successfully got', containerName: dbName, entityName: ''});
+				
 				return schema.filter(data => {
 					return (labels.indexOf(data.start) !== -1 && labels.indexOf(data.end) !== -1);
 				});
 			}).then((schema) => {
+				logger.progress({message: 'Start getting relationships...', containerName: dbName, entityName: ''});
+
 				return getRelationshipData(schema, dbName, recordSamplingSettings, fieldInference, metaData.constraints);
 			}).then((relationships) => {
+				logger.progress({message: 'Relationships have successfully got', containerName: dbName, entityName: ''});
+
 				packages.relationships.push(relationships);
 				next(null);
 			}).catch(error => {
@@ -150,6 +171,8 @@ module.exports = {
 				next(prepareError(error));
 			});
 		}, (err) => {
+			logger.progress({message: 'Reverse engineering finished', containerName: '', entityName: ''});
+
 			setTimeout(() => {
 				cb(err, packages.labels, {}, [].concat.apply([], packages.relationships));
 			}, 1000);
@@ -196,15 +219,20 @@ const logInfo = (step, connectionInfo, logger) => {
 	logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 };
 
-const getNodesData = (dbName, labels, data) => {
+const getNodesData = (dbName, labels, data, logger) => {
 	return new Promise((resolve, reject) => {
 		let packages = [];
 		async.map(labels, (labelName, nextLabel) => {
+			logger(labelName, 'Getting data...');
+
 			neo4j.getNodesCount(labelName).then(quantity => {
 				const count = getCount(quantity, data.recordSamplingSettings);
+				logger(labelName, 'Found ' + count + ' nodes');
 
 				return neo4j.getNodes(labelName, count);
 			}).then((documents) => {
+				logger(labelName, 'Data has successfully got');
+
 				const packageData = getLabelPackage(
 					dbName, 
 					labelName, 
