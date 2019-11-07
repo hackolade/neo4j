@@ -27,15 +27,15 @@
             "enableForwardEngineering": {
 				"jsonDocument": false,
 				"jsonSchema": false,
-				"excel": false,
+				"excel": true,
 				"plugin": true
 			},
 			"enableReverseEngineering": {
-				"jsonDocument": false,
-				"jsonSchema": false,
+				"jsonDocument": true,
+				"jsonSchema": true,
 				"ddl": true,
 				"xsd": true,
-				"excel": false,
+				"excel": true,
 				"plugin": true 
 			}
         }
