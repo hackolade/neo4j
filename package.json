@@ -1,7 +1,7 @@
 {
     "name": "Neo4j",
-    "version": "0.1.13",
-    "versionDate": "2019-10-17",
+    "version": "0.1.14",
+    "versionDate": "2019-11-15",
     "author": "hackolade",
     "engines": {
         "hackolade": "2.0.x",
@@ -25,17 +25,17 @@
                 "hasData": true
             },
             "enableForwardEngineering": {
-				"jsonDocument": false,
-				"jsonSchema": false,
-				"excel": false,
+				"jsonDocument": true,
+				"jsonSchema": true,
+				"excel": true,
 				"plugin": true
 			},
 			"enableReverseEngineering": {
-				"jsonDocument": false,
-				"jsonSchema": false,
+				"jsonDocument": true,
+				"jsonSchema": true,
 				"ddl": true,
 				"xsd": true,
-				"excel": false,
+				"excel": true,
 				"plugin": true 
 			}
         }
