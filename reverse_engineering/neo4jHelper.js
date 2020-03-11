@@ -66,16 +66,21 @@ const connectToInstance = (info, checkConnection) => {
 	}));
 };
 
-const connect = (info, checkConnection) => {
-	if (info.ssh) {
-		return connectViaSsh(info)
-			.then(({ info, tunnel }) => {
-				sshTunnel = tunnel;
-
-				return connectToInstance(info, checkConnection);
-			});
-	} else {
-		return connectToInstance(info, checkConnection);
+const connect = async (info, checkConnection) => {
+	try {
+		if (info.ssh) {
+			return await connectViaSsh(info)
+				.then(({ info, tunnel }) => {
+					sshTunnel = tunnel;
+	
+					return connectToInstance(info, checkConnection);
+				});
+		} else {
+			return await connectToInstance(info, checkConnection);
+		}
+	} catch (error) {
+		error.step = 'Connection Error';
+		throw error;
 	}
 };
 
@@ -91,9 +96,12 @@ const close = () => {
 	}
 };
 
-const execute = (command) => {
+const execute = (command, database = undefined, isMultiDb = false) => {
+	if (!isMultiDb) {
+		database = undefined;
+	}
 	return new Promise((resolve, reject) => {
-		const db = driver.session();
+		const db = driver.session({ database });
 		let result = [];
 		db.run(command)
 			.subscribe({
@@ -126,22 +134,27 @@ const castInteger = (properties) => {
 	return result;
 };
 
-const getLabels = () => {
-	return execute('MATCH (n) RETURN DISTINCT labels(n) as label').then((data) => {
+const getLabels = async (database, isMultiDb) => {
+	try {
+		const labels = await execute('MATCH (n) RETURN DISTINCT labels(n) as label', database, isMultiDb).then((data) => {
 			let labels = [];
 			data.forEach((record) => {
 				labels = labels.concat(record.label);
 			});
 			return labels
 		});
+		return labels;
+	} catch (error) {
+		error.step = error.step || 'Error of retrieving labels';
+		throw error;
+	}
 };
 
-const getSchema = () => {
-	
-	return execute('call apoc.meta.subGraph({labels: []})')
+const getSchema = (dbName, isMultiDb) => {
+	return execute('call apoc.meta.subGraph({labels: []})', dbName, isMultiDb)
 	.then(
 		result => result,
-		() => execute('CALL db.schema.visualization()')
+		() => execute('CALL db.schema.visualization()', dbName, isMultiDb)
 	)
 	.then(result => {
 		const nodes = result[0].nodes;
@@ -169,42 +182,63 @@ const getSchema = () => {
 	});
 };
 
-const getDatabaseName = (defaultDbName) => {
-	return execute('call dbms.listConfig("active_database")').then(result => {
-		return _.get(result[0], 'value') || defaultDbName;
-	}, () => {
-		return defaultDbName;
-	});
+const getDatabaseName = async (defaultDbName, isMultiDb) => {
+	try {
+		if (isMultiDb) {
+			return await getActiveMultiDbsNames();
+		} else {
+			return await execute('call dbms.listConfig("active_database")').then(result => {
+				return [_.get(result[0], 'value', defaultDbName)];
+			}, () => {
+				return [defaultDbName];
+			});
+		}
+	} catch (error) {
+		error.step = error.step || 'Error of retrieving database name';
+	}
 };
 
-const getNodes = (label, limit = 100) => {
-	return execute(`MATCH (row:\`${label}\`) RETURN row LIMIT ${limit}`)
+const supportsMultiDb = () => {
+	return driver.supportsMultiDb();
+}
+
+const getActiveMultiDbsNames = async () => {
+	const databases = await execute('SHOW DATABASES', 'system', true);
+	return databases.filter(({ name, currentStatus }) => {
+		return name !== 'system' && currentStatus === 'online';
+	}).map(({ name }) => name);
+}
+
+const getNodes = (label, limit = 100, dbName, isMultiDb) => {
+	return execute(`MATCH (row:\`${label}\`) RETURN row LIMIT ${limit}`, dbName, isMultiDb)
 		.then((result) => {
 			return result.map(record => castInteger(record.row.properties));
 		});
 };
 
-const getRelationshipData = (start, relationship, end, limit = 100) => {
-	return execute(`MATCH (:\`${start}\`)-[row:\`${relationship}\`]-(:\`${end}\`) RETURN row LIMIT ${limit}`)
+const getRelationshipData = (start, relationship, end, limit = 100, dbName, isMultiDb) => {
+	return execute(`MATCH (:\`${start}\`)-[row:\`${relationship}\`]-(:\`${end}\`) RETURN row LIMIT ${limit}`, dbName, isMultiDb)
 		.then((result) => {
 			return result.map(record => castInteger(record.row.properties));
 		});
 };
 
-const getNodesCount = (label) => {
-	return execute(`MATCH (a:\`${label}\`) RETURN count(a) AS count`).then(result => castInteger(result[0]).count);
+const getNodesCount = (label, dbName, isMultiDb) => {
+	return execute(`MATCH (a:\`${label}\`) RETURN count(a) AS count`, dbName, isMultiDb).then(result => castInteger(result[0]).count);
 };
 
-const getCountRelationshipsData = (start, relationship, end) => {
-	return execute(`MATCH (:\`${start}\`)-[rel:\`${relationship}\`]-(:\`${end}\`) RETURN count(rel) AS count`).then(result => castInteger(result[0]).count);
+const getCountRelationshipsData = (start, relationship, end, dbName, isMultiDb) => {
+	return execute(`MATCH (:\`${start}\`)-[rel:\`${relationship}\`]-(:\`${end}\`) RETURN count(rel) AS count`, dbName, isMultiDb).then(
+		result => castInteger(result[0]).count
+	);
 };
 
-const getIndexes = () => {
-	return execute('CALL db.indexes()');
+const getIndexes = (dbName, isMultiDb) => {
+	return execute('CALL db.indexes()', dbName, isMultiDb);
 };
 
-const getConstraints = () => {
-	return execute('CALL db.constraints()');
+const getConstraints = (dbName, isMultiDb) => {
+	return execute('CALL db.constraints()', dbName, isMultiDb);
 };
 
 const getSSLConfig = (info) => {
@@ -250,5 +284,6 @@ module.exports = {
 	getNodesCount,
 	getCountRelationshipsData,
 	getIndexes,
-	getConstraints
+	getConstraints,
+	supportsMultiDb
 };
