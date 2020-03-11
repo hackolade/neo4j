@@ -50,43 +50,26 @@ module.exports = {
 		cb();
 	},
 
-	getDbCollectionsNames: function(connectionInfo, logger, cb, app) {
+	getDbCollectionsNames: async function(connectionInfo, logger, cb, app) {
 		logInfo('Retrieving labels information', connectionInfo, logger)
-		
-		let result = {
-			dbName: '',
-			dbCollections: ''
-		};
-		neo4j.connect(connectionInfo, checkConnection(logger)).then((info) => {
+		try {
+			await neo4j.connect(connectionInfo, checkConnection(logger));
 			logger.log('info', 'Successfully connected to the database instance', 'Connection');
 			
-			return neo4j.getLabels();
-		}, (error) => {
-			error.step = 'Connection Error';
+			const isMultiDb = await neo4j.supportsMultiDb();
 
-			return Promise.reject(error);
-		}).then((labels) => {
-			logger.log('info', 'Labels successfully retrieved', 'Retrieving labels information');
-
-			result.dbCollections = labels;
-		}, (error) => {
-			error.step = error.step || 'Error of retrieving labels';
-
-			return Promise.reject(error);
-		}).then(() => {
-			return neo4j.getDatabaseName('neo4j');
-		}).then(dbName => {
+			const databaseNames = await neo4j.getDatabaseName('graph.db', isMultiDb);
 			logger.log('info', 'Name of database successfully retrieved', 'Retrieving labels information');
+			const result = await Promise.all(databaseNames.map(async name => {
+				return {
+					dbName: name,
+					dbCollections: await neo4j.getLabels(name, isMultiDb)
+				};
+			}));
+			logger.log('info', 'Labels successfully retrieved', 'Retrieving labels information');
 			logger.log('info', 'Information about labels successfully retrieved', 'Retrieving labels information');
-
-			result.dbName = dbName;
-			
-			cb(null, [result]);
-		}, (error) => {
-			error.step = error.step || 'Error of retrieving database name';
-
-			return Promise.reject(error);
-		}).catch((error) => {
+			cb(null, result)
+		} catch (error) {
 			logger.log('error', {
 				message: error.step || 'Process of retrieving labels was interrupted by error',
 				error: prepareError(error)
@@ -95,10 +78,10 @@ module.exports = {
 			setTimeout(() => {
 				cb(error || 'error');
 			}, 1000);
-		});
+		}
 	},
 
-	getDbCollectionsData: function(data, logger, cb){
+	getDbCollectionsData: async function(data, logger, cb){
 		logger.log('info', data, 'Retrieving schema for chosen labels', data.hiddenKeys);
 
 		const collections = data.collectionData.collections;
@@ -114,6 +97,8 @@ module.exports = {
 		logger.progress = logger.progress || (() => {});
 
 		logger.progress({message: 'Start Reverse Engineering Neo4j', containerName: '', entityName: ''});
+		
+		const isMultiDb = await neo4j.supportsMultiDb();
 
 		async.map(dataBaseNames, (dbName, next) => {
 			let labels = collections[dbName];
@@ -121,14 +106,14 @@ module.exports = {
 
 			logger.progress({message: 'Start retrieving indexes', containerName: dbName, entityName: ''});
 
-			neo4j.getIndexes().then((indexes) => {
+			neo4j.getIndexes(dbName, isMultiDb).then((indexes) => {
 				metaData.indexes = prepareIndexes(indexes);
 
 				const countIndexes = (indexes && indexes.length) || 0;
 				logger.progress({message: 'Indexes retrieved successfully. Found ' + countIndexes + ' index(es)', containerName: dbName, entityName: ''});
 				logger.progress({message: 'Start retrieving constraints', containerName: dbName, entityName: ''});
 				
-				return neo4j.getConstraints();
+				return neo4j.getConstraints(dbName, isMultiDb);
 			}).then((constraints) => {
 				metaData.constraints = prepareConstraints(constraints);
 
@@ -137,7 +122,7 @@ module.exports = {
 
 				return metaData;
 			}).then(metaData => {
-				return getNodesData(dbName, labels, {
+				return getNodesData(dbName, labels, isMultiDb, {
 					recordSamplingSettings,
 					fieldInference,
 					includeEmptyCollection,
@@ -150,7 +135,7 @@ module.exports = {
 
 				logger.progress({message: 'Start getting schema...', containerName: dbName, entityName: ''});
 
-				return neo4j.getSchema();
+				return neo4j.getSchema(dbName, isMultiDb);
 			}).then((schema) => {
 				logger.progress({message: 'Schema has successfully got', containerName: dbName, entityName: ''});
 				
@@ -160,7 +145,7 @@ module.exports = {
 			}).then((schema) => {
 				logger.progress({message: 'Start getting relationships...', containerName: dbName, entityName: ''});
 
-				return getRelationshipData(schema, dbName, recordSamplingSettings, fieldInference, metaData.constraints);
+				return getRelationshipData(schema, dbName, recordSamplingSettings, fieldInference, metaData.constraints, isMultiDb);
 			}).then((relationships) => {
 				logger.progress({message: 'Relationships have successfully got', containerName: dbName, entityName: ''});
 
@@ -219,17 +204,17 @@ const logInfo = (step, connectionInfo, logger) => {
 	logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 };
 
-const getNodesData = (dbName, labels, data, logger) => {
+const getNodesData = (dbName,  labels, isMultiDb, data, logger) => {
 	return new Promise((resolve, reject) => {
 		let packages = [];
 		async.map(labels, (labelName, nextLabel) => {
 			logger(labelName, 'Getting data...');
 
-			neo4j.getNodesCount(labelName).then(quantity => {
+			neo4j.getNodesCount(labelName, dbName, isMultiDb).then(quantity => {
 				const count = getCount(quantity, data.recordSamplingSettings);
 				logger(labelName, 'Found ' + count + ' nodes');
 
-				return neo4j.getNodes(labelName, count);
+				return neo4j.getNodes(labelName, count, dbName, isMultiDb);
 			}).then((documents) => {
 				logger(labelName, 'Data has successfully got');
 
@@ -257,12 +242,12 @@ const getNodesData = (dbName, labels, data, logger) => {
 	});
 };
 
-const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInference, constraints) => {
+const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInference, constraints, isMultiDb) => {
 	return new Promise((resolve, reject) => {
 		async.map(schema, (chain, nextChain) => {
-			neo4j.getCountRelationshipsData(chain.start, chain.relationship, chain.end).then((quantity) => {
+			neo4j.getCountRelationshipsData(chain.start, chain.relationship, chain.end, dbName, isMultiDb).then((quantity) => {
 				const count = getCount(quantity, recordSamplingSettings);
-				return neo4j.getRelationshipData(chain.start, chain.relationship, chain.end, count);
+				return neo4j.getRelationshipData(chain.start, chain.relationship, chain.end, count, dbName, isMultiDb);
 			}).then((rawDocuments) => {
 				const documents = deserializeData(rawDocuments);
 				const separatedConstraints = separateConstraintsByType(constraints[chain.relationship] || []);
