@@ -12,8 +12,8 @@
             "applicationTarget": "NEO4J",
             "title": "Neo4j",
 			"versions": [
-				"2.x",
-				"3.x"
+                "3.x",
+                "4.x"
 			]
 		},
         "features": {
