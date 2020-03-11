@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const neo4j = require('neo4j-driver').v1;
+const neo4j = require('neo4j-driver');
 let driver;
 let sshTunnel;
 const fs = require('fs');
@@ -55,14 +55,14 @@ const connectToInstance = (info, checkConnection) => {
 
 		driver = neo4j.driver(`bolt://${host}:${port}`, neo4j.auth.basic(username, password), sslOptions);
 
-		driver.onCompleted = () => {
-			resolve();
-		};
-
-		driver.onError = (error) => {
-			driver = null;
-			reject(error);
-		};
+		driver.verifyConnectivity()
+			.then(() => {
+				resolve();
+			})
+			.catch(error => {
+				driver = null;
+				reject(error);
+			})
 	}));
 };
 
@@ -141,7 +141,7 @@ const getSchema = () => {
 	return execute('call apoc.meta.subGraph({labels: []})')
 	.then(
 		result => result,
-		() => execute('CALL db.schema()')
+		() => execute('CALL db.schema.visualization()')
 	)
 	.then(result => {
 		const nodes = result[0].nodes;
@@ -171,7 +171,7 @@ const getSchema = () => {
 
 const getDatabaseName = (defaultDbName) => {
 	return execute('call dbms.listConfig("active_database")').then(result => {
-		return result[0].value;
+		return _.get(result[0], 'value') || defaultDbName;
 	}, () => {
 		return defaultDbName;
 	});
