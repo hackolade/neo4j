@@ -99,6 +99,9 @@ module.exports = {
 		logger.progress({message: 'Start Reverse Engineering Neo4j', containerName: '', entityName: ''});
 		
 		const isMultiDb = await neo4j.supportsMultiDb();
+		const modelProps = {
+			dbVersion: await neo4j.getDbVersion()
+		};
 
 		async.map(dataBaseNames, (dbName, next) => {
 			let labels = collections[dbName];
@@ -159,7 +162,7 @@ module.exports = {
 			logger.progress({message: 'Reverse engineering finished', containerName: '', entityName: ''});
 
 			setTimeout(() => {
-				cb(err, packages.labels, {}, [].concat.apply([], packages.relationships));
+				cb(err, packages.labels, modelProps, [].concat.apply([], packages.relationships));
 			}, 1000);
 		});
 	}

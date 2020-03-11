@@ -266,6 +266,18 @@ const getSSLConfig = (info) => {
 	}
 };
 
+const getDbVersion = async () => {
+	try {
+		const versionResponse = await execute('call dbms.components() yield versions unwind versions as version return version');
+		if (_.get(versionResponse, '[0].version').startsWith('4')) {
+			return '4.x';
+		}
+		return '3.x'
+	} catch (err) {
+		return '3.x';
+	}
+}
+
 const checkConnection = () => {
 	return driver._connectionProvider.acquireConnection().then(conn => {
 		return driver._validateConnection(conn);
@@ -285,5 +297,6 @@ module.exports = {
 	getCountRelationshipsData,
 	getIndexes,
 	getConstraints,
-	supportsMultiDb
+	supportsMultiDb,
+	getDbVersion
 };
