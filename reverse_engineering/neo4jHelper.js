@@ -52,8 +52,12 @@ const connectToInstance = (info, checkConnection) => {
 		const username = info.username;
 		const password = info.password;
 		const sslOptions = getSSLConfig(info);
-
-		driver = neo4j.driver(`bolt://${host}:${port}`, neo4j.auth.basic(username, password), sslOptions);
+		const driverConfig = {
+			...sslOptions,
+			maxConnectionPoolSize: 500,
+			connectionAcquisitionTimeout: 2 * 60 * 1000
+		};
+		driver = neo4j.driver(`bolt://${host}:${port}`, neo4j.auth.basic(username, password), driverConfig);
 
 		driver.verifyConnectivity()
 			.then(() => {
