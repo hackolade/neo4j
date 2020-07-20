@@ -1,9 +1,11 @@
-const _ = require('lodash');
 const neo4j = require('neo4j-driver');
 let driver;
 let sshTunnel;
 const fs = require('fs');
 const ssh = require('tunnel-ssh');
+let _;
+
+const setDependencies = ({ lodash }) => _ = lodash;
 
 const getSshConfig = (info) => {
 	const config = {
@@ -302,5 +304,6 @@ module.exports = {
 	getIndexes,
 	getConstraints,
 	supportsMultiDb,
-	getDbVersion
+	getDbVersion,
+	setDependencies
 };

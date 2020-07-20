@@ -1,10 +1,11 @@
 'use strict';
 
+const { dependencies, setDependencies } = require('./appDependencies');
 const async = require('async');
-const _ = require('lodash');
 const neo4j = require('./neo4jHelper');
 const snippetsPath = "../snippets/";
 const logHelper = require('./logHelper');
+let _;
 
 const snippets = {
 	"Cartesian 3D": require(snippetsPath + "cartesian-3d.json"),
@@ -15,6 +16,8 @@ const snippets = {
 
 module.exports = {
 	connect: function(connectionInfo, logger, cb, app){
+		initDependencies(app);
+
 		neo4j.connect(connectionInfo, checkConnection(logger)).then(() => {
 			logger.log('info', 'Successfully connected to the database instance', 'Connection');
 
@@ -36,6 +39,7 @@ module.exports = {
 	testConnection: function(connectionInfo, logger, cb, app){
 		logInfo('Test connection', connectionInfo, logger)
 
+		initDependencies(app);
 		this.connect(connectionInfo, logger, (error) => {
 			this.disconnect(connectionInfo, () => {});
 			cb(error);
@@ -53,6 +57,8 @@ module.exports = {
 	getDbCollectionsNames: async function(connectionInfo, logger, cb, app) {
 		logInfo('Retrieving labels information', connectionInfo, logger)
 		try {
+			initDependencies(app);
+
 			await neo4j.connect(connectionInfo, checkConnection(logger));
 			logger.log('info', 'Successfully connected to the database instance', 'Connection');
 			
@@ -81,7 +87,8 @@ module.exports = {
 		}
 	},
 
-	getDbCollectionsData: async function(data, logger, cb){
+	getDbCollectionsData: async function(data, logger, cb, app) {
+		initDependencies(app);
 		logger.log('info', data, 'Retrieving schema for chosen labels', data.hiddenKeys);
 
 		const collections = data.collectionData.collections;
@@ -166,6 +173,12 @@ module.exports = {
 			}, 1000);
 		});
 	}
+};
+
+const initDependencies = app => {
+	setDependencies(app);
+	_ = dependencies.lodash;
+	neo4j.setDependencies(dependencies);
 };
 
 const getCount = (count, recordSamplingSettings) => {
