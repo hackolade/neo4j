@@ -14,5 +14,66 @@
 		"pattern":"",
 		"format": "",
 		"unique": false
-	}
+	},
+	"descriptor": [{
+		"schema": {
+			"mode": "date"
+		},
+		"format": "YYYY-MM-DD"
+	}, {
+		"schema": {
+			"mode": "time"
+		},
+		"format": "hh:mm:ss"
+	}, {
+		"schema": {
+			"mode": "time"
+		},
+		"format": "hh:mm:ss.nnn"
+	}, {
+		"schema": {
+			"mode": "time"
+		},
+		"format": "hh:mm:ss.nnnnnn"
+	}, {
+		"schema": {
+			"mode": "time"
+		},
+		"format": "hh:mm:ss.nnnnnnnnn"
+	}, {
+		"schema": {
+			"mode": "datetime"
+		},
+		"format": "YYYY-MM-DD hh:mm:ss"
+	}, {
+		"schema": {
+			"mode": "datetime"
+		},
+		"format": "YYYY-MM-DD hh:mm:ss.nnn"
+	}, {
+		"schema": {
+			"mode": "datetime"
+		},
+		"format": "YYYY-MM-DD hh:mm:ss.nnnnnn"
+	}, {
+		"schema": {
+			"mode": "datetime"
+		},
+		"format": "YYYY-MM-DD hh:mm:ss.nnnnnnnnn"
+	}, {
+		"schema": {
+			"mode": "datetime"
+		},
+		"format": "YYYY-MM-DD hh:mm:ss.nnnZ"
+	}, {
+		"schema": {
+			"mode": "datetime"
+		},
+		"format": "YYYY-MM-DD hh:mm:ss.nnnnnnZ"
+	}, {
+		"schema": {
+			"mode": "duration"
+		},
+		"format": "PnYnMnDTnHnMnS"
+	}]
 }
