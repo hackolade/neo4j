@@ -17,8 +17,14 @@
 			]
 		},
         "features": {
+			"apiTarget": true,
             "jaySchemaHasRequiredPatternField": false,
-            "nestedCollections": false,
+            "nestedCollections": {
+				"level": 1
+            },
+            "disableChildren": {
+				"entityLevel": true
+			},
             "graphDB": true,
             "relationships": {
                 "connectOnEntityLevel": true,

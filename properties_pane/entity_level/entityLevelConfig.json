@@ -119,6 +119,22 @@ making sure that you maintain a proper JSON format.
 		"lowerTab": "Details",
 		"structure": [
 			{
+				"propertyName": "Node key",
+				"propertyKeyword": "collectionName",
+				"dependency": {
+					"key": "entityType",
+					"value": "master-node"
+				}
+			},
+			{
+				"propertyName": "Sub-node key",
+				"propertyKeyword": "collectionName",
+				"dependency": {
+					"key": "entityType",
+					"value": "sub-node"
+				}
+			},
+			{
 				"propertyName": "Comments",
 				"propertyKeyword": "comments",
 				"shouldValidate": false,
