@@ -22,9 +22,6 @@
             "nestedCollections": {
 				"level": 1
             },
-            "disableChildren": {
-				"entityLevel": true
-			},
             "graphDB": true,
             "relationships": {
                 "connectOnEntityLevel": true,
