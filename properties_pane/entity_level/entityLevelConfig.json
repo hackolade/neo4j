@@ -129,10 +129,21 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Sub-node key",
 				"propertyKeyword": "collectionName",
+				"propertyType": "text",
 				"dependency": {
 					"key": "entityType",
 					"value": "sub-node"
 				}
+			},
+			{
+				"propertyKeyword": "childCollection",
+				"disabledOnCondition": [{
+					"key": "entityType",
+					"value": "sub-node"
+				}]
+			},
+			{
+				"propertyKeyword": "additionalProperties"
 			},
 			{
 				"propertyName": "Comments",
