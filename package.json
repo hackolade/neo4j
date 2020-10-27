@@ -11,11 +11,11 @@
         "target": {
             "applicationTarget": "NEO4J",
             "title": "Neo4j",
-			"versions": [
+            "versions": [
                 "3.x",
                 "4.x"
-			]
-		},
+            ]
+        },
         "features": {
             "jaySchemaHasRequiredPatternField": false,
             "nestedCollections": false,
@@ -25,19 +25,20 @@
                 "hasData": true
             },
             "enableForwardEngineering": {
-				"jsonDocument": true,
-				"jsonSchema": true,
-				"excel": true,
-				"plugin": true
-			},
-			"enableReverseEngineering": {
-				"jsonDocument": true,
-				"jsonSchema": true,
-				"ddl": true,
-				"xsd": true,
-				"excel": true,
-				"plugin": true 
-			}
+                "jsonDocument": true,
+                "jsonSchema": true,
+                "excel": true,
+                "plugin": true
+            },
+            "enableReverseEngineering": {
+                "jsonDocument": true,
+                "jsonSchema": true,
+                "ddl": true,
+                "xsd": true,
+                "excel": true,
+                "plugin": true
+            },
+            "FEScriptCommentsSupported": true
         }
     },
     "description": "Hackolade plugin for Neo4j",
