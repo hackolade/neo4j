@@ -17,10 +17,10 @@
 			]
 		},
         "features": {
-			"apiTarget": true,
             "jaySchemaHasRequiredPatternField": false,
             "nestedCollections": {
-				"level": 1
+                "level": 1,
+                "isVirtual":true
             },
             "graphDB": true,
             "relationships": {
