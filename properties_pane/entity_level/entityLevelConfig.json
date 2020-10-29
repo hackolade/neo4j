@@ -136,11 +136,34 @@ making sure that you maintain a proper JSON format.
 				}
 			},
 			{
-				"propertyKeyword": "childCollection",
-				"disabledOnCondition": [{
+				"propertyKeyword": "parentCollection",
+				"propertyType": "selecthashed",
+				"canBeUnlinked": false,
+				"filter": {
+					"key": "entityType",
+					"value": "master-node"
+				},
+				"dependency": {
 					"key": "entityType",
 					"value": "sub-node"
-				}]
+				},
+				"disabledOnCondition":{}
+			},
+			{
+				"propertyName": "Master-node",
+				"propertyKeyword": "parentCollection",
+				"propertyType": "selecthashed",
+				"dependency": {
+					"key": "entityType",
+					"value": "master-node"
+				},
+				"disabledOnCondition":{
+					"key": "entityType",
+					"value": "master-node"
+				}
+			},
+			{
+				"propertyKeyword": "childCollection"
 			},
 			{
 				"propertyKeyword": "additionalProperties"

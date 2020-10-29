@@ -37,7 +37,7 @@
 	"PROPERTIES_PANE___PARENT_RELATION": "Out of node label",
 	"PROPERTIES_PANE___PARENT_FIELD": "Parent property key",
 	"PROPERTIES_PANE___PARENT_CARDINALITY": "Parent cardinality",
-	"PROPERTIES_PANE___CHILD_COLLECTION": "Sub-node label",
+	"PROPERTIES_PANE___CHILD_COLLECTION": "Sub-node",
 	"PROPERTIES_PANE___CHILD_RELATION": "Into node label",
 	"PROPERTIES_PANE___CHILD_FIELD": "Child property key",
 	"PROPERTIES_PANE___CHILD_CARDINALITY": "Child cardinality",
