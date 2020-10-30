@@ -127,6 +127,18 @@ making sure that you maintain a proper JSON format.
 				}
 			},
 			{
+				"propertyName": "Class name",
+				"propertyKeyword": "relationName",
+				"propertyType": "text",
+				"shouldValidate": false,
+				"dependency": {
+					"key": "entityType",
+					"value": "sub-node"
+				},
+			    "valueType": "string",
+  				"propertyTooltip": "comments"
+			},
+			{
 				"propertyName": "Sub-node key",
 				"propertyKeyword": "collectionName",
 				"propertyType": "text",
