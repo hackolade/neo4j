@@ -1,7 +1,7 @@
 {
     "name": "Neo4j",
-    "version": "0.1.20",
-    "versionDate": "2020-08-10",
+    "version": "0.1.21",
+    "versionDate": "2020-10-30",
     "author": "hackolade",
     "engines": {
         "hackolade": "2.0.x",
@@ -18,7 +18,10 @@
         },
         "features": {
             "jaySchemaHasRequiredPatternField": false,
-            "nestedCollections": false,
+            "nestedCollections": {
+                "level": 1,
+                "isVirtual":true
+            },
             "graphDB": true,
             "relationships": {
                 "connectOnEntityLevel": true,
