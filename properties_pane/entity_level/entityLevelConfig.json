@@ -151,10 +151,6 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "parentCollection",
 				"propertyType": "selecthashed",
 				"canBeUnlinked": false,
-				"filter": {
-					"key": "entityType",
-					"value": "master-node"
-				},
 				"dependency": {
 					"key": "entityType",
 					"value": "sub-node"
