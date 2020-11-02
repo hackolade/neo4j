@@ -127,7 +127,7 @@ making sure that you maintain a proper JSON format.
 				}
 			},
 			{
-				"propertyName": "Class name",
+				"propertyName": "Edge",
 				"propertyKeyword": "relationName",
 				"propertyType": "text",
 				"shouldValidate": false,
@@ -136,12 +136,15 @@ making sure that you maintain a proper JSON format.
 					"value": "sub-node"
 				},
 			    "valueType": "string",
-  				"propertyTooltip": "comments"
+  				"propertyTooltip": "edge"
 			},
 			{
 				"propertyName": "Sub-node key",
 				"propertyKeyword": "collectionName",
-				"propertyType": "text",
+				"propertyType": "coupled",
+				"coupledBy": "namingConvention",
+				"onCoupleAction": "onCoupleCollectionBusinessName",
+    			"shouldValidate": true,
 				"dependency": {
 					"key": "entityType",
 					"value": "sub-node"
