@@ -122,8 +122,11 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Node key",
 				"propertyKeyword": "collectionName",
 				"dependency": {
-					"key": "entityType",
-					"value": "master-node"
+					"type": "not",
+					"values": {
+						"key": "entityType",
+						"value": "sub-node"
+					}
 				}
 			},
 			{
@@ -165,12 +168,18 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "parentCollection",
 				"propertyType": "selecthashed",
 				"dependency": {
-					"key": "entityType",
-					"value": "master-node"
+					"type": "not",
+					"values": {
+						"key": "entityType",
+						"value": "sub-node"
+					}
 				},
 				"disabledOnCondition":{
-					"key": "entityType",
-					"value": "master-node"
+					"type": "not",
+					"values": {
+						"key": "entityType",
+						"value": "sub-node"
+					}
 				}
 			},
 			{
@@ -238,10 +247,13 @@ making sure that you maintain a proper JSON format.
 					"template": "textarea"
 				}
 			],
-			"dependency": [{
-				"key": "entityType",
-				"value": "master-node"
-			}]
+			"dependency": {
+				"type": "not",
+				"values": {
+					"key": "entityType",
+					"value": "sub-node"
+				}
+			}
 		}]
 	},
 	{
@@ -308,10 +320,13 @@ making sure that you maintain a proper JSON format.
 					"template": "textarea"
 				}
 			],
-			"dependency": [{
-				"key": "entityType",
-				"value": "master-node"
-			}]
+			"dependency": {
+				"type": "not",
+				"values": {
+					"key": "entityType",
+					"value": "sub-node"
+				}
+			}
 		}]
 	}
 ]
