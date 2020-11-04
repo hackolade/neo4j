@@ -122,25 +122,69 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Node key",
 				"propertyKeyword": "collectionName",
 				"dependency": {
-					"key": "entityType",
-					"value": "master-node"
+					"type": "not",
+					"values": {
+						"key": "entityType",
+						"value": "sub-node"
+					}
 				}
+			},
+			{
+				"propertyName": "Edge",
+				"propertyKeyword": "relationName",
+				"propertyType": "text",
+				"shouldValidate": false,
+				"dependency": {
+					"key": "entityType",
+					"value": "sub-node"
+				},
+			    "valueType": "string",
+  				"propertyTooltip": "edge"
 			},
 			{
 				"propertyName": "Sub-node key",
 				"propertyKeyword": "collectionName",
-				"propertyType": "text",
+				"propertyType": "coupled",
+				"coupledBy": "namingConvention",
+				"onCoupleAction": "onCoupleCollectionBusinessName",
+    			"shouldValidate": true,
 				"dependency": {
 					"key": "entityType",
 					"value": "sub-node"
 				}
 			},
 			{
-				"propertyKeyword": "childCollection",
-				"disabledOnCondition": [{
+				"propertyKeyword": "parentCollection",
+				"propertyType": "selecthashed",
+				"canBeUnlinked": false,
+				"dependency": {
 					"key": "entityType",
 					"value": "sub-node"
-				}]
+				},
+				"disabledOnCondition":{}
+			},
+			{
+				"propertyName": "Master-node",
+				"propertyKeyword": "parentCollection",
+				"propertyType": "selecthashed",
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "entityType",
+						"value": "sub-node"
+					}
+				},
+				"disabledOnCondition":{
+					"type": "not",
+					"values": {
+						"key": "entityType",
+						"value": "sub-node"
+					}
+				}
+			},
+			{
+				"propertyKeyword": "childCollection",
+				"disabledOnCondition":{}
 			},
 			{
 				"propertyKeyword": "additionalProperties"
@@ -203,10 +247,13 @@ making sure that you maintain a proper JSON format.
 					"template": "textarea"
 				}
 			],
-			"dependency": [{
-				"key": "entityType",
-				"value": "master-node"
-			}]
+			"dependency": {
+				"type": "not",
+				"values": {
+					"key": "entityType",
+					"value": "sub-node"
+				}
+			}
 		}]
 	},
 	{
@@ -273,10 +320,13 @@ making sure that you maintain a proper JSON format.
 					"template": "textarea"
 				}
 			],
-			"dependency": [{
-				"key": "entityType",
-				"value": "master-node"
-			}]
+			"dependency": {
+				"type": "not",
+				"values": {
+					"key": "entityType",
+					"value": "sub-node"
+				}
+			}
 		}]
 	}
 ]

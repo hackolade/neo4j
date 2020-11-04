@@ -11,14 +11,14 @@
 	"collection": {
 		"collectionName": "New node label",
 		"collectionUsers": [],
-		"entityType": "master-node",
 		"collation": {}
 	},
 	"nestedCollection": {
 		"collectionName": "New sub-node label",
 		"collectionUsers": [],
 		"entityType": "sub-node",
-		"collation": {}
+		"collation": {},
+		"relationName":"Subclass of"
 	},
 	"field": {
 		"name": "New property key"
