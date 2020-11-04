@@ -184,6 +184,18 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyKeyword":"entityType",
 				"hidden": true
+			},
+			{
+				"propertyKeyword":"parentCollections",
+				"propertyName":"Parent collections",
+				"valueType":"array",
+				"options": [],
+				"propertyType": "multiselect",
+				"dependency": {
+					"key": "entityType",
+					"value": "sub-node"
+				},
+				"hidden": true
 			}
 		]
 	},
