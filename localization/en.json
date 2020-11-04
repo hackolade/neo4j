@@ -2,7 +2,7 @@
 	"WELCOME_PAGE___REVERSE_ENGINEER_DESCRIPTION": "Create a Hackolade model from an existing DB instance",
 	"MAIN_MENU___ADD_BUCKET": "Add Database",
 	"MAIN_MENU___ADD_COLLECTION": "Add Node Label",
-	"MAIN_MENU___ADD_CHILD_COLLECTION": "Add Sub-Node",
+	"MAIN_MENU___ADD_CHILD_COLLECTION": "Add Sub-Node Label",
 	"MAIN_MENU___ADD_VIEW": "Add View",
 	"MAIN_MENU___ADD_RELATIONSHIP": "Add Relationship Type",
 	"MAIN_MENU___ADD_ATTRIBUTE": "Add Property Key",
