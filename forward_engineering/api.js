@@ -163,10 +163,11 @@ module.exports = {
             .filter((field) => !field.isActivated)
             .map((field) => field.statement)
             .join(',\n\t');
+        console.log(`deactivatedFields: '${deactivatedFields}'`);
 
         return '{\n\t' + activatedFields + (deactivatedFields.length
             ? '\n' + this.commentIfDeactivated(deactivatedFields, false) + '\n}'
-            : '');
+            : '\n}');
     },
 
     createMap(collections, relationships) {
