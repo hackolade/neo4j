@@ -44,120 +44,130 @@ module.exports = {
     },
 
     generateCreateBatch(collections, relationships, jsonData) {
-		let createdHash = {};
-		
-		const initBatch = collections.map((collection) => {
+        let createdHash = {};
+
+        const initBatch = collections.map((collection) => {
             createdHash[collection.collectionName] = collection.isActivated;
             let nodeData = '';
             if (jsonData[collection.GUID]) {
-                nodeData =
-                    ' ' + this.prepareData(jsonData[collection.GUID], collection, collection.isActivated);
+                nodeData = ' ' + this.prepareData(jsonData[collection.GUID], collection, collection.isActivated);
             }
 
-            const collectionString = `(${screen(collection.collectionName).toLowerCase()}:${screen(collection.collectionName)}${nodeData})`;
-            return this.commentIfDeactivated(collectionString + ',', collection.isActivated);
+            const collectionString = `(${screen(collection.collectionName).toLowerCase()}:${screen(
+                collection.collectionName
+            )}${nodeData})`;
+            return { statement: collectionString + ',', isActivated: collection.isActivated };
         });
 
-        let labels = this.createMap(collections, relationships)
-            .reduce((batch, branchData) => {
-				if (branchData.relationship && branchData.child) {
-                    let parentName = branchData.parent.collectionName;
-                    let childName = branchData.child.collectionName;
-                    let relationshipName = branchData.relationship.name;
-                    let relationshipData = '';
+        let labels = this.createMap(collections, relationships).reduce((batch, branchData) => {
+            if (branchData.relationship && branchData.child) {
+                let parentName = branchData.parent.collectionName;
+                let childName = branchData.child.collectionName;
+                let relationshipName = branchData.relationship.name;
+                let relationshipData = '';
 
-                    const isParentActivated = _.get(branchData, 'parent.isActivated', true);
-                    const isChildActivated = _.get(branchData, 'child.isActivated', true);
-                    const isActivated = isParentActivated && isChildActivated;
+                const isParentActivated = _.get(branchData, 'parent.isActivated', true);
+                const isChildActivated = _.get(branchData, 'child.isActivated', true);
+                const isActivated = isParentActivated && isChildActivated;
 
-                    const parent = `(${screen(parentName).toLowerCase()})`;
-                    const child = `(${screen(childName).toLowerCase()})`;
+                const parent = `(${screen(parentName).toLowerCase()})`;
+                const child = `(${screen(childName).toLowerCase()})`;
 
-                    if (branchData.relationship && jsonData[branchData.relationship.GUID]) {
-                        relationshipData =
-                            ' ' +
-                            this.prepareData(
-                                jsonData[branchData.relationship.GUID],
-                                branchData.relationship,
-                                isActivated
-                            );
-                    }
-                    const relationship = `[:${screen(relationshipName)}${relationshipData}]`;
-
-                    batch.push(this.commentIfDeactivated(`${parent}-${relationship}->${child},`, isActivated));
-
-                    if (branchData.bidirectional) {
-                        batch.push(
-                            this.commentIfDeactivated(
-                                `(${screen(childName).toLowerCase()})-${relationship}->(${screen(
-                                    parentName
-                                ).toLowerCase()}),`,
-                                isActivated
-                            )
-                        );
-                    }
+                if (branchData.relationship && jsonData[branchData.relationship.GUID]) {
+                    relationshipData =
+                        ' ' +
+                        this.prepareData(jsonData[branchData.relationship.GUID], branchData.relationship, isActivated);
                 }
+                const relationship = `[:${screen(relationshipName)}${relationshipData}]`;
 
-                return batch;
-            }, initBatch)
-            .join('\n\n');
+                batch.push({ statement: `${parent}-${relationship}->${child},`, isActivated: isActivated });
 
-        let script = `CREATE ${labels.slice(0, -1)}`;
+                if (branchData.bidirectional) {
+                    batch.push({
+                        statement: `(${screen(childName).toLowerCase()})-${relationship}->(${screen(
+                            parentName
+                        ).toLowerCase()}),`,
+                        isActivated: isActivated,
+                    });
+                }
+            }
+
+            return batch;
+        }, initBatch);
+
+        const activatedLabels = labels
+            .filter((label) => label.isActivated)
+            .map((label) => label.statement)
+            .join('\n\n')
+            .slice(0, -1);
+        const deactivatedLabels = labels
+            .filter((label) => !label.isActivated)
+            .map((label) => label.statement)
+            .join('\n\n')
+            .slice(0, -1);
+
+        let script = `CREATE ${activatedLabels + (deactivatedLabels.length ? '\n\n' + this.commentIfDeactivated(deactivatedLabels, false) : '')}` ;
 
         if (Object.keys(createdHash).length) {
-            script += `\n RETURN ${Object.keys(createdHash).filter(key => createdHash[key]).map(screen).join(',').toLowerCase()}`;
+            script += `\n RETURN ${Object.keys(createdHash)
+                .filter((key) => createdHash[key])
+                .map(screen)
+                .join(',')
+                .toLowerCase()}`;
         }
 
         return script;
     },
 
     prepareData(serializedData, schema, isParentActivated) {
-		const data = JSON.parse(serializedData);
-		if(!Object.keys(data).length){
-			return '{}'
-		}
+        const data = JSON.parse(serializedData);
+        if (!Object.keys(data).length) {
+            return '{}';
+        }
 
-        return (
-            '{\n\t' +
-            Object.keys(data)
-                .reduce((result, field) => {
-                    if (Object(data[field]) === data[field] && !Array.isArray(data[field])) {
-                        const isFieldActivated = _.get(schema, `properties.${field}.isActivated`, true);
-                        result.push(
-                            this.commentIfDeactivated(
-                                `${screen(field)}: ${this.getObjectValueBySchema(
-                                    data[field],
-                                    schema.properties[field]
-                                )}`,
-                                isParentActivated ? isFieldActivated : true
-                            )
-                        );
-                    } else if (Array.isArray(data[field])) {
-                        const isFieldActivated = _.get(schema, `properties.${field}.isActivated`, true);
-                        result.push(
-                            this.commentIfDeactivated(
-                                `${screen(field)}: [ ${this.getArrayValueBySchema(
-                                    data[field],
-                                    schema.properties[field].items
-                                ).join(', ')} ]`,
-                                isParentActivated ? isFieldActivated : true
-                            )
-                        );
-                    } else {
-                        const isFieldActivated = _.get(schema, `properties.${field}.isActivated`, true);
-                        result.push(
-                            this.commentIfDeactivated(
-                                `${screen(field)}: ${JSON.stringify(data[field])}`,
-                                isParentActivated ? isFieldActivated : true
-                            )
-                        );
-                    }
+        const fields = Object.keys(data).reduce((result, field) => {
+            if (Object(data[field]) === data[field] && !Array.isArray(data[field])) {
+                const isFieldActivated = _.get(schema, `properties.${field}.isActivated`, true);
+                result.push({
+                    statement: `${screen(field)}: ${this.getObjectValueBySchema(
+                        data[field],
+                        schema.properties[field]
+                    )}`,
+                    isActivated: isParentActivated ? isFieldActivated : true,
+                });
+            } else if (Array.isArray(data[field])) {
+                const isFieldActivated = _.get(schema, `properties.${field}.isActivated`, true);
+                result.push({
+                    statement: `${screen(field)}: [ ${this.getArrayValueBySchema(
+                        data[field],
+                        schema.properties[field].items
+                    ).join(', ')} ]`,
+                    isActivated: isParentActivated ? isFieldActivated : true,
+                });
+            } else {
+                const isFieldActivated = _.get(schema, `properties.${field}.isActivated`, true);
+                result.push({
+                    statement: `${screen(field)}: ${JSON.stringify(data[field])}`,
+                    isActivated: isParentActivated ? isFieldActivated : true,
+                });
+            }
 
-                    return result;
-                }, [])
-                .join(',\n\t') +
-            '\n}'
-        );
+            return result;
+        }, []);
+
+        const activatedFields = fields
+            .filter((field) => field.isActivated)
+            .map((field) => field.statement)
+            .join(',\n\t');
+        const deactivatedFields = fields
+            .filter((field) => !field.isActivated)
+            .map((field) => field.statement)
+            .join(',\n\t');
+        console.log(`deactivatedFields: '${deactivatedFields}'`);
+
+        return '{\n\t' + activatedFields + (deactivatedFields.length
+            ? '\n' + this.commentIfDeactivated(deactivatedFields, false) + '\n}'
+            : '\n}');
     },
 
     createMap(collections, relationships) {
@@ -228,12 +238,12 @@ module.exports = {
     },
 
     generateConstraints(collections, relationships) {
-		let result = [];
-		
-		const collectionIdToActivated = collections.reduce((result, collection) => {
-			result[collection.GUID] = collection.isActivated;
-			return result;
-		}, {});
+        let result = [];
+
+        const collectionIdToActivated = collections.reduce((result, collection) => {
+            result[collection.GUID] = collection.isActivated;
+            return result;
+        }, {});
 
         collections.forEach((collection) => {
             if (collection.constraint && Array.isArray(collection.constraint)) {
@@ -273,7 +283,9 @@ module.exports = {
         });
 
         relationships.forEach((relationship) => {
-			const isRelationshipActivated = collectionIdToActivated[relationship.childCollection] && collectionIdToActivated[relationship.parentCollection];
+            const isRelationshipActivated =
+                collectionIdToActivated[relationship.childCollection] &&
+                collectionIdToActivated[relationship.parentCollection];
             if (Array.isArray(relationship.required)) {
                 relationship.required.forEach((fieldName) => {
                     if (fieldName) {
@@ -439,11 +451,11 @@ module.exports = {
     commentIfDeactivated(statement, isActivated) {
         if (!isActivated && !statement.includes('\n')) {
             return `// ${statement}`;
-		}
-		if(!isActivated) {
-			const splittedStatement = statement.split(/\n/);
-			return splittedStatement.reduce((result, statement) => result + `// ${statement}\n`, '')
-		}
+        }
+        if (!isActivated) {
+            const splittedStatement = statement.split(/\n/);
+            return splittedStatement.reduce((result, statement) => result + `// ${statement}\n`, '');
+        }
 
         return statement;
     },
