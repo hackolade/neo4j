@@ -192,12 +192,12 @@ making sure that you maintain a proper JSON format.
 				"propertyName":"Parent collections",
 				"valueType":"array",
 				"options": [],
-				"propertyType": "multiselect",
+				"propertyType": "parentCollectionsInput",
 				"dependency": {
 					"key": "entityType",
 					"value": "sub-node"
 				},
-				"hidden": true
+				"canBeUnlinked": false
 			}
 		]
 	},
