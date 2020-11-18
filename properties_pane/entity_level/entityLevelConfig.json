@@ -187,12 +187,16 @@ making sure that you maintain a proper JSON format.
 				"propertyName":"Parent collections",
 				"valueType":"array",
 				"options": [],
-				"propertyType": "parentCollectionsInput",
+				"addAction":"addCollectionMultipleParent",
+				"changeAction": "changeCollectionMultipleParent",
+				"removeAction": "removeCollectionMultipleParent",
+				"propertyType": "multiselect",
 				"dependency": {
 					"key": "entityType",
 					"value": "sub-node"
 				},
-				"canBeUnlinked": false
+				"canBeUnlinked": false,
+				"minimumNumberOfValues":1
 			},
 			{
 				"propertyKeyword": "childCollection",
