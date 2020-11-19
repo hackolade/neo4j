@@ -20,7 +20,7 @@
             "jaySchemaHasRequiredPatternField": false,
             "nestedCollections": {
                 "isVirtual":true,
-                "hasMultipleVirtualParents":true
+                "hasMultipleParents":true
             },
             "graphDB": true,
             "relationships": {
