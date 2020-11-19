@@ -163,7 +163,36 @@ making sure that you maintain a proper JSON format.
 						"key": "entityType",
 						"value": "sub-node"
 					}
+				},
+				"dependency":{
+					"type": "not",
+					"values": {
+						"key": "entityType",
+						"value": "sub-node"
+					}
 				}
+			},
+			{
+				"propertyKeyword": "parentCollection",
+				"propertyType": "selecthashed",
+				"canBeUnlinked": false,
+				"hidden":true,
+				"dependency":{
+						"key": "entityType",
+						"value": "sub-node"
+				}
+			},
+			{
+				"propertyKeyword":"parentCollections",
+				"propertyName":"Parent collections",
+				"valueType":"array",
+				"options": [],
+				"propertyType": "parentCollectionsInput",
+				"dependency": {
+					"key": "entityType",
+					"value": "sub-node"
+				},
+				"canBeUnlinked": false
 			},
 			{
 				"propertyKeyword": "childCollection",
@@ -185,18 +214,6 @@ making sure that you maintain a proper JSON format.
 				"propertyName":"Entity type",
 				"valueType": "string",
 				"propertyKeyword":"entityType",
-				"hidden": true
-			},
-			{
-				"propertyKeyword":"parentCollections",
-				"propertyName":"Parent collections",
-				"valueType":"array",
-				"options": [],
-				"propertyType": "multiselect",
-				"dependency": {
-					"key": "entityType",
-					"value": "sub-node"
-				},
 				"hidden": true
 			}
 		]
