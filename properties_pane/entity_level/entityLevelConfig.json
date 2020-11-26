@@ -155,8 +155,6 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyKeyword": "parentCollection",
-				"propertyType": "selecthashed",
-				"canBeUnlinked": false,
 				"disabledOnCondition":{
 					"type": "not",
 					"values": {
@@ -171,28 +169,6 @@ making sure that you maintain a proper JSON format.
 						"value": "sub-node"
 					}
 				}
-			},
-			{
-				"propertyKeyword": "parentCollection",
-				"propertyType": "selecthashed",
-				"canBeUnlinked": false,
-				"hidden":true,
-				"dependency":{
-						"key": "entityType",
-						"value": "sub-node"
-				}
-			},
-			{
-				"propertyKeyword":"parentCollections",
-				"propertyName":"Parent collections",
-				"valueType":"array",
-				"options": [],
-				"propertyType": "parentCollectionsInput",
-				"dependency": {
-					"key": "entityType",
-					"value": "sub-node"
-				},
-				"canBeUnlinked": false
 			},
 			{
 				"propertyKeyword": "childCollection",
