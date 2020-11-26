@@ -17,7 +17,6 @@
 		"collectionName": "New sub-node label",
 		"collectionUsers": [],
 		"entityType": "sub-node",
-		"parentCollections":[],
 		"collation": {},
 		"relationName":"Subclass of"
 	},
