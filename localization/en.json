@@ -35,6 +35,7 @@
 	"PROPERTIES_PANE___FOREIGN_COLLECTION": "Foreign node label",
 	"PROPERTIES_PANE___FOREIGN_FIELD": "Foreign property key",
 	"PROPERTIES_PANE___PARENT_COLLECTIONS": "Parent node label",
+	"PROPERTIES_PANE___PARENT_COLLECTION": "Parent node label",
 	"PROPERTIES_PANE___PARENT_RELATION": "Out of node label",
 	"PROPERTIES_PANE___PARENT_FIELD": "Parent property key",
 	"PROPERTIES_PANE___PARENT_CARDINALITY": "Parent cardinality",
