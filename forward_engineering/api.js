@@ -426,11 +426,46 @@ module.exports = {
     getObjectValueBySchema(data, fieldSchema) {
         if (fieldSchema && fieldSchema.type === 'spatial') {
             if (fieldSchema.mode === 'point') {
-                return `point(${this.toCypherJson(data)})`;
+                return `point(${this.toCypherJson(this.fixPoint(data))})`;
             }
         }
 
         return `apoc.convert.toJson(${this.toCypherJson(data)})`;
+    },
+
+    fixPoint(point) {
+        const isObject = (point && typeof point === 'object' && !Array.isArray(point));
+        if (!isObject) {
+            return point;
+        }
+
+        const fix = (num) => {
+            if (isNaN(num)) {
+                return num;
+            }
+
+            if (Number(num) > 90) {
+                return 90;
+            }
+    
+            if (Number(num) < -90) {
+                return -90;
+            }
+
+            return Number(num);
+        };
+
+        let newPoint = {...point};
+
+        if (newPoint.longitude !== undefined) {
+            newPoint.longitude = fix(newPoint.longitude);
+        }
+
+        if (newPoint.latitude !== undefined) {
+            newPoint.latitude = fix(newPoint.latitude);
+        }
+
+        return newPoint;
     },
 
     getArrayValueBySchema(data, arraySchema) {
