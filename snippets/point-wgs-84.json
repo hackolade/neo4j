@@ -4,10 +4,14 @@
 	"properties": [{
 		"name": "latitude",
 		"type": "number",
-		"mode": "float"
+		"mode": "float",
+		"maximum": 90,
+		"minimum": -90
 	}, {
 		"name": "longitude",
 		"type": "number",
-		"mode": "float"
+		"mode": "float",
+		"maximum": 90,
+		"minimum": -90
 	}]
 }
