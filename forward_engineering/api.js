@@ -106,7 +106,10 @@ module.exports = {
             .join('\n\n')
             .slice(0, -1);
 
-        let script = `CREATE ${activatedLabels + (deactivatedLabels.length ? '\n\n' + this.commentIfDeactivated(deactivatedLabels, false) : '')}` ;
+        let script = `CREATE ${
+            activatedLabels +
+            (deactivatedLabels.length ? '\n\n' + this.commentIfDeactivated(deactivatedLabels, false) : '')
+        }`;
 
         if (Object.keys(createdHash).length) {
             script += `\n RETURN ${Object.keys(createdHash)
@@ -131,7 +134,7 @@ module.exports = {
                 result.push({
                     statement: `${screen(field)}: ${this.getObjectValueBySchema(
                         data[field],
-                        schema.properties[field]
+                        getProperty(schema, field)
                     )}`,
                     isActivated: isParentActivated ? isFieldActivated : true,
                 });
@@ -140,7 +143,7 @@ module.exports = {
                 result.push({
                     statement: `${screen(field)}: [ ${this.getArrayValueBySchema(
                         data[field],
-                        schema.properties[field].items
+                        getProperty(schema, field).items || []
                     ).join(', ')} ]`,
                     isActivated: isParentActivated ? isFieldActivated : true,
                 });
@@ -163,11 +166,12 @@ module.exports = {
             .filter((field) => !field.isActivated)
             .map((field) => field.statement)
             .join(',\n\t');
-        console.log(`deactivatedFields: '${deactivatedFields}'`);
 
-        return '{\n\t' + activatedFields + (deactivatedFields.length
-            ? '\n' + this.commentIfDeactivated(deactivatedFields, false) + '\n}'
-            : '\n}');
+        return (
+            '{\n\t' +
+            activatedFields +
+            (deactivatedFields.length ? '\n' + this.commentIfDeactivated(deactivatedFields, false) + '\n}' : '\n}')
+        );
     },
 
     createMap(collections, relationships) {
@@ -434,7 +438,7 @@ module.exports = {
     },
 
     fixPoint(point) {
-        const isObject = (point && typeof point === 'object' && !Array.isArray(point));
+        const isObject = point && typeof point === 'object' && !Array.isArray(point);
         if (!isObject) {
             return point;
         }
@@ -447,7 +451,7 @@ module.exports = {
             if (Number(num) > 90) {
                 return 90;
             }
-    
+
             if (Number(num) < -90) {
                 return -90;
             }
@@ -455,7 +459,7 @@ module.exports = {
             return Number(num);
         };
 
-        let newPoint = {...point};
+        let newPoint = { ...point };
 
         if (newPoint.longitude !== undefined) {
             newPoint.longitude = fix(newPoint.longitude);
@@ -497,3 +501,18 @@ module.exports = {
 };
 
 const screen = (s) => `\`${s}\``;
+
+const getProperty = (schema, field) => {
+    const _ = require('../reverse_engineering/node_modules/lodash');
+    if (_.has(schema, `properties.${field}`)) {
+        return schema.properties[field];
+    } else if (_.has(schema, `allOf.${field}`)) {
+        return schema.allOf[field];
+    } else if (_.has(schema, `anyOf.${field}`)) {
+        return schema.anyOf[field];
+    } else if (_.has(schema, `oneOf.${field}`)) {
+        return schema.oneOf[field];
+    } else {
+        return {};
+    }
+};
