@@ -13,6 +13,13 @@
 		"collectionUsers": [],
 		"collation": {}
 	},
+	"nestedCollection": {
+		"collectionName": "New sub-node label",
+		"collectionUsers": [],
+		"entityType": "sub-node",
+		"collation": {},
+		"relationName":"Subclass of"
+	},
 	"field": {
 		"name": "New property key"
 	},

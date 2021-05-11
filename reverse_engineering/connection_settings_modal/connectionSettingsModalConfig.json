@@ -108,6 +108,7 @@
 				"inputKeyword": "passphrase",
 				"inputType": "password",
 				"inputPlaceholder": "Passphrase",
+				"isHiddenKey": true,
 				"dependency": {
 					"key": "sslType",
 					"value": "TRUST_SERVER_CLIENT_CERTIFICATES"

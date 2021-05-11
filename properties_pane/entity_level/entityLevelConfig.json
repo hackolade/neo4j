@@ -119,6 +119,65 @@ making sure that you maintain a proper JSON format.
 		"lowerTab": "Details",
 		"structure": [
 			{
+				"propertyName": "Node key",
+				"propertyKeyword": "collectionName",
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "entityType",
+						"value": "sub-node"
+					}
+				}
+			},
+			{
+				"propertyName": "Relationship type",
+				"propertyKeyword": "relationName",
+				"propertyType": "text",
+				"shouldValidate": false,
+				"dependency": {
+					"key": "entityType",
+					"value": "sub-node"
+				},
+			    "valueType": "string",
+  				"propertyTooltip": "edge"
+			},
+			{
+				"propertyName": "Sub-node key",
+				"propertyKeyword": "collectionName",
+				"propertyType": "coupled",
+				"coupledBy": "namingConvention",
+				"onCoupleAction": "onCoupleCollectionBusinessName",
+    			"shouldValidate": true,
+				"dependency": {
+					"key": "entityType",
+					"value": "sub-node"
+				}
+			},
+			{
+				"propertyKeyword": "parentCollection",
+				"disabledOnCondition":{
+					"type": "not",
+					"values": {
+						"key": "entityType",
+						"value": "sub-node"
+					}
+				},
+				"dependency":{
+					"type": "not",
+					"values": {
+						"key": "entityType",
+						"value": "sub-node"
+					}
+				}
+			},
+			{
+				"propertyKeyword": "childCollection",
+				"disabledOnCondition":{}
+			},
+			{
+				"propertyKeyword": "additionalProperties"
+			},
+			{
 				"propertyName": "Comments",
 				"propertyKeyword": "comments",
 				"shouldValidate": false,
@@ -126,6 +185,12 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "details",
 				"template": "textarea",
 				"valueType": "string"
+			},
+			{
+				"propertyName":"Entity type",
+				"valueType": "string",
+				"propertyKeyword":"entityType",
+				"hidden": true
 			}
 		]
 	},
@@ -175,7 +240,14 @@ making sure that you maintain a proper JSON format.
 					"propertyType": "details",
 					"template": "textarea"
 				}
-			]
+			],
+			"dependency": {
+				"type": "not",
+				"values": {
+					"key": "entityType",
+					"value": "sub-node"
+				}
+			}
 		}]
 	},
 	{
@@ -241,7 +313,14 @@ making sure that you maintain a proper JSON format.
 					"propertyType": "details",
 					"template": "textarea"
 				}
-			]
+			],
+			"dependency": {
+				"type": "not",
+				"values": {
+					"key": "entityType",
+					"value": "sub-node"
+				}
+			}
 		}]
 	}
 ]

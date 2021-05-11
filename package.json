@@ -1,43 +1,47 @@
 {
     "name": "Neo4j",
-    "version": "0.1.18",
-    "versionDate": "2020-06-25",
+    "version": "0.1.28",
+    "versionDate": "2021-02-19",
     "author": "hackolade",
     "engines": {
-        "hackolade": "2.0.x",
+        "hackolade": "4.2.10",
         "hackoladePlugin": "1.0.0"
     },
     "contributes": {
         "target": {
             "applicationTarget": "NEO4J",
             "title": "Neo4j",
-			"versions": [
+            "versions": [
                 "3.x",
                 "4.x"
-			]
-		},
+            ]
+        },
         "features": {
             "jaySchemaHasRequiredPatternField": false,
-            "nestedCollections": false,
+            "nestedCollections": {
+                "isVirtual":true,
+                "hasMultipleParents":true
+            },
             "graphDB": true,
             "relationships": {
                 "connectOnEntityLevel": true,
                 "hasData": true
             },
             "enableForwardEngineering": {
-				"jsonDocument": true,
-				"jsonSchema": true,
-				"excel": true,
-				"plugin": true
-			},
-			"enableReverseEngineering": {
-				"jsonDocument": true,
-				"jsonSchema": true,
-				"ddl": true,
-				"xsd": true,
-				"excel": true,
-				"plugin": true 
-			}
+                "jsonDocument": true,
+                "jsonSchema": true,
+                "excel": true,
+                "plugin": true
+            },
+            "enableReverseEngineering": {
+                "jsonDocument": true,
+                "jsonSchema": true,
+                "ddl": true,
+                "xsd": true,
+                "excel": true,
+                "plugin": true
+            },
+            "FEScriptCommentsSupported": true
         }
     },
     "description": "Hackolade plugin for Neo4j",
