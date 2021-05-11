@@ -5,7 +5,7 @@
   "author": "Hackolade",
   "dependencies": {
     "async": "^2.6.0",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "neo4j-driver": "github:hackolade/neo4j-javascript-driver#develop-v4.0.1",
     "tunnel-ssh": "^4.1.4"
   },
