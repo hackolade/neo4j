@@ -410,7 +410,11 @@ module.exports = {
                             index.key.map((key) => key.keyId)
                         );
                         if (fields.length) {
-                            const indexScript = this.getIndex(collection.collectionName, fields);
+                            const indexScript = this.getIndex(
+                                collection.collectionName,
+                                fields,
+                                index.isActivated !== false && collection.isActivated !== false,
+                            );
                             result.push(indexScript);
                         }
                     }
@@ -420,10 +424,10 @@ module.exports = {
         return result;
     },
 
-    getIndex(collectionName, fields) {
+    getIndex(collectionName, fields, isActivated) {
         return this.commentIfDeactivated(
             `CREATE INDEX ON :${screen(collectionName)}(${fields.map((field) => screen(field.name)).join(', ')})`,
-            fields.every((field) => field.isActivated)
+            isActivated && fields.every((field) => field.isActivated)
         );
     },
 
