@@ -155,7 +155,7 @@ module.exports = {
 			}).then((schema) => {
 				logger.progress({message: 'Start getting relationships...', containerName: dbName, entityName: ''});
 
-				return getRelationshipData(schema, dbName, recordSamplingSettings, fieldInference, metaData.constraints, isMultiDb);
+				return getRelationshipData(schema, dbName, recordSamplingSettings, fieldInference, metaData, isMultiDb);
 			}).then((relationships) => {
 				logger.progress({message: 'Relationships have successfully got', containerName: dbName, entityName: ''});
 
@@ -258,7 +258,8 @@ const getNodesData = (dbName,  labels, isMultiDb, data, logger) => {
 	});
 };
 
-const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInference, constraints, isMultiDb) => {
+const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInference, metaData, isMultiDb) => {
+	const {constraints, indexes} = metaData;
 	return new Promise((resolve, reject) => {
 		async.map(schema, (chain, nextChain) => {
 			neo4j.getCountRelationshipsData(chain.start, chain.relationship, chain.end, dbName, isMultiDb).then((quantity) => {
@@ -268,6 +269,7 @@ const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInfere
 				const documents = deserializeData(rawDocuments);
 				const separatedConstraints = separateConstraintsByType(constraints[chain.relationship] || []);
 				const jsonSchema = createSchemaByConstraints(documents, separatedConstraints);
+				const relationshipIndexes = indexes[chain.relationship] || [];
 				let packageData = {
 					dbName,
 					parentCollection: chain.start, 
@@ -276,13 +278,13 @@ const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInfere
 					validation: {
 						jsonSchema
 					},
+					indexes: relationshipIndexes,
 					documents
 				};
 
 				if (fieldInference.active === 'field') {
 					packageData.documentTemplate = getTemplate(documents);
 				}
-
 				nextChain(null, packageData);
 			}).catch(nextChain);
 		}, (err, packages) => {
@@ -329,31 +331,32 @@ const getLabelPackage = (dbName, labelName, rawDocuments, includeEmptyCollection
 const prepareIndexes = (indexes) => {
 	const hasProperties = /INDEX\s+ON\s+\:(.*)\((.*)\)/i;
 	let map = {};
-
 	indexes.forEach((index, i) => {
 		if (index.properties) {
 			index.properties = index.properties;
 		} else if (hasProperties.test(index.description)) {
 			let parsedDescription = index.description.match(hasProperties);
-			index.label = parsedDescription[1];
 			index.properties = parsedDescription[2].split(',').map(s => s.trim());
 		} else {
 			index.properties = [];
 		}
 
-		if (!map[index.label]) {
-			map[index.label] = [];
-		}
-
-		map[index.label].push({
-			name: `${index.label}.[${index.properties.join(',')}]`,
+		const index_obj = {
+			name: index.name,
 			key: index.properties,
 			state: index.state,
 			type: index.type,
 			provider: JSON.stringify(index.provider, null , 4)
+		};
+
+		index.labelsOrTypes.forEach((label, i) => {
+			if (!map[label]) {
+				map[label] = [index_obj];
+			} else {
+				map[label].push(index_obj);
+			}
 		});
 	});
-
 	return map;
 };
 
