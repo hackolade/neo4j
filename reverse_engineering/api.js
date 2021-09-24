@@ -117,7 +117,7 @@ module.exports = {
 			logger.progress({message: 'Start retrieving indexes', containerName: dbName, entityName: ''});
 
 			neo4j.getIndexes(dbName, isMultiDb).then((indexes) => {
-				metaData.indexes = prepareIndexes(indexes);
+				metaData.indexes = modelProps.dbVersion === '3.x' ? prepareIndexes3x(indexes) : prepareIndexes4x(indexes);
 
 				const countIndexes = (indexes && indexes.length) || 0;
 				logger.progress({message: 'Indexes retrieved successfully. Found ' + countIndexes + ' index(es)', containerName: dbName, entityName: ''});
@@ -155,7 +155,7 @@ module.exports = {
 			}).then((schema) => {
 				logger.progress({message: 'Start getting relationships...', containerName: dbName, entityName: ''});
 
-				return getRelationshipData(schema, dbName, recordSamplingSettings, fieldInference, metaData, isMultiDb);
+				return getRelationshipData(schema, dbName, modelProps.dbVersion, recordSamplingSettings, fieldInference, metaData, isMultiDb);
 			}).then((relationships) => {
 				logger.progress({message: 'Relationships have successfully got', containerName: dbName, entityName: ''});
 
@@ -258,7 +258,7 @@ const getNodesData = (dbName,  labels, isMultiDb, data, logger) => {
 	});
 };
 
-const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInference, metaData, isMultiDb) => {
+const getRelationshipData = (schema, dbName, dbVersion, recordSamplingSettings, fieldInference, metaData, isMultiDb) => {
 	const {constraints, indexes} = metaData;
 	return new Promise((resolve, reject) => {
 		async.map(schema, (chain, nextChain) => {
@@ -269,7 +269,6 @@ const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInfere
 				const documents = deserializeData(rawDocuments);
 				const separatedConstraints = separateConstraintsByType(constraints[chain.relationship] || []);
 				const jsonSchema = createSchemaByConstraints(documents, separatedConstraints);
-				const relationshipIndexes = indexes[chain.relationship] || [];
 				let packageData = {
 					dbName,
 					parentCollection: chain.start, 
@@ -278,13 +277,17 @@ const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInfere
 					validation: {
 						jsonSchema
 					},
-					indexes: relationshipIndexes,
 					documents
 				};
 
 				if (fieldInference.active === 'field') {
 					packageData.documentTemplate = getTemplate(documents);
 				}
+
+				if (dbVersion === '4.x') {
+					packageData.indexes = indexes[chain.relationship] || [];;
+				}
+				
 				nextChain(null, packageData);
 			}).catch(nextChain);
 		}, (err, packages) => {
@@ -328,18 +331,41 @@ const getLabelPackage = (dbName, labelName, rawDocuments, includeEmptyCollection
 	}
 }; 
 
-const prepareIndexes = (indexes) => {
+const prepareIndexes3x = (indexes) => {
 	const hasProperties = /INDEX\s+ON\s+\:(.*)\((.*)\)/i;
 	let map = {};
+
 	indexes.forEach((index, i) => {
 		if (index.properties) {
 			index.properties = index.properties;
 		} else if (hasProperties.test(index.description)) {
 			let parsedDescription = index.description.match(hasProperties);
+			index.label = parsedDescription[1];
 			index.properties = parsedDescription[2].split(',').map(s => s.trim());
 		} else {
 			index.properties = [];
 		}
+
+		if (!map[index.label]) {
+			map[index.label] = [];
+		}
+
+		map[index.label].push({
+			name: `${index.label}.[${index.properties.join(',')}]`,
+			key: index.properties,
+			state: index.state,
+			type: index.type,
+			provider: JSON.stringify(index.provider, null , 4)
+		});
+	});
+
+	return map;
+};
+
+const prepareIndexes4x = indexes => {
+	let map = {};
+	indexes.forEach((index, i) => {
+		index.properties = index.properties || [];
 
 		const index_obj = {
 			name: index.name,
@@ -358,7 +384,7 @@ const prepareIndexes = (indexes) => {
 		});
 	});
 	return map;
-};
+}
 
 const prepareConstraints = (constraints) => {
 	const isUnique = /^constraint\s+on\s+\([\s\S]+\:([\S\s]+)\s*\)\s+assert\s+[\s\S]+\.([\s\S]+)\s+IS\s+UNIQUE/i;
