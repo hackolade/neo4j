@@ -285,9 +285,9 @@ const getRelationshipData = (schema, dbName, dbVersion, recordSamplingSettings, 
 				}
 
 				if (dbVersion === '4.x') {
-					packageData.indexes = indexes[chain.relationship] || [];;
+					packageData.relationshipInfo = { index: indexes[chain.relationship] || [] };
 				}
-				
+
 				nextChain(null, packageData);
 			}).catch(nextChain);
 		}, (err, packages) => {
@@ -372,7 +372,8 @@ const prepareIndexes4x = indexes => {
 			key: index.properties,
 			state: index.state,
 			type: index.type,
-			provider: JSON.stringify(index.provider, null , 4)
+			uniqueness: index.uniqueness === "UNIQUE",
+			provider: index.provider
 		};
 
 		index.labelsOrTypes.forEach((label, i) => {
