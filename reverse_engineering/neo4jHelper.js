@@ -43,7 +43,7 @@ const connectViaSsh = (info) => new Promise((resolve, reject) => {
 				})
 			});
 		}
-	});
+	}).on('error', console.error);
 });
 
 const connectToInstance = (info, checkConnection) => {

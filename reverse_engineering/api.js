@@ -1,11 +1,11 @@
 'use strict';
 
 const { dependencies, setDependencies } = require('./appDependencies');
-const async = require('async');
 const neo4j = require('./neo4jHelper');
 const snippetsPath = "../snippets/";
 const logHelper = require('./logHelper');
 let _;
+let async;
 
 const snippets = {
 	"Cartesian 3D": require(snippetsPath + "cartesian-3d.json"),
@@ -178,6 +178,7 @@ module.exports = {
 const initDependencies = app => {
 	setDependencies(app);
 	_ = dependencies.lodash;
+	async = dependencies.async;
 	neo4j.setDependencies(dependencies);
 };
 
