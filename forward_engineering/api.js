@@ -1,5 +1,5 @@
 const { dependencies, setDependencies } = require('./helpers/appDependencies');
-let _;
+let ç;
 const setAppDependencies = ({ lodash }) => (_ = lodash);
 
 module.exports = {
@@ -7,6 +7,7 @@ module.exports = {
         setDependencies(app);
         setAppDependencies(dependencies);
         let { collections, relationships, jsonData } = data;
+        const dbVersion = data.modelData[0]?.dbVersion;
         logger.clear();
         try {
             collections = collections.map(JSON.parse);
@@ -14,7 +15,7 @@ module.exports = {
 
             const createScript = this.generateCreateBatch(collections, relationships, jsonData);
             const constraints = this.generateConstraints(collections, relationships);
-            const indexes = this.getIndexes(collections);
+            const indexes = this.getIndexes(dbVersion, collections, relationships);
 
             cb(null, this.getScript(createScript, constraints, indexes));
         } catch (e) {
@@ -399,36 +400,61 @@ module.exports = {
         return fields;
     },
 
-    getIndexes(collections) {
+    getIndexes(dbVersion, collections, relationships) {
         let result = [];
-        collections.forEach((collection) => {
-            if (collection.index) {
-                collection.index.forEach((index) => {
-                    if (index.key) {
-                        const fields = this.findFields(
-                            collection,
-                            index.key.map((key) => key.keyId)
-                        );
-                        if (fields.length) {
-                            const indexScript = this.getIndex(
-                                collection.collectionName,
-                                fields,
-                                index.isActivated !== false && collection.isActivated !== false,
+        let getIndex = this.getIndex3x.bind(this);
+        let entities = { collections };
+        if (dbVersion === '4.x') {
+            getIndex = this.getIndex4x.bind(this);
+            entities.relationships = relationships;
+        }
+        Object.keys(entities).forEach(type => {
+            entities[type].forEach(entity => {
+                if (entity.index) {
+                    entity.index.forEach((index) => {
+                        if (index.key) {
+                            const fields = this.findFields(
+                                entity,
+                                index.key.map((key) => key.keyId)
                             );
-                            result.push(indexScript);
+                            if (fields.length) {
+                                const indexScript = getIndex({
+                                    entity,
+                                    index,
+                                    fields,
+                                    isActivated: index.isActivated !== false && entity.isActivated !== false,
+                                    type,
+                                });
+                                result.push(indexScript);
+                            }
                         }
-                    }
-                });
-            }
+                    });
+                }
+            });
         });
+        
         return result;
     },
 
-    getIndex(collectionName, fields, isActivated) {
+    getIndex3x({ entity, fields, isActivated }) {
         return this.commentIfDeactivated(
-            `CREATE INDEX ON :${screen(collectionName)}(${fields.map((field) => screen(field.name)).join(', ')})`,
+            `CREATE INDEX ON :${screen(entity.collectionName)}(${fields.map((field) => screen(field.name)).join(', ')})`,
             isActivated && fields.every((field) => field.isActivated)
         );
+    },
+
+    getIndex4x({ entity, index, fields, isActivated, type }) {
+        switch(type) {
+            case 'collections':
+                return this.commentIfDeactivated(
+                    `CREATE INDEX ${screen(index.name)} FOR (node:${screen(entity.collectionName)}) ON (node.${fields.map((field) => screen(field.name)).join(', node.')})`,
+                    isActivated && fields.every((field) => field.isActivated));
+            case 'relationships':
+                return this.commentIfDeactivated(
+                    `CREATE INDEX ${screen(index.name)} FOR ()-[relationship:${screen(entity.name)}]-() ON (relationship.${fields.map((field) => screen(field.name)).join(', relationship.')})`,
+                    isActivated && fields.every((field) => field.isActivated));
+        }
+        return null;
     },
 
     getObjectValueBySchema(data, fieldSchema) {
@@ -507,7 +533,6 @@ module.exports = {
 const screen = (s) => `\`${s}\``;
 
 const getProperty = (schema, field) => {
-    const _ = require('../reverse_engineering/node_modules/lodash');
     if (_.has(schema, `properties.${field}`)) {
         return schema.properties[field];
     } else if (_.has(schema, `allOf.${field}`)) {
