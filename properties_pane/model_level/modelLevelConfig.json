@@ -159,6 +159,11 @@ making sure that you maintain a proper JSON format.
 			"propertyKeyword": "index",
 			"shouldValidate": false,
 			"propertyTooltip": "Relationship indexes",
+			"dependency":{
+                    "level": "model",
+                    "key": "dbVersion",
+                    "value": "4.x"
+                },
 			"structure": [
 
 				{
