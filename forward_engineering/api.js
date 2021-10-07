@@ -404,7 +404,7 @@ module.exports = {
         let result = [];
         let getIndex = this.getIndex3x.bind(this);
         let entities = { collections };
-        if (dbVersion === '4.x') {
+        if (dbVersion !== '3.x') {
             getIndex = this.getIndex4x.bind(this);
             entities.relationships = relationships;
         }

@@ -137,7 +137,8 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "select",
 				"options": [
 					"3.x",
-					"4.x"
+					"4.0-4.2",
+					"4.3"
 				],
 				"disabledOption": true
 			},
@@ -153,7 +154,8 @@ making sure that you maintain a proper JSON format.
 	},
 	{
 		"lowerTab": "Relationships",
-		"structure": [{
+		"structure": [
+		{
 			"propertyName": "Index",
 			"propertyType": "group",
 			"propertyKeyword": "index",
@@ -162,7 +164,7 @@ making sure that you maintain a proper JSON format.
 			"dependency":{
                     "level": "model",
                     "key": "dbVersion",
-                    "value": "4.x"
+                    "value": "4.3"
                 },
 			"structure": [
 
