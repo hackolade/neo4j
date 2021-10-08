@@ -507,7 +507,7 @@ module.exports = {
 const screen = (s) => `\`${s}\``;
 
 const getProperty = (schema, field) => {
-    const _ = require('../reverse_engineering/node_modules/lodash');
+    setAppDependencies(dependencies);
     if (_.has(schema, `properties.${field}`)) {
         return schema.properties[field];
     } else if (_.has(schema, `allOf.${field}`)) {
