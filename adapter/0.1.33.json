@@ -1,0 +1,14 @@
+{
+	"modify": {
+		"model": [
+			{
+				"from": {
+					"dbVersion": "4.x"
+				},
+				"to": {
+					"dbVersion": "4.0-4.2"
+				}
+			}
+        ]
+    }
+}

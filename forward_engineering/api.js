@@ -14,7 +14,7 @@ module.exports = {
             relationships = relationships.map(JSON.parse);
 
             const createScript = this.generateCreateBatch(collections, relationships, jsonData);
-            const constraints = this.generateConstraints(collections, relationships);
+            const constraints = this.generateConstraints(dbVersion, collections, relationships);
             const indexes = this.getIndexes(dbVersion, collections, relationships);
 
             cb(null, this.getScript(createScript, constraints, indexes));
@@ -242,7 +242,7 @@ module.exports = {
         }
     },
 
-    generateConstraints(collections, relationships) {
+    generateConstraints(dbVersion, collections, relationships) {
         let result = [];
 
         const collectionIdToActivated = collections.reduce((result, collection) => {
@@ -250,10 +250,15 @@ module.exports = {
             return result;
         }, {});
 
+        let getExistsConstraint = this.getExistsConstraint;
+        if (dbVersion === '4.3') {
+            getExistsConstraint = this.getExistsConstraint43;
+        }
+
         collections.forEach((collection) => {
             if (collection.constraint && Array.isArray(collection.constraint)) {
                 collection.constraint.forEach((constraint) => {
-                    const nodeKeyConstraint = this.getNodeKeyConstraint(collection, constraint);
+                    const nodeKeyConstraint = this.getNodeKeyConstraint({collection, constraint});
                     if (nodeKeyConstraint) {
                         result.push(nodeKeyConstraint);
                     }
@@ -265,7 +270,7 @@ module.exports = {
                         const isFieldActivated = _.get(collection, `properties.${fieldName}.isActivated`, true);
                         result.push(
                             this.commentIfDeactivated(
-                                this.getExistsConstraint(collection.collectionName, fieldName),
+                                getExistsConstraint({labelName: collection.collectionName, fieldName, type: 'node'}),
                                 collection.isActivated && isFieldActivated
                             )
                         );
@@ -278,7 +283,7 @@ module.exports = {
                         const isFieldActivated = _.get(collection, `properties.${fieldName}.isActivated`, true);
                         result.push(
                             this.commentIfDeactivated(
-                                this.getUniqeConstraint(collection.collectionName, fieldName),
+                                this.getUniqueConstraint({labelName: collection.collectionName, fieldName}),
                                 collection.isActivated && isFieldActivated
                             )
                         );
@@ -297,21 +302,7 @@ module.exports = {
                         const isFieldActivated = _.get(relationship, `properties.${fieldName}.isActivated`, true);
                         result.push(
                             this.commentIfDeactivated(
-                                this.getExistsConstraint(relationship.name, fieldName),
-                                isFieldActivated && isRelationshipActivated
-                            )
-                        );
-                    }
-                });
-            }
-
-            if (relationship.properties) {
-                Object.keys(relationship.properties).forEach((fieldName) => {
-                    if (relationship.properties[fieldName].unique) {
-                        const isFieldActivated = _.get(relationship, `properties.${fieldName}.isActivated`, true);
-                        result.push(
-                            this.commentIfDeactivated(
-                                this.getUniqeConstraint(relationship.name, fieldName),
+                                getExistsConstraint({labelName: relationship.name, fieldName, type: 'relationship'}),
                                 isFieldActivated && isRelationshipActivated
                             )
                         );
@@ -323,7 +314,7 @@ module.exports = {
         return result;
     },
 
-    getNodeKeyConstraint(collection, constraint) {
+    getNodeKeyConstraint({collection, constraint}) {
         let keys = [];
         if (constraint.compositeNodeKey) {
             keys = this.findFields(
@@ -335,7 +326,7 @@ module.exports = {
                 const varLabelName = collection.collectionName.toLowerCase();
 
                 return this.commentIfDeactivated(
-                    `CREATE CONSTRAINT ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT (${keys
+                    `CREATE CONSTRAINT ${constraint.name ? screen(constraint.name) : ''} ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT (${keys
                         .map((key) => `${screen(varLabelName)}.${screen(key.name)}`)
                         .join(', ')}) IS NODE KEY`,
                     keys.every((key) => key.isActivated)
@@ -344,15 +335,31 @@ module.exports = {
         }
     },
 
-    getExistsConstraint(labelName, fieldName) {
+    getExistsConstraint({labelName, fieldName, type}) {
         const varLabelName = labelName.toLowerCase();
-
-        return `CREATE CONSTRAINT ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT exists(${screen(
-            varLabelName
-        )}.${screen(fieldName)})`;
+        switch (type) {
+            case 'node':
+                return `CREATE CONSTRAINT ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT exists(${screen(varLabelName)}.${screen(fieldName)})`;
+            case 'relationship':
+                return `CREATE CONSTRAINT ON ()-[${screen(varLabelName)}:${screen(labelName)}]-() ASSERT exists(${screen(varLabelName)}.${screen(fieldName)})`; 
+            default:
+                return null;
+        }
     },
 
-    getUniqeConstraint(labelName, fieldName) {
+    getExistsConstraint43({labelName, fieldName, type}) {
+        const varLabelName = labelName.toLowerCase();
+        switch (type) {
+            case 'node':
+                return `CREATE CONSTRAINT ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
+            case 'relationship':
+                return `CREATE CONSTRAINT ON ()-[${screen(varLabelName)}:${screen(labelName)}]-() ASSERT ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
+            default:
+                return null;
+        }
+    },
+
+    getUniqueConstraint({labelName, fieldName}) {
         const varLabelName = labelName.toLowerCase();
 
         return `CREATE CONSTRAINT ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT ${screen(
@@ -444,14 +451,15 @@ module.exports = {
     },
 
     getIndex4x({ entity, index, fields, isActivated, type }) {
+        const indexName = (index.name || entity.name)?.toLowerCase() || 'entity';
         switch(type) {
             case 'collections':
                 return this.commentIfDeactivated(
-                    `CREATE INDEX ${screen(index.name)} FOR (node:${screen(entity.collectionName)}) ON (node.${fields.map((field) => screen(field.name)).join(', node.')})`,
+                    `CREATE INDEX ${screen(index.name)} FOR (${screen(indexName)}:${screen(entity.collectionName)}) ON (${screen(indexName)}.${fields.map((field) => screen(field.name)).join(`, ${screen(indexName)}.`)})`,
                     isActivated && fields.every((field) => field.isActivated));
             case 'relationships':
                 return this.commentIfDeactivated(
-                    `CREATE INDEX ${screen(index.name)} FOR ()-[relationship:${screen(entity.name)}]-() ON (relationship.${fields.map((field) => screen(field.name)).join(', relationship.')})`,
+                    `CREATE INDEX ${screen(index.name)} FOR ()-[${screen(indexName)}:${screen(entity.name)}]-() ON (${screen(indexName)}.${fields.map((field) => screen(field.name)).join(`, ${screen(indexName)}.`)})`,
                     isActivated && fields.every((field) => field.isActivated));
         }
         return null;
