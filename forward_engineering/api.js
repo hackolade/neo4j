@@ -1,5 +1,5 @@
 const { dependencies, setDependencies } = require('./helpers/appDependencies');
-let ç;
+let _;
 const setAppDependencies = ({ lodash }) => (_ = lodash);
 
 module.exports = {
@@ -541,6 +541,7 @@ module.exports = {
 const screen = (s) => `\`${s}\``;
 
 const getProperty = (schema, field) => {
+    setAppDependencies(dependencies);
     if (_.has(schema, `properties.${field}`)) {
         return schema.properties[field];
     } else if (_.has(schema, `allOf.${field}`)) {
