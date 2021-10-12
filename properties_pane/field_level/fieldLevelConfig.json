@@ -141,7 +141,12 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"level": "root",
+					"key": "collectionName",
+					"exist": true
+				}
 			},
 			{
 				"propertyName": "Node key",
@@ -198,7 +203,12 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"level": "root",
+					"key": "collectionName",
+					"exist": true
+				}
 			},
 			{
 				"propertyName": "Node key",
@@ -236,7 +246,12 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"level": "root",
+					"key": "collectionName",
+					"exist": true
+				}
 			},
 			{
 				"propertyName": "Node key",
@@ -289,7 +304,12 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"level": "root",
+					"key": "collectionName",
+					"exist": true
+				}
 			},
 			{
 				"propertyName": "Node key",
@@ -327,7 +347,12 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"level": "root",
+					"key": "collectionName",
+					"exist": true
+				}
 			},
 			{
 				"propertyName": "Node key",
@@ -366,7 +391,12 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"level": "root",
+					"key": "collectionName",
+					"exist": true
+				}
 			},
 			{
 				"propertyName": "Node key",
@@ -417,7 +447,12 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"level": "root",
+					"key": "collectionName",
+					"exist": true
+				}
 			},
 			{
 				"propertyName": "Node key",
