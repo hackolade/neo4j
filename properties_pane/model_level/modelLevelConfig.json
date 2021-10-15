@@ -135,12 +135,12 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyTooltip": "DB version",
 				"propertyType": "select",
+				"defaultValue": "4.3",
 				"options": [
 					"3.x",
 					"4.0-4.2",
 					"4.3"
-				],
-				"disabledOption": true
+				]
 			},
 			{
 				"propertyName": "Comments",

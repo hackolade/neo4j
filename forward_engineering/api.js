@@ -413,7 +413,9 @@ module.exports = {
         let entities = { collections };
         if (dbVersion !== '3.x') {
             getIndex = this.getIndex4x.bind(this);
-            entities.relationships = relationships;
+            if (dbVersion === '4.3') {
+                entities.relationships = relationships;
+            }
         }
         Object.keys(entities).forEach(type => {
             entities[type].forEach(entity => {
