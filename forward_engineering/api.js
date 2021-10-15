@@ -453,15 +453,15 @@ module.exports = {
     },
 
     getIndex4x({ entity, index, fields, isActivated, type }) {
-        const indexName = (index.name || entity.name)?.toLowerCase() || 'entity';
+        const name = entity.name?.toLowerCase() || 'entity';
         switch(type) {
             case 'collections':
                 return this.commentIfDeactivated(
-                    `CREATE INDEX ${screen(index.name)} FOR (${screen(indexName)}:${screen(entity.collectionName)}) ON (${screen(indexName)}.${fields.map((field) => screen(field.name)).join(`, ${screen(indexName)}.`)})`,
+                    `CREATE INDEX ${screen(index.name || name)} FOR (${screen(name)}:${screen(entity.collectionName)}) ON (${screen(name)}.${fields.map((field) => screen(field.name)).join(`, ${screen(name)}.`)})`,
                     isActivated && fields.every((field) => field.isActivated));
             case 'relationships':
                 return this.commentIfDeactivated(
-                    `CREATE INDEX ${screen(index.name)} FOR ()-[${screen(indexName)}:${screen(entity.name)}]-() ON (${screen(indexName)}.${fields.map((field) => screen(field.name)).join(`, ${screen(indexName)}.`)})`,
+                    `CREATE INDEX ${screen(index.name || name)} FOR ()-[${screen(name)}:${screen(entity.name)}]-() ON (${screen(name)}.${fields.map((field) => screen(field.name)).join(`, ${screen(name)}.`)})`,
                     isActivated && fields.every((field) => field.isActivated));
         }
         return null;
