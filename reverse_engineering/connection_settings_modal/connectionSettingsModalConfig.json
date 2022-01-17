@@ -47,6 +47,7 @@
 	},
 	{
 		"tab": "SSL",
+		"helpUrl": "https://hackolade.com/help/SSL1.html",
 		"structure": [
 			{
 				"inputLabel": "SSL",
@@ -118,6 +119,7 @@
 	},
 	{
 		"tab": "SSH",
+		"helpUrl": "https://hackolade.com/help/SSH1.html",
 		"structure": [
 			{
 				"inputLabel": "Use SSH Tunnel",
