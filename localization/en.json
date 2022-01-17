@@ -140,6 +140,7 @@
 	"TOOLTIPS___MAX_VARIABLE": "max variable",
 	"TOOLTIPS___BACKWARDS": "Backwards",
 	"TOOLTIPS___NORMALIZATION": "Normalization",
+	"TOOLTIPS___ADD_RELATIONSHIP": "Add relationship type",
 	"NEW___MODEL_NAME": "New model",
 	"NEW___BUCKET_NAME": "New database",
 	"NEW___COLLECTION_NAME": "New node label",
