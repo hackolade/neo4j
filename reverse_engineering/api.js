@@ -88,6 +88,15 @@ module.exports = {
 	},
 
 	getDbCollectionsData: async function(data, logger, cb, app) {
+		try {
+			this.getDbCollectionsDataWrapped(data, logger, cb, app);
+		} catch (error) {
+			logger.log('error', prepareError(error), "RE Get Collections Data");
+			cb(error)
+		}
+	},
+
+	getDbCollectionsDataWrapped: async function(data, logger, cb, app) {
 		initDependencies(app);
 		logger.log('info', data, 'Retrieving schema for chosen labels', data.hiddenKeys);
 
@@ -104,6 +113,7 @@ module.exports = {
 		logger.progress = logger.progress || (() => {});
 
 		logger.progress({message: 'Start Reverse Engineering Neo4j', containerName: '', entityName: ''});
+		logger.log('info', '', 'Start Reverse Engineering Neo4j');
 		
 		const isMultiDb = await neo4j.supportsMultiDb();
 		const modelProps = {
@@ -115,6 +125,7 @@ module.exports = {
 			let metaData = {};
 
 			logger.progress({message: 'Start retrieving indexes', containerName: dbName, entityName: ''});
+			logger.log('info', dbName, 'Start retrieving indexes');
 
 			neo4j.getIndexes(dbName, isMultiDb).then((indexes) => {
 				metaData.indexes = modelProps.dbVersion === '3.x' ? prepareIndexes3x(indexes) : prepareIndexes4x(indexes);
@@ -122,6 +133,7 @@ module.exports = {
 				const countIndexes = (indexes && indexes.length) || 0;
 				logger.progress({message: 'Indexes retrieved successfully. Found ' + countIndexes + ' index(es)', containerName: dbName, entityName: ''});
 				logger.progress({message: 'Start retrieving constraints', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Start retrieving constraints');
 				
 				return neo4j.getConstraints(dbName, isMultiDb);
 			}).then((constraints) => {
@@ -129,6 +141,7 @@ module.exports = {
 
 				const countConstraints = (constraints && constraints.length) || 0;
 				logger.progress({message: 'Constraints retrieved successfully. Found ' + countConstraints + ' constraint(s)', containerName: dbName, entityName: ''});
+				logger.log('info',  `${countConstraints} constraint(s)`, 'Constraints retrieved successfully');
 
 				return metaData;
 			}).then(metaData => {
@@ -144,20 +157,24 @@ module.exports = {
 				labels = labelPackages.reduce((result, packageData) => result.concat([packageData.collectionName]), []);
 
 				logger.progress({message: 'Start getting schema...', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Start getting schema');
 
 				return neo4j.getSchema(dbName, isMultiDb);
 			}).then((schema) => {
 				logger.progress({message: 'Schema has successfully got', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Schema has successfully got');
 				
 				return schema.filter(data => {
 					return (labels.indexOf(data.start) !== -1 && labels.indexOf(data.end) !== -1);
 				});
 			}).then((schema) => {
 				logger.progress({message: 'Start getting relationships...', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Start getting relationships');
 
 				return getRelationshipData(schema, dbName, modelProps.dbVersion, recordSamplingSettings, fieldInference, metaData, isMultiDb);
 			}).then((relationships) => {
 				logger.progress({message: 'Relationships have successfully got', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Relationships have successfully got');
 
 				packages.relationships.push(relationships);
 				next(null);
@@ -167,6 +184,7 @@ module.exports = {
 			});
 		}, (err) => {
 			logger.progress({message: 'Reverse engineering finished', containerName: '', entityName: ''});
+			logger.log('info', '', 'Reverse engineering finished');
 
 			setTimeout(() => {
 				cb(err, packages.labels, modelProps, [].concat.apply([], packages.relationships));
