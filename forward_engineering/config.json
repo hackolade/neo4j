@@ -3,6 +3,7 @@
 	"filterName": "Cypher script",
 	"namePrefix": "Cypher Code",
 	"hasUpdateScript": false,
+	"resolvedDefinitions": true,
 	"level": {
 		"container": true,
 		"entity": false
