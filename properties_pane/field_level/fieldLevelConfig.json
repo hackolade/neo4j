@@ -143,9 +143,20 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "unique",
 				"propertyType": "checkbox",
 				"dependency": {
-					"level": "root",
-					"key": "collectionName",
-					"exist": true
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
 				}
 			},
 			{
@@ -205,9 +216,20 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "unique",
 				"propertyType": "checkbox",
 				"dependency": {
-					"level": "root",
-					"key": "collectionName",
-					"exist": true
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
 				}
 			},
 			{
@@ -248,9 +270,20 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "unique",
 				"propertyType": "checkbox",
 				"dependency": {
-					"level": "root",
-					"key": "collectionName",
-					"exist": true
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
 				}
 			},
 			{
@@ -306,9 +339,20 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "unique",
 				"propertyType": "checkbox",
 				"dependency": {
-					"level": "root",
-					"key": "collectionName",
-					"exist": true
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
 				}
 			},
 			{
@@ -349,9 +393,20 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "unique",
 				"propertyType": "checkbox",
 				"dependency": {
-					"level": "root",
-					"key": "collectionName",
-					"exist": true
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
 				}
 			},
 			{
@@ -393,9 +448,20 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "unique",
 				"propertyType": "checkbox",
 				"dependency": {
-					"level": "root",
-					"key": "collectionName",
-					"exist": true
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
 				}
 			},
 			{
@@ -449,9 +515,20 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "unique",
 				"propertyType": "checkbox",
 				"dependency": {
-					"level": "root",
-					"key": "collectionName",
-					"exist": true
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
 				}
 			},
 			{

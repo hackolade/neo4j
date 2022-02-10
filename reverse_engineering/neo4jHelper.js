@@ -276,7 +276,8 @@ const getDbVersion = async () => {
 	try {
 		const versionResponse = await execute('call dbms.components() yield versions unwind versions as version return version');
 		const version = _.get(versionResponse, '[0].version');
-		if (version.startsWith('4.3')) {
+		const splittedVersion = version.split('.');
+		if (splittedVersion[0] === '4' && splittedVersion[1] >= '3') {
 			return '4.3';
 		} else if (version.startsWith('4')) {
 			return '4.0-4.2';
