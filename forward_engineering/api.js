@@ -251,14 +251,14 @@ module.exports = {
         }, {});
 
         let getExistsConstraint = this.getExistsConstraint;
-        if (dbVersion === '4.3') {
+        if (!isDBVersionLessThan4point3(dbVersion)) {
             getExistsConstraint = this.getExistsConstraint43;
         }
 
         collections.forEach((collection) => {
             if (collection.constraint && Array.isArray(collection.constraint)) {
                 collection.constraint.forEach((constraint) => {
-                    const nodeKeyConstraint = this.getNodeKeyConstraint({collection, constraint});
+                    const nodeKeyConstraint = this.getNodeKeyConstraint({collection, constraint}, dbVersion);
                     if (nodeKeyConstraint) {
                         result.push(nodeKeyConstraint);
                     }
@@ -283,7 +283,7 @@ module.exports = {
                         const isFieldActivated = _.get(collection, `properties.${fieldName}.isActivated`, true);
                         result.push(
                             this.commentIfDeactivated(
-                                this.getUniqueConstraint({labelName: collection.collectionName, fieldName}),
+                                this.getUniqueConstraint({labelName: collection.collectionName, fieldName}, dbVersion),
                                 collection.isActivated && isFieldActivated
                             )
                         );
@@ -314,7 +314,7 @@ module.exports = {
         return result;
     },
 
-    getNodeKeyConstraint({collection, constraint}) {
+    getNodeKeyConstraint({collection, constraint}, dbVersion) {
         let keys = [];
         if (constraint.compositeNodeKey) {
             keys = this.findFields(
@@ -324,9 +324,10 @@ module.exports = {
             if (Array.isArray(keys) && keys.length) {
                 const labelName = collection.collectionName;
                 const varLabelName = collection.collectionName.toLowerCase();
+                const idempotentConstraintStatement = getOptionalIdempotentConstraintStatement(dbVersion);
 
                 return this.commentIfDeactivated(
-                    `CREATE CONSTRAINT ${constraint.name ? screen(constraint.name) : ''} ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT (${keys
+                    `CREATE CONSTRAINT ${constraint.name ? screen(constraint.name) : ''}${idempotentConstraintStatement}ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT (${keys
                         .map((key) => `${screen(varLabelName)}.${screen(key.name)}`)
                         .join(', ')}) IS NODE KEY`,
                     keys.every((key) => key.isActivated)
@@ -351,18 +352,18 @@ module.exports = {
         const varLabelName = labelName.toLowerCase();
         switch (type) {
             case 'node':
-                return `CREATE CONSTRAINT ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
+                return `CREATE CONSTRAINT IF NOT EXISTS ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
             case 'relationship':
-                return `CREATE CONSTRAINT ON ()-[${screen(varLabelName)}:${screen(labelName)}]-() ASSERT ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
+                return `CREATE CONSTRAINT IF NOT EXISTS ON ()-[${screen(varLabelName)}:${screen(labelName)}]-() ASSERT ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
             default:
                 return null;
         }
     },
 
-    getUniqueConstraint({labelName, fieldName}) {
+    getUniqueConstraint({labelName, fieldName}, dbVersion) {
         const varLabelName = labelName.toLowerCase();
-
-        return `CREATE CONSTRAINT ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT ${screen(
+        const idempotentConstraintStatement = getOptionalIdempotentConstraintStatement(dbVersion);
+        return `CREATE CONSTRAINT${idempotentConstraintStatement}ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT ${screen(
             varLabelName
         )}.${screen(fieldName)} IS UNIQUE`;
     },
@@ -556,3 +557,14 @@ const getProperty = (schema, field) => {
         return {};
     }
 };
+
+const getOptionalIdempotentConstraintStatement = (dbVersion) => {
+    if (isDBVersionLessThan4point3(dbVersion)) {
+        return ' ';
+    }
+    return ' IF NOT EXISTS ';
+}
+
+const isDBVersionLessThan4point3 = (dbVersion) => {
+    return ['3.x', '4.0-4.2'].includes(dbVersion);
+}
