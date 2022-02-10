@@ -143,9 +143,20 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "unique",
 				"propertyType": "checkbox",
 				"dependency": {
-					"level": "root",
-					"key": "collectionName",
-					"exist": true
+					"type": "or",
+					"value": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
 				}
 			},
 			{
