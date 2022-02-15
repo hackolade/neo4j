@@ -5,6 +5,9 @@ const fs = require('fs');
 const ssh = require('tunnel-ssh');
 let _;
 
+const EXECUTE_TIME_OUT_CODE  = 'EXECUTE_TIME_OUT';
+const TIMEOUT = 60000;
+
 const setDependencies = ({ lodash }) => _ = lodash;
 
 const getSshConfig = (info) => {
@@ -106,25 +109,43 @@ const execute = (command, database = undefined, isMultiDb = false) => {
 	if (!isMultiDb) {
 		database = undefined;
 	}
-	return new Promise((resolve, reject) => {
-		const db = driver.session({ database });
-		let result = [];
-		db.run(command)
-			.subscribe({
-				onNext: (record) => {
-					result.push(record.toObject());
-				},
-				onCompleted: () => {
-					db.close();
-					resolve(result);
-				},
-				onError: (error) => {
-					db.close();
-					reject(error);
-				}
-			});
-	});
+	const executeTimeout = new Promise((_, reject) => setTimeout(() => reject(getExecuteTimeoutError(TIMEOUT)), TIMEOUT));
+	let result = [];
+	let db;
+	try {
+		db = driver.session({ database });
+		const executeWithOutTimeout = new Promise((resolve, reject) => {
+			db.run(command)
+				.subscribe({
+					onNext: (record) => {
+						result.push(record.toObject());
+					},
+					onCompleted: () => {
+						db.close();
+						db = null;
+						resolve(result);
+					},
+					onError: (error) => {
+						db.close();
+						db = null;
+						reject(error);
+					}
+				});
+		});
+		return await Promise.race([executeWithOutTimeout, executeTimeout]);
+	} catch (error) {
+		if (error.code === EXECUTE_TIME_OUT_CODE && db) {
+			db.close();
+		}
+		throw error;
+	}
 };
+
+const getExecuteTimeoutError = (timeout) => {
+	const error = new Error(`execute timeout: ${timeout}ms exceeded`);
+	error.code = EXECUTE_TIME_OUT_CODE;
+	return error
+}
 
 const castInteger = (properties) => {
 	let result = Array.isArray(properties) ? [] : {};
@@ -156,11 +177,16 @@ const getLabels = async (database, isMultiDb) => {
 	}
 };
 
-const getSchema = (dbName, isMultiDb) => {
-	return execute('call apoc.meta.subGraph({labels: []})', dbName, isMultiDb)
+const getSchema = (dbName, labels, isMultiDb) => {
+	return execute(`call apoc.meta.subGraph({labels: ["${labels.join('","')}]})`, dbName, isMultiDb)
 	.then(
 		result => result,
-		() => execute('CALL db.schema.visualization()', dbName, isMultiDb)
+		(error) => {
+			if (error?.code === EXECUTE_TIME_OUT_CODE) {
+				throw error;
+			}	
+			return execute('CALL db.schema.visualization()', dbName, isMultiDb)
+		}
 	)
 	.then(result => {
 		const nodes = result[0].nodes;

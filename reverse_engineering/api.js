@@ -159,7 +159,7 @@ module.exports = {
 				logger.progress({message: 'Start getting schema...', containerName: dbName, entityName: ''});
 				logger.log('info', dbName, 'Start getting schema');
 
-				return neo4j.getSchema(dbName, isMultiDb);
+				return neo4j.getSchema(dbName, labels, isMultiDb);
 			}).then((schema) => {
 				logger.progress({message: 'Schema has successfully got', containerName: dbName, entityName: ''});
 				logger.log('info', dbName, 'Schema has successfully got');
