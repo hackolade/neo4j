@@ -58,6 +58,7 @@ module.exports = {
 		logInfo('Retrieving labels information', connectionInfo, logger)
 		try {
 			initDependencies(app);
+			neo4j.setTimeOut(connectionInfo);
 
 			await neo4j.connect(connectionInfo, checkConnection(logger));
 			logger.log('info', 'Successfully connected to the database instance', 'Connection');
@@ -98,6 +99,7 @@ module.exports = {
 
 	getDbCollectionsDataWrapped: async function(data, logger, cb, app) {
 		initDependencies(app);
+		neo4j.setTimeOut(data);
 		logger.log('info', data, 'Retrieving schema for chosen labels', data.hiddenKeys);
 
 		const collections = data.collectionData.collections;

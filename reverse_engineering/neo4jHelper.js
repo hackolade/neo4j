@@ -6,9 +6,10 @@ const ssh = require('tunnel-ssh');
 let _;
 
 const EXECUTE_TIME_OUT_CODE  = 'EXECUTE_TIME_OUT';
-const TIMEOUT = 60000;
+let timeout;
 
 const setDependencies = ({ lodash }) => _ = lodash;
+const setTimeOut = (data) => timeout = data?.queryRequestTimeout || 300000;
 
 const getSshConfig = (info) => {
 	const config = {
@@ -105,11 +106,11 @@ const close = () => {
 	}
 };
 
-const execute = (command, database = undefined, isMultiDb = false) => {
+const execute = async (command, database = undefined, isMultiDb = false) => {
 	if (!isMultiDb) {
 		database = undefined;
 	}
-	const executeTimeout = new Promise((_, reject) => setTimeout(() => reject(getExecuteTimeoutError(TIMEOUT)), TIMEOUT));
+	const executeTimeout = new Promise((_, reject) => setTimeout(() => reject(getExecuteTimeoutError(timeout)), timeout));
 	let result = [];
 	let db;
 	try {
@@ -335,5 +336,6 @@ module.exports = {
 	getConstraints,
 	supportsMultiDb,
 	getDbVersion,
-	setDependencies
+	setDependencies,
+	setTimeOut,
 };
