@@ -6,7 +6,7 @@ const ssh = require('tunnel-ssh');
 let _;
 
 const EXECUTE_TIME_OUT_CODE  = 'EXECUTE_TIME_OUT';
-const TIMEOUT = 60000;
+const TIMEOUT = 300000;
 
 const setDependencies = ({ lodash }) => _ = lodash;
 
