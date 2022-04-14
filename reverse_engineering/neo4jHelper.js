@@ -152,7 +152,7 @@ const castInteger = (properties) => {
 	let result = Array.isArray(properties) ? [] : {};
 	for (let prop in properties) {
 		let value = properties[prop];
-		if (neo4j.isInt(value)) { // FIXME:
+		if (neo4j.isInt(value)) {
 			value = value.toInt();
 		} else if (typeof value === 'object') {
 			value = castInteger(value);
