@@ -4,7 +4,7 @@
   "description": "",
   "author": "Hackolade",
   "dependencies": {
-    "neo4j-driver": "github:hackolade/neo4j-javascript-driver#develop-v4.0.1",
+    "@hackolade/neo4j-driver": "^4.4.5-ssl",
     "tunnel-ssh": "github:hackolade/tunnel-ssh"
   },
   "installed": true

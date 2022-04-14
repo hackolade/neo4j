@@ -1,4 +1,4 @@
-const neo4j = require('neo4j-driver');
+const neo4j = require('@hackolade/neo4j-driver');
 let driver;
 let sshTunnel;
 const fs = require('fs');
@@ -152,7 +152,7 @@ const castInteger = (properties) => {
 	let result = Array.isArray(properties) ? [] : {};
 	for (let prop in properties) {
 		let value = properties[prop];
-		if (neo4j.isInt(value)) {
+		if (neo4j.isInt(value)) { // FIXME:
 			value = value.toInt();
 		} else if (typeof value === 'object') {
 			value = castInteger(value);
@@ -321,6 +321,108 @@ const checkConnection = () => {
 	});
 }
 
+const isTemporalTypeField = field => {
+	return (
+		isDate(field) ||
+		isDateTime(field) ||
+		isDuration(field) ||
+		isLocalDateTime(field) ||
+		isLocalTime(field) ||
+		isTime(field)
+	);
+}
+
+const getTemporalFieldSchema = (field) => {
+	const getFieldProps = mode => ({
+		type: 'string',
+		childType: 'temporal',
+		mode,
+	});
+
+	switch (true) {
+		case isDate(field):
+			return getFieldProps('date');
+		case isDateTime(field):
+			return getFieldProps('datetime');
+		case isDuration(field):
+			return getFieldProps('duration');
+		case isLocalDateTime(field):
+			return getFieldProps('localdatetime');
+		case isLocalTime(field):
+			return getFieldProps('localtime');
+		case isTime(field):
+			return getFieldProps('time');
+	}
+}
+
+const isDate = (filed) => {
+	const keys = ['year', 'month', 'day', 'toString'];
+	return isTemporalField(keys, filed);
+}
+const isDateTime = (filed) => {
+	const keys = [
+		'year',
+		'month',
+		'day',
+		'hour',
+		'minute',
+		'second',
+		'nanosecond',
+		'timeZoneOffsetSeconds',
+		'timeZoneId',
+		'toString',
+	];
+	return isTemporalField(keys, filed);
+}
+const isDuration = (filed) => {
+	const keys = [
+		'months',
+		'days',
+		'seconds',
+		'nanoseconds',
+		'toString',
+	];
+	return isTemporalField(keys, filed);
+}
+const isLocalDateTime = (filed) => {
+	const keys = [
+		'year',
+		'month',
+		'day',
+		'hour',
+		'minute',
+		'second',
+		'nanosecond',
+		'toString',
+	];
+	return isTemporalField(keys, filed);
+}
+const isLocalTime = (filed) => {
+	const keys = [
+		'hour',
+		'minute',
+		'second',
+		'nanosecond',
+		'toString',
+	];
+	return isTemporalField(keys, filed);
+}
+const isTime = (filed) => {
+	const keys = [
+		'hour',
+		'minute',
+		'second',
+		'nanosecond',
+		'timeZoneOffsetSeconds',
+		'toString',
+	];
+	return isTemporalField(keys, filed);
+}
+
+const isTemporalField = (keys, field) => {
+	return _.isEmpty(_.difference(keys, Object.keys(field)));
+}
+
 module.exports = {
 	checkConnection,
 	connect,
@@ -338,4 +440,6 @@ module.exports = {
 	getDbVersion,
 	setDependencies,
 	setTimeOut,
+	isTemporalTypeField,
+	getTemporalFieldSchema,
 };

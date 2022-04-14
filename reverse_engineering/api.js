@@ -542,6 +542,8 @@ const setDocumentInSchema = (document, jsonSchema) => {
 			if (!has(jsonSchema.properties || {}, fieldName)) {
 				if (value.srid) {
 					jsonSchema.properties[fieldName] = getSchemaSpatialType(value);
+				} else if (neo4j.isTemporalTypeField(value)) {
+					document[fieldName] = _.omit(document[fieldName], 'toString');
 				} else {
 					jsonSchema.properties[fieldName] = setDocumentInSchema(value, { properties: {} });
 				}
