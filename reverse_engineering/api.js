@@ -543,7 +543,10 @@ const setDocumentInSchema = (document, jsonSchema) => {
 				if (value.srid) {
 					jsonSchema.properties[fieldName] = getSchemaSpatialType(value);
 				} else if (neo4j.isTemporalTypeField(value)) {
-					document[fieldName] = _.omit(document[fieldName], 'toString');
+					jsonSchema.properties[fieldName] = neo4j.getTemporalFieldSchema(value);
+					if (typeof document[fieldName]?.toString === 'function') {
+						document[fieldName] = document[fieldName].toString();
+					}
 				} else {
 					jsonSchema.properties[fieldName] = setDocumentInSchema(value, { properties: {} });
 				}

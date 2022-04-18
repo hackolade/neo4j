@@ -419,8 +419,9 @@ const isTime = (filed) => {
 	return isTemporalField(keys, filed);
 }
 
-const isTemporalField = (keys, field) => {
-	return _.isEmpty(_.difference(keys, Object.keys(field)));
+const isTemporalField = (temporalFieldFormatKeys, field) => {
+	const fieldKeys = Object.keys(field);
+	return fieldKeys.length === temporalFieldFormatKeys.length && _.intersection(temporalFieldFormatKeys, fieldKeys).length === temporalFieldFormatKeys.length;
 }
 
 module.exports = {

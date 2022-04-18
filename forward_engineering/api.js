@@ -151,7 +151,7 @@ module.exports = {
             } else {
                 const isFieldActivated = _.get(schema, `properties.${field}.isActivated`, true);
                 result.push({
-                    statement: `${screen(field)}: ${JSON.stringify(data[field])}`,
+                    statement: `${screen(field)}: ${getStatementValue(_.get(schema, ['properties', field]) , data[field])}`,
                     isActivated: isParentActivated ? isFieldActivated : true,
                 });
             }
@@ -568,3 +568,47 @@ const getOptionalIdempotentConstraintStatement = (dbVersion) => {
 const isDBVersionLessThan4point3 = (dbVersion) => {
     return ['3.x', '4.0-4.2'].includes(dbVersion);
 }
+
+const getStatementValue = (field, fieldData) => {
+    const fieldStatementValue = JSON.stringify(fieldData);
+    if (field.type === 'temporal') {
+        return getTemporalFieldFunctionStatement(field.mode, fieldStatementValue);
+    }
+
+    return fieldStatementValue;
+}
+
+const getTemporalFieldFunctionStatement = (fieldMode, fieldStatementValue) => {
+	const temporalTypeDefaultSampleValue = '2014-12-03';
+	const isDefaultSample =
+		fieldStatementValue === JSON.stringify(temporalTypeDefaultSampleValue);
+
+	const durationSampleValue = JSON.stringify('P1D');
+	const timeSampleValue = JSON.stringify('12:00');
+
+	switch (fieldMode) {
+		case 'date':
+			return `date(${fieldStatementValue})`;
+		case 'datetime':
+			return `datetime(${fieldStatementValue})`;
+		case 'localdatetime':
+			return `localdatetime(${fieldStatementValue})`;
+		case 'localtime':
+			const localTimeStatementValue = isDefaultSample
+				? timeSampleValue
+				: fieldStatementValue;
+			return `localtime(${localTimeStatementValue})`;
+		case 'time':
+			const timeStatementValue = isDefaultSample
+				? timeSampleValue
+				: fieldStatementValue;
+			return `time(${timeStatementValue})`;
+		case 'duration':
+			const durationStatementValue = isDefaultSample
+				? durationSampleValue
+				: fieldStatementValue;
+			return `duration(${durationStatementValue})`;
+		default:
+			return fieldStatementValue;
+	}
+};
