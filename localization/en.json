@@ -150,7 +150,7 @@
 	"COLLECTION_SCHEMA_DEFINITION_TYPE": "document",
 	"MONGODB_SCRIPT_WARNING_MESSAGE": "This view is not associated to a type (viewOn property).",
 	"TYPE": {},
-	"CENTRAL_PANE___TAB_MODEL_DEFINITIONS": "Model Definition",
+	"CENTRAL_PANE___TAB_MODEL_DEFINITIONS": "Model Definitions",
 	"CONTEXT_MENU___ADD_MODEL_REFERENCE": "Model Definition",
 	"CONTEXT_MENU___GO_TO_DEFINITION": "Go to Model Definition",
 	"DOCUMENTATION___DB_DEFINITIONS": "Model Definitions",
