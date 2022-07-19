@@ -3,5 +3,6 @@
 		"NO_DATABASES": "There is no databases in this Neo4j instance",
 		"WRONG_CONNECTION": "Cannot connect to Neo4j instance"
 	},
-	"excludeDocKind": ["id"]
+	"excludeDocKind": ["id"],
+	"helpUrl": "https://hackolade.com/help/ConnecttoaNeo4jinstance.html"
 }

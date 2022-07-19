@@ -141,7 +141,23 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
+				}
 			},
 			{
 				"propertyName": "Node key",
@@ -198,7 +214,23 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
+				}
 			},
 			{
 				"propertyName": "Node key",
@@ -236,7 +268,23 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
+				}
 			},
 			{
 				"propertyName": "Node key",
@@ -289,7 +337,23 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
+				}
 			},
 			{
 				"propertyName": "Node key",
@@ -327,7 +391,23 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
+				}
 			},
 			{
 				"propertyName": "Node key",
@@ -366,7 +446,23 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
+				}
 			},
 			{
 				"propertyName": "Node key",
@@ -417,7 +513,23 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Unique constraint",
 				"propertyKeyword": "unique",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"type": "or",
+					"values": [
+						{
+							"level": "root",
+							"key": "collectionName",
+							"exist": true
+						},
+						{
+							"level": "parent",
+							"key": "type",
+							"value": "definitions",
+							"inDepthParentSearch": true
+						}
+					]
+				}
 			},
 			{
 				"propertyName": "Node key",

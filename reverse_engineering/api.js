@@ -1,11 +1,11 @@
 'use strict';
 
 const { dependencies, setDependencies } = require('./appDependencies');
-const async = require('async');
 const neo4j = require('./neo4jHelper');
 const snippetsPath = "../snippets/";
 const logHelper = require('./logHelper');
 let _;
+let async;
 
 const snippets = {
 	"Cartesian 3D": require(snippetsPath + "cartesian-3d.json"),
@@ -58,6 +58,7 @@ module.exports = {
 		logInfo('Retrieving labels information', connectionInfo, logger)
 		try {
 			initDependencies(app);
+			neo4j.setTimeOut(connectionInfo);
 
 			await neo4j.connect(connectionInfo, checkConnection(logger));
 			logger.log('info', 'Successfully connected to the database instance', 'Connection');
@@ -88,7 +89,17 @@ module.exports = {
 	},
 
 	getDbCollectionsData: async function(data, logger, cb, app) {
+		try {
+			this.getDbCollectionsDataWrapped(data, logger, cb, app);
+		} catch (error) {
+			logger.log('error', prepareError(error), "RE Get Collections Data");
+			cb(error)
+		}
+	},
+
+	getDbCollectionsDataWrapped: async function(data, logger, cb, app) {
 		initDependencies(app);
+		neo4j.setTimeOut(data);
 		logger.log('info', data, 'Retrieving schema for chosen labels', data.hiddenKeys);
 
 		const collections = data.collectionData.collections;
@@ -104,6 +115,7 @@ module.exports = {
 		logger.progress = logger.progress || (() => {});
 
 		logger.progress({message: 'Start Reverse Engineering Neo4j', containerName: '', entityName: ''});
+		logger.log('info', '', 'Start Reverse Engineering Neo4j');
 		
 		const isMultiDb = await neo4j.supportsMultiDb();
 		const modelProps = {
@@ -115,13 +127,15 @@ module.exports = {
 			let metaData = {};
 
 			logger.progress({message: 'Start retrieving indexes', containerName: dbName, entityName: ''});
+			logger.log('info', dbName, 'Start retrieving indexes');
 
 			neo4j.getIndexes(dbName, isMultiDb).then((indexes) => {
-				metaData.indexes = prepareIndexes(indexes);
+				metaData.indexes = modelProps.dbVersion === '3.x' ? prepareIndexes3x(indexes) : prepareIndexes4x(indexes);
 
 				const countIndexes = (indexes && indexes.length) || 0;
 				logger.progress({message: 'Indexes retrieved successfully. Found ' + countIndexes + ' index(es)', containerName: dbName, entityName: ''});
 				logger.progress({message: 'Start retrieving constraints', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Start retrieving constraints');
 				
 				return neo4j.getConstraints(dbName, isMultiDb);
 			}).then((constraints) => {
@@ -129,6 +143,7 @@ module.exports = {
 
 				const countConstraints = (constraints && constraints.length) || 0;
 				logger.progress({message: 'Constraints retrieved successfully. Found ' + countConstraints + ' constraint(s)', containerName: dbName, entityName: ''});
+				logger.log('info',  `${countConstraints} constraint(s)`, 'Constraints retrieved successfully');
 
 				return metaData;
 			}).then(metaData => {
@@ -144,20 +159,24 @@ module.exports = {
 				labels = labelPackages.reduce((result, packageData) => result.concat([packageData.collectionName]), []);
 
 				logger.progress({message: 'Start getting schema...', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Start getting schema');
 
-				return neo4j.getSchema(dbName, isMultiDb);
+				return neo4j.getSchema(dbName, labels, isMultiDb);
 			}).then((schema) => {
 				logger.progress({message: 'Schema has successfully got', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Schema has successfully got');
 				
 				return schema.filter(data => {
 					return (labels.indexOf(data.start) !== -1 && labels.indexOf(data.end) !== -1);
 				});
 			}).then((schema) => {
 				logger.progress({message: 'Start getting relationships...', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Start getting relationships');
 
-				return getRelationshipData(schema, dbName, recordSamplingSettings, fieldInference, metaData.constraints, isMultiDb);
+				return getRelationshipData(schema, dbName, modelProps.dbVersion, recordSamplingSettings, fieldInference, metaData, isMultiDb);
 			}).then((relationships) => {
 				logger.progress({message: 'Relationships have successfully got', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Relationships have successfully got');
 
 				packages.relationships.push(relationships);
 				next(null);
@@ -167,6 +186,7 @@ module.exports = {
 			});
 		}, (err) => {
 			logger.progress({message: 'Reverse engineering finished', containerName: '', entityName: ''});
+			logger.log('info', '', 'Reverse engineering finished');
 
 			setTimeout(() => {
 				cb(err, packages.labels, modelProps, [].concat.apply([], packages.relationships));
@@ -178,6 +198,7 @@ module.exports = {
 const initDependencies = app => {
 	setDependencies(app);
 	_ = dependencies.lodash;
+	async = dependencies.async;
 	neo4j.setDependencies(dependencies);
 };
 
@@ -258,7 +279,8 @@ const getNodesData = (dbName,  labels, isMultiDb, data, logger) => {
 	});
 };
 
-const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInference, constraints, isMultiDb) => {
+const getRelationshipData = (schema, dbName, dbVersion, recordSamplingSettings, fieldInference, metaData, isMultiDb) => {
+	const {constraints, indexes} = metaData;
 	return new Promise((resolve, reject) => {
 		async.map(schema, (chain, nextChain) => {
 			neo4j.getCountRelationshipsData(chain.start, chain.relationship, chain.end, dbName, isMultiDb).then((quantity) => {
@@ -281,6 +303,10 @@ const getRelationshipData = (schema, dbName, recordSamplingSettings, fieldInfere
 
 				if (fieldInference.active === 'field') {
 					packageData.documentTemplate = getTemplate(documents);
+				}
+
+				if (dbVersion === '4.3') {
+					packageData.relationshipInfo = { index: indexes[chain.relationship] || [] };
 				}
 
 				nextChain(null, packageData);
@@ -326,7 +352,7 @@ const getLabelPackage = (dbName, labelName, rawDocuments, includeEmptyCollection
 	}
 }; 
 
-const prepareIndexes = (indexes) => {
+const prepareIndexes3x = (indexes) => {
 	const hasProperties = /INDEX\s+ON\s+\:(.*)\((.*)\)/i;
 	let map = {};
 
@@ -357,8 +383,33 @@ const prepareIndexes = (indexes) => {
 	return map;
 };
 
+const prepareIndexes4x = indexes => {
+	let map = {};
+	indexes.forEach((index, i) => {
+		index.properties = index.properties || [];
+
+		const index_obj = {
+			name: index.name,
+			key: index.properties,
+			state: index.state,
+			type: index.type,
+			uniqueness: index.uniqueness === "UNIQUE",
+			provider: index.provider
+		};
+
+		index.labelsOrTypes.forEach((label, i) => {
+			if (!map[label]) {
+				map[label] = [index_obj];
+			} else {
+				map[label].push(index_obj);
+			}
+		});
+	});
+	return map;
+}
+
 const prepareConstraints = (constraints) => {
-	const isUnique = /^constraint\s+on\s+\([\s\S]+\:([\S\s]+)\s*\)\s+assert\s+[\s\S]+\.([\s\S]+)\s+IS\s+UNIQUE/i;
+	const isUnique = /^constraint\s+on\s+\([\s\S]+\:([\S\s]+)\s*\)\s+assert\s+[\s\S]+\.([\s\S]+)\s*\)\s+IS\s+UNIQUE/i;
 	const isNodeKey = /^constraint\s+on\s+\([\s\S]+\:\s*([\S\s]+)\s*\)\s+assert\s+(?:\(\s*([\s\S]+)\s*\)|[\s\S]+\.\s*([\S\s]+)\s*)\s+IS\s+NODE\s+KEY/i;
 	const isExists = /^constraint\s+on\s+\([\s\S]+\:([\s\S]+)\s*\)\s+assert\s+exists\([\s\S]+\.([\s\S]+)\s*\)/i;
 	let result = {};
@@ -491,6 +542,11 @@ const setDocumentInSchema = (document, jsonSchema) => {
 			if (!has(jsonSchema.properties || {}, fieldName)) {
 				if (value.srid) {
 					jsonSchema.properties[fieldName] = getSchemaSpatialType(value);
+				} else if (neo4j.isTemporalTypeField(value)) {
+					jsonSchema.properties[fieldName] = neo4j.getTemporalFieldSchema(value);
+					if (typeof document[fieldName]?.toString === 'function') {
+						document[fieldName] = document[fieldName].toString();
+					}
 				} else {
 					jsonSchema.properties[fieldName] = setDocumentInSchema(value, { properties: {} });
 				}

@@ -1,11 +1,15 @@
-const neo4j = require('neo4j-driver');
+const neo4j = require('@hackolade/neo4j-driver');
 let driver;
 let sshTunnel;
 const fs = require('fs');
 const ssh = require('tunnel-ssh');
 let _;
 
+const EXECUTE_TIME_OUT_CODE  = 'EXECUTE_TIME_OUT';
+let timeout;
+
 const setDependencies = ({ lodash }) => _ = lodash;
+const setTimeOut = (data) => timeout = data?.queryRequestTimeout || 300000;
 
 const getSshConfig = (info) => {
 	const config = {
@@ -43,7 +47,7 @@ const connectViaSsh = (info) => new Promise((resolve, reject) => {
 				})
 			});
 		}
-	});
+	}).on('error', console.error);
 });
 
 const connectToInstance = (info, checkConnection) => {
@@ -102,29 +106,47 @@ const close = () => {
 	}
 };
 
-const execute = (command, database = undefined, isMultiDb = false) => {
+const execute = async (command, database = undefined, isMultiDb = false) => {
 	if (!isMultiDb) {
 		database = undefined;
 	}
-	return new Promise((resolve, reject) => {
-		const db = driver.session({ database });
-		let result = [];
-		db.run(command)
-			.subscribe({
-				onNext: (record) => {
-					result.push(record.toObject());
-				},
-				onCompleted: () => {
-					db.close();
-					resolve(result);
-				},
-				onError: (error) => {
-					db.close();
-					reject(error);
-				}
-			});
-	});
+	const executeTimeout = new Promise((_, reject) => setTimeout(() => reject(getExecuteTimeoutError(timeout)), timeout));
+	let result = [];
+	let db;
+	try {
+		db = driver.session({ database });
+		const executeWithOutTimeout = new Promise((resolve, reject) => {
+			db.run(command)
+				.subscribe({
+					onNext: (record) => {
+						result.push(record.toObject());
+					},
+					onCompleted: () => {
+						db.close();
+						db = null;
+						resolve(result);
+					},
+					onError: (error) => {
+						db.close();
+						db = null;
+						reject(error);
+					}
+				});
+		});
+		return await Promise.race([executeWithOutTimeout, executeTimeout]);
+	} catch (error) {
+		if (error.code === EXECUTE_TIME_OUT_CODE && db) {
+			db.close();
+		}
+		throw error;
+	}
 };
+
+const getExecuteTimeoutError = (timeout) => {
+	const error = new Error(`execute timeout: ${timeout}ms exceeded`);
+	error.code = EXECUTE_TIME_OUT_CODE;
+	return error
+}
 
 const castInteger = (properties) => {
 	let result = Array.isArray(properties) ? [] : {};
@@ -156,11 +178,16 @@ const getLabels = async (database, isMultiDb) => {
 	}
 };
 
-const getSchema = (dbName, isMultiDb) => {
-	return execute('call apoc.meta.subGraph({labels: []})', dbName, isMultiDb)
+const getSchema = (dbName, labels, isMultiDb) => {
+	return execute(`call apoc.meta.subGraph({labels: ["${labels.join('","')}]})`, dbName, isMultiDb)
 	.then(
 		result => result,
-		() => execute('CALL db.schema.visualization()', dbName, isMultiDb)
+		(error) => {
+			if (error?.code === EXECUTE_TIME_OUT_CODE) {
+				throw error;
+			}	
+			return execute('CALL db.schema.visualization()', dbName, isMultiDb)
+		}
 	)
 	.then(result => {
 		const nodes = result[0].nodes;
@@ -275,8 +302,12 @@ const getSSLConfig = (info) => {
 const getDbVersion = async () => {
 	try {
 		const versionResponse = await execute('call dbms.components() yield versions unwind versions as version return version');
-		if (_.get(versionResponse, '[0].version').startsWith('4')) {
-			return '4.x';
+		const version = _.get(versionResponse, '[0].version');
+		const splittedVersion = version.split('.');
+		if (splittedVersion[0] === '4' && splittedVersion[1] >= '3') {
+			return '4.3';
+		} else if (version.startsWith('4')) {
+			return '4.0-4.2';
 		}
 		return '3.x'
 	} catch (err) {
@@ -288,6 +319,109 @@ const checkConnection = () => {
 	return driver._connectionProvider.acquireConnection().then(conn => {
 		return driver._validateConnection(conn);
 	});
+}
+
+const isTemporalTypeField = field => {
+	return (
+		isDate(field) ||
+		isDateTime(field) ||
+		isDuration(field) ||
+		isLocalDateTime(field) ||
+		isLocalTime(field) ||
+		isTime(field)
+	);
+}
+
+const getTemporalFieldSchema = (field) => {
+	const getFieldProps = mode => ({
+		type: 'string',
+		childType: 'temporal',
+		mode,
+	});
+
+	switch (true) {
+		case isDate(field):
+			return getFieldProps('date');
+		case isDateTime(field):
+			return getFieldProps('datetime');
+		case isDuration(field):
+			return getFieldProps('duration');
+		case isLocalDateTime(field):
+			return getFieldProps('localdatetime');
+		case isLocalTime(field):
+			return getFieldProps('localtime');
+		case isTime(field):
+			return getFieldProps('time');
+	}
+}
+
+const isDate = (filed) => {
+	const keys = ['year', 'month', 'day', 'toString'];
+	return isTemporalField(keys, filed);
+}
+const isDateTime = (filed) => {
+	const keys = [
+		'year',
+		'month',
+		'day',
+		'hour',
+		'minute',
+		'second',
+		'nanosecond',
+		'timeZoneOffsetSeconds',
+		'timeZoneId',
+		'toString',
+	];
+	return isTemporalField(keys, filed);
+}
+const isDuration = (filed) => {
+	const keys = [
+		'months',
+		'days',
+		'seconds',
+		'nanoseconds',
+		'toString',
+	];
+	return isTemporalField(keys, filed);
+}
+const isLocalDateTime = (filed) => {
+	const keys = [
+		'year',
+		'month',
+		'day',
+		'hour',
+		'minute',
+		'second',
+		'nanosecond',
+		'toString',
+	];
+	return isTemporalField(keys, filed);
+}
+const isLocalTime = (filed) => {
+	const keys = [
+		'hour',
+		'minute',
+		'second',
+		'nanosecond',
+		'toString',
+	];
+	return isTemporalField(keys, filed);
+}
+const isTime = (filed) => {
+	const keys = [
+		'hour',
+		'minute',
+		'second',
+		'nanosecond',
+		'timeZoneOffsetSeconds',
+		'toString',
+	];
+	return isTemporalField(keys, filed);
+}
+
+const isTemporalField = (temporalFieldFormatKeys, field) => {
+	const fieldKeys = Object.keys(field);
+	return fieldKeys.length === temporalFieldFormatKeys.length && _.intersection(temporalFieldFormatKeys, fieldKeys).length === temporalFieldFormatKeys.length;
 }
 
 module.exports = {
@@ -305,5 +439,8 @@ module.exports = {
 	getConstraints,
 	supportsMultiDb,
 	getDbVersion,
-	setDependencies
+	setDependencies,
+	setTimeOut,
+	isTemporalTypeField,
+	getTemporalFieldSchema,
 };
