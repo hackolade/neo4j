@@ -142,8 +142,8 @@ module.exports = {
 				metaData.constraints = prepareConstraints(constraints);
 
 				const countConstraints = (constraints && constraints.length) || 0;
-				logger.progress({message: 'Constraints retrieved successfully. Found ' + countConstraints + ' constraint(s)', containerName: dbName, entityName: ''});
-				logger.log('info',  `${countConstraints} constraint(s)`, 'Constraints retrieved successfully');
+				logger.progress({message: 'Constraints retrieved successfully ' + countConstraints + ' constraint(s)', containerName: dbName, entityName: ''});
+				logger.log('info',  `${countConstraints} constraint(s)`, 'Constraints retrieved successfully ');
 
 				return metaData;
 			}).then(metaData => {
@@ -158,35 +158,35 @@ module.exports = {
 				packages.labels.push(labelPackages);
 				labels = labelPackages.reduce((result, packageData) => result.concat([packageData.collectionName]), []);
 
-				logger.progress({message: 'Start getting schema...', containerName: dbName, entityName: ''});
-				logger.log('info', dbName, 'Start getting schema');
+				logger.progress({message: 'Start retrieving schema...', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Start retrieving schema');
 
 				return neo4j.getSchema(dbName, labels, isMultiDb);
 			}).then((schema) => {
-				logger.progress({message: 'Schema has successfully got', containerName: dbName, entityName: ''});
-				logger.log('info', dbName, 'Schema has successfully got');
+				logger.progress({message: 'Schema retrieved successfully', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Schema retrieved successfully');
 				
 				return schema.filter(data => {
 					return (labels.indexOf(data.start) !== -1 && labels.indexOf(data.end) !== -1);
 				});
 			}).then((schema) => {
-				logger.progress({message: 'Start getting relationships...', containerName: dbName, entityName: ''});
-				logger.log('info', dbName, 'Start getting relationships');
+				logger.progress({message: 'Start retrieving relationships...', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Start retrieving relationships');
 
 				return getRelationshipData(schema, dbName, modelProps.dbVersion, recordSamplingSettings, fieldInference, metaData, isMultiDb);
 			}).then((relationships) => {
-				logger.progress({message: 'Relationships have successfully got', containerName: dbName, entityName: ''});
-				logger.log('info', dbName, 'Relationships have successfully got');
+				logger.progress({message: 'Relationships retrieved successfully', containerName: dbName, entityName: ''});
+				logger.log('info', dbName, 'Relationships retrieved successfully');
 
 				packages.relationships.push(relationships);
 				next(null);
 			}).catch(error => {
-				logger.log('error', prepareError(error), "Error of retrieving schema");
+				logger.log('error', prepareError(error), "Error retrieving schema");
 				next(prepareError(error));
 			});
 		}, (err) => {
-			logger.progress({message: 'Reverse engineering finished', containerName: '', entityName: ''});
-			logger.log('info', '', 'Reverse engineering finished');
+			logger.progress({message: 'Reverse-engineering completed', containerName: '', entityName: ''});
+			logger.log('info', '', 'Reverse-engineering completed');
 
 			setTimeout(() => {
 				cb(err, packages.labels, modelProps, [].concat.apply([], packages.relationships));
@@ -253,7 +253,7 @@ const getNodesData = (dbName,  labels, isMultiDb, data, logger) => {
 
 				return neo4j.getNodes(labelName, count, dbName, isMultiDb);
 			}).then((documents) => {
-				logger(labelName, 'Data has successfully got');
+				logger(labelName, 'Data retrieved successfully');
 
 				const packageData = getLabelPackage(
 					dbName, 
