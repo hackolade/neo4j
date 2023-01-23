@@ -20,7 +20,7 @@
 				"inputLabel": "Port",
 				"inputKeyword": "port",
 				"inputType": "numeric",
-				"inputPlaceholder": "7687",
+				"inputPlaceholder": "",
 				"defaultValue": ""
 			}
 		]
@@ -54,6 +54,9 @@
 				"inputKeyword": "sslType",
 				"inputType": "select",
 				"options": [{
+					"value": "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES", 
+					"label": "SYSTEMCA"
+				}, {
 					"value": "Off", 
 					"label": "Off"
 				}, {
@@ -66,9 +69,6 @@
 				},{
 					"value": "TRUST_SERVER_CLIENT_CERTIFICATES",
 					"label": "Server and client validation"
-				},{
-					"value": "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES", 
-					"label": "SYSTEMCA"
 				}]
 			},
 			{

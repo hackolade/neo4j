@@ -139,7 +139,8 @@ making sure that you maintain a proper JSON format.
 				"options": [
 					"3.x",
 					"4.0-4.2",
-					"4.3"
+					"4.3",
+					"5.x"
 				]
 			},
 			{

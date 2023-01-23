@@ -17,7 +17,7 @@ module.exports = {
             const constraints = this.generateConstraints(dbVersion, collections, relationships);
             const indexes = this.getIndexes(dbVersion, collections, relationships);
 
-            cb(null, this.getScript(createScript, constraints, indexes));
+            cb(null, this.getScript(createScript, constraints, indexes, dbVersion));
         } catch (e) {
             logger.log('error', { message: e.message, stack: e.stack }, 'Forward-Engineering Error');
             setTimeout(() => {
@@ -27,8 +27,13 @@ module.exports = {
         }
     },
 
-    getScript(createScript, constraints, indexes) {
-        const getTransaction = (script) => ':begin\n' + script + ';\n:commit\n';
+    getScript(createScript, constraints, indexes, dbVersion) {
+        const getTransaction = (script) => {
+            if (dbVersion === '5.x') {
+                return script + ';\n';
+            }
+            return ':begin\n' + script + ';\n:commit\n'
+        };
         let script = getTransaction(
             '// cat <path to cypher file> | ./bin/cypher-shell -a <address> -u <user> -p <password>\n\n' + createScript
         );
@@ -243,6 +248,9 @@ module.exports = {
     },
 
     generateConstraints(dbVersion, collections, relationships) {
+        if (dbVersion === '5.x') {
+            return [];
+        }
         let result = [];
 
         const collectionIdToActivated = collections.reduce((result, collection) => {
@@ -409,6 +417,9 @@ module.exports = {
     },
 
     getIndexes(dbVersion, collections, relationships) {
+        if (dbVersion === '5.x') {
+            return [];
+        }
         let result = [];
         let getIndex = this.getIndex3x.bind(this);
         let entities = { collections };
