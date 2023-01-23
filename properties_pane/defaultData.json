@@ -1,7 +1,7 @@
 {
 	"model": {
 		"modelName": "New model",
-		"dbVersion": "3.x",
+		"dbVersion": "5.x",
 		"dbVendor": "Neo4j"
 	},
 	"container": {
