@@ -53,8 +53,7 @@ const connectViaSsh = (info) => new Promise((resolve, reject) => {
 const connectToInstance = (info, checkConnection) => {
 	return checkConnection(info.host, info.port)
 	.then(() => new Promise((resolve, reject) => {
-		const host = info.host;
-		const port = info.port;
+		const uri = getConnectionURI(info);
 		const username = info.username;
 		const password = info.password;
 		const sslOptions = getSSLConfig(info);
@@ -63,7 +62,7 @@ const connectToInstance = (info, checkConnection) => {
 			maxConnectionPoolSize: 500,
 			connectionAcquisitionTimeout: 2 * 60 * 1000
 		};
-		driver = neo4j.driver(`bolt://${host}:${port}`, neo4j.auth.basic(username, password), driverConfig);
+		driver = neo4j.driver(uri, neo4j.auth.basic(username, password), driverConfig);
 
 		driver.verifyConnectivity()
 			.then(() => {
@@ -266,15 +265,25 @@ const getCountRelationshipsData = (start, relationship, end, dbName, isMultiDb) 
 	);
 };
 
-const getIndexes = (dbName, isMultiDb) => {
+const getIndexes = (dbName, isMultiDb, dbVersion) => {
+	if (dbVersion === '5.x') {
+		return Promise.resolve([]);
+	}
 	return execute('CALL db.indexes()', dbName, isMultiDb);
 };
 
-const getConstraints = (dbName, isMultiDb) => {
+const getConstraints = (dbName, isMultiDb, dbVersion) => {
+	if (dbVersion === '5.x') {
+		return Promise.resolve([]);
+	}
 	return execute('CALL db.constraints()', dbName, isMultiDb);
 };
 
 const getSSLConfig = (info) => {
+	if (info.host?.startsWith('neo4j+s://') && !["TRUST_CUSTOM_CA_SIGNED_CERTIFICATES", "TRUST_SERVER_CLIENT_CERTIFICATES"].includes(info.sslType)) {
+		return {};
+	}
+
 	let config = {
 		encrypted: 'ENCRYPTION_ON',
 		trust: info.sslType
@@ -308,6 +317,8 @@ const getDbVersion = async () => {
 			return '4.3';
 		} else if (version.startsWith('4')) {
 			return '4.0-4.2';
+		} else if (version.startsWith('5')) {
+			return '5.x';
 		}
 		return '3.x'
 	} catch (err) {
@@ -423,6 +434,20 @@ const isTemporalField = (temporalFieldFormatKeys, field) => {
 	const fieldKeys = Object.keys(field);
 	return fieldKeys.length === temporalFieldFormatKeys.length && _.intersection(temporalFieldFormatKeys, fieldKeys).length === temporalFieldFormatKeys.length;
 }
+
+const getConnectionURI = (info) => {
+	let host = '';
+	if (info.host?.startsWith('neo4j')) {
+		host = info.host;
+	} else {
+		host = `bolt://${info.host}`;
+	}
+	if (info.port) {
+		host = `${host}:${info.port}`;
+	}
+
+	return host;
+};
 
 module.exports = {
 	checkConnection,

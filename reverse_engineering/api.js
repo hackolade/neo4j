@@ -129,7 +129,7 @@ module.exports = {
 			logger.progress({message: 'Start retrieving indexes', containerName: dbName, entityName: ''});
 			logger.log('info', dbName, 'Start retrieving indexes');
 
-			neo4j.getIndexes(dbName, isMultiDb).then((indexes) => {
+			neo4j.getIndexes(dbName, isMultiDb, modelProps.dbVersion).then((indexes) => {
 				metaData.indexes = modelProps.dbVersion === '3.x' ? prepareIndexes3x(indexes) : prepareIndexes4x(indexes);
 
 				const countIndexes = (indexes && indexes.length) || 0;
@@ -137,7 +137,7 @@ module.exports = {
 				logger.progress({message: 'Start retrieving constraints', containerName: dbName, entityName: ''});
 				logger.log('info', dbName, 'Start retrieving constraints');
 				
-				return neo4j.getConstraints(dbName, isMultiDb);
+				return neo4j.getConstraints(dbName, isMultiDb, modelProps.dbVersion);
 			}).then((constraints) => {
 				metaData.constraints = prepareConstraints(constraints);
 
