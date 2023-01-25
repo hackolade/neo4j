@@ -385,7 +385,7 @@ const prepareIndexes3x = (indexes) => {
 
 const prepareIndexes4x = indexes => {
 	let map = {};
-	indexes.forEach((index, i) => {
+	indexes.filter(index => index.labelsOrTypes).forEach((index, i) => {
 		index.properties = index.properties || [];
 
 		const index_obj = {
@@ -394,7 +394,7 @@ const prepareIndexes4x = indexes => {
 			state: index.state,
 			type: index.type,
 			uniqueness: index.uniqueness === "UNIQUE",
-			provider: index.provider
+			provider: index.provider || index.indexProvider,
 		};
 
 		index.labelsOrTypes.forEach((label, i) => {

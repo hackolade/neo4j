@@ -29,9 +29,6 @@ module.exports = {
 
     getScript(createScript, constraints, indexes, dbVersion) {
         const getTransaction = (script) => {
-            if (dbVersion === '5.x') {
-                return script + ';\n';
-            }
             return ':begin\n' + script + ';\n:commit\n'
         };
         let script = getTransaction(
@@ -417,15 +414,12 @@ module.exports = {
     },
 
     getIndexes(dbVersion, collections, relationships) {
-        if (dbVersion === '5.x') {
-            return [];
-        }
         let result = [];
         let getIndex = this.getIndex3x.bind(this);
         let entities = { collections };
         if (dbVersion !== '3.x') {
             getIndex = this.getIndex4x.bind(this);
-            if (dbVersion === '4.3') {
+            if (['4.3', '5.x'].includes(dbVersion)) {
                 entities.relationships = relationships;
             }
         }
@@ -445,6 +439,7 @@ module.exports = {
                                     fields,
                                     isActivated: index.isActivated !== false && entity.isActivated !== false,
                                     type,
+                                    dbVersion,
                                 });
                                 result.push(indexScript);
                             }
@@ -464,19 +459,29 @@ module.exports = {
         );
     },
 
-    getIndex4x({ entity, index, fields, isActivated, type }) {
-        const name = entity.name?.toLowerCase() || 'entity';
+    getIndex4x({ entity, index, fields, isActivated, type, dbVersion }) {
+        const name = (entity.name || entity.collectionName)?.toLowerCase() || 'entity';
+        const indexType = this.getIndexType(index, dbVersion);
+        const indexTypeStatement = indexType ? ` ${indexType} ` : ' ';
+
         switch(type) {
             case 'collections':
                 return this.commentIfDeactivated(
-                    `CREATE INDEX ${screen(index.name || name)} FOR (${screen(name)}:${screen(entity.collectionName)}) ON (${screen(name)}.${fields.map((field) => screen(field.name)).join(`, ${screen(name)}.`)})`,
+                    `CREATE${indexTypeStatement}INDEX ${screen(index.name || name)} FOR (${screen(name)}:${screen(entity.collectionName)}) ON (${screen(name)}.${fields.map((field) => screen(field.name)).join(`, ${screen(name)}.`)})`,
                     isActivated && fields.every((field) => field.isActivated));
             case 'relationships':
                 return this.commentIfDeactivated(
-                    `CREATE INDEX ${screen(index.name || name)} FOR ()-[${screen(name)}:${screen(entity.name)}]-() ON (${screen(name)}.${fields.map((field) => screen(field.name)).join(`, ${screen(name)}.`)})`,
+                    `CREATE${indexTypeStatement}INDEX ${screen(index.name || name)} FOR ()-[${screen(name)}:${screen(entity.name)}]-() ON (${screen(name)}.${fields.map((field) => screen(field.name)).join(`, ${screen(name)}.`)})`,
                     isActivated && fields.every((field) => field.isActivated));
         }
         return null;
+    },
+
+    getIndexType(index, dbVersion) {
+        if (dbVersion === '5.x') {
+            return index.type || '';
+        }
+        return '';
     },
 
     getObjectValueBySchema(data, fieldSchema) {

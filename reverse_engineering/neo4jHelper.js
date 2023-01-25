@@ -267,7 +267,7 @@ const getCountRelationshipsData = (start, relationship, end, dbName, isMultiDb) 
 
 const getIndexes = (dbName, isMultiDb, dbVersion) => {
 	if (dbVersion === '5.x') {
-		return Promise.resolve([]);
+		return execute('SHOW INDEXES', dbName, isMultiDb);
 	}
 	return execute('CALL db.indexes()', dbName, isMultiDb);
 };

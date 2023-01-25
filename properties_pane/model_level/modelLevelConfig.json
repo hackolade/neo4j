@@ -203,7 +203,36 @@ making sure that you maintain a proper JSON format.
 					"propertyKeyword": "type",
 					"shouldValidate": false,
 					"propertyType": "text",
-					"propertyTooltip": "Type"
+					"propertyTooltip": "Type",
+					"dependency": {
+						"type": "not",
+						"values": [
+							{
+								"level": "model",
+								"key": "dbVersion",
+								"value": "5.x"
+							}
+						]
+					}
+				},
+				{
+					"propertyName": "Type",
+					"propertyKeyword": "type",
+					"shouldValidate": false,
+					"propertyType": "select",
+					"propertyTooltip": "Type",
+					"defaultValue": "RANGE",
+					"options": [
+						"RANGE",
+						"TEXT",
+						"POINT",
+						"FULLTEXT"
+					],
+					"dependency": {
+						"level": "model",
+						"key": "dbVersion",
+						"value": "5.x"
+					}
 				},
 				{
 					"propertyName": "Provider",
