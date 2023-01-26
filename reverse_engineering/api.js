@@ -139,7 +139,7 @@ module.exports = {
 				
 				return neo4j.getConstraints(dbName, isMultiDb, modelProps.dbVersion);
 			}).then((constraints) => {
-				metaData.constraints = prepareConstraints(constraints);
+				metaData.constraints = prepareConstraints(constraints, modelProps.dbVersion);
 
 				const countConstraints = (constraints && constraints.length) || 0;
 				logger.progress({message: 'Constraints retrieved successfully ' + countConstraints + ' constraint(s)', containerName: dbName, entityName: ''});
@@ -408,7 +408,53 @@ const prepareIndexes4x = indexes => {
 	return map;
 }
 
-const prepareConstraints = (constraints) => {
+const prepareConstraints = (constraints, dbVersion) => {
+	if (dbVersion === '5.x') {
+		return prepareConstraints5x(constraints);
+	}
+	return prepareConstraints4x(constraints);
+};
+
+const prepareConstraints5x = (constraints) => {
+	const mapConstraint = (constraint) => {
+		if (constraint.type === 'UNIQUENESS') {
+			return {
+				name: constraint.name,
+				type: 'UNIQUE',
+				key: constraint.properties,
+
+			};
+		} else if (constraint.type === 'NODE_KEY') {
+			return {
+				name: constraint.name,
+				type: 'NODE_KEY',
+				compositeNodeKey: constraint.properties,
+			};
+		} else if (constraint.type === 'NODE_PROPERTY_EXISTENCE') {
+			return {
+				name: constraint.name,
+				type: 'EXISTS',
+				key: constraint.properties,
+			};
+		}
+	};
+
+	return constraints.reduce((acc, constraint) => {
+		if (!constraint.labelsOrTypes) {
+			return acc;
+		}
+		constraint.labelsOrTypes.forEach((labelName) => {
+			if (!acc[labelName]) {
+				acc[labelName] = [];
+			}
+			acc[labelName].push(mapConstraint(constraint));
+		});
+
+		return acc;
+	}, {});
+};
+
+const prepareConstraints4x = (constraints) => {
 	const isUnique = /^constraint\s+on\s+\([\s\S]+\:([\S\s]+)\s*\)\s+assert\s+[\s\S]+\.([\s\S]+)\s*\)\s+IS\s+UNIQUE/i;
 	const isNodeKey = /^constraint\s+on\s+\([\s\S]+\:\s*([\S\s]+)\s*\)\s+assert\s+(?:\(\s*([\s\S]+)\s*\)|[\s\S]+\.\s*([\S\s]+)\s*)\s+IS\s+NODE\s+KEY/i;
 	const isExists = /^constraint\s+on\s+\([\s\S]+\:([\s\S]+)\s*\)\s+assert\s+exists\([\s\S]+\.([\s\S]+)\s*\)/i;

@@ -245,9 +245,6 @@ module.exports = {
     },
 
     generateConstraints(dbVersion, collections, relationships) {
-        if (dbVersion === '5.x') {
-            return [];
-        }
         let result = [];
 
         const collectionIdToActivated = collections.reduce((result, collection) => {
@@ -275,7 +272,7 @@ module.exports = {
                         const isFieldActivated = _.get(collection, `properties.${fieldName}.isActivated`, true);
                         result.push(
                             this.commentIfDeactivated(
-                                getExistsConstraint({labelName: collection.collectionName, fieldName, type: 'node'}),
+                                getExistsConstraint({labelName: collection.collectionName, fieldName, type: 'node'}, dbVersion),
                                 collection.isActivated && isFieldActivated
                             )
                         );
@@ -307,7 +304,7 @@ module.exports = {
                         const isFieldActivated = _.get(relationship, `properties.${fieldName}.isActivated`, true);
                         result.push(
                             this.commentIfDeactivated(
-                                getExistsConstraint({labelName: relationship.name, fieldName, type: 'relationship'}),
+                                getExistsConstraint({labelName: relationship.name, fieldName, type: 'relationship'}, dbVersion),
                                 isFieldActivated && isRelationshipActivated
                             )
                         );
@@ -326,13 +323,14 @@ module.exports = {
                 collection,
                 constraint.compositeNodeKey.map((key) => key.keyId)
             );
+            const statementConfig = getConstraintStatementConfig(dbVersion);
             if (Array.isArray(keys) && keys.length) {
                 const labelName = collection.collectionName;
                 const varLabelName = collection.collectionName.toLowerCase();
                 const idempotentConstraintStatement = getOptionalIdempotentConstraintStatement(dbVersion);
 
                 return this.commentIfDeactivated(
-                    `CREATE CONSTRAINT ${constraint.name ? screen(constraint.name) : ''}${idempotentConstraintStatement}ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT (${keys
+                    `CREATE CONSTRAINT ${constraint.name ? screen(constraint.name) : ''}${idempotentConstraintStatement}${statementConfig.FOR} (${screen(varLabelName)}:${screen(labelName)}) ${statementConfig.REQUIRED} (${keys
                         .map((key) => `${screen(varLabelName)}.${screen(key.name)}`)
                         .join(', ')}) IS NODE KEY`,
                     keys.every((key) => key.isActivated)
@@ -353,22 +351,24 @@ module.exports = {
         }
     },
 
-    getExistsConstraint43({labelName, fieldName, type}) {
+    getExistsConstraint43({labelName, fieldName, type}, dbVersion) {
+        const statementConfig = getConstraintStatementConfig(dbVersion);
         const varLabelName = labelName.toLowerCase();
         switch (type) {
             case 'node':
-                return `CREATE CONSTRAINT IF NOT EXISTS ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
+                return `CREATE CONSTRAINT IF NOT EXISTS ${statementConfig.FOR} (${screen(varLabelName)}:${screen(labelName)}) ${statementConfig.REQUIRED} ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
             case 'relationship':
-                return `CREATE CONSTRAINT IF NOT EXISTS ON ()-[${screen(varLabelName)}:${screen(labelName)}]-() ASSERT ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
+                return `CREATE CONSTRAINT IF NOT EXISTS ${statementConfig.FOR} ()-[${screen(varLabelName)}:${screen(labelName)}]-() ${statementConfig.REQUIRED} ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
             default:
                 return null;
         }
     },
 
     getUniqueConstraint({labelName, fieldName}, dbVersion) {
+        const statementConfig = getConstraintStatementConfig(dbVersion);
         const varLabelName = labelName.toLowerCase();
         const idempotentConstraintStatement = getOptionalIdempotentConstraintStatement(dbVersion);
-        return `CREATE CONSTRAINT${idempotentConstraintStatement}ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT ${screen(
+        return `CREATE CONSTRAINT${idempotentConstraintStatement}${statementConfig.FOR} (${screen(varLabelName)}:${screen(labelName)}) ${statementConfig.REQUIRED} ${screen(
             varLabelName
         )}.${screen(fieldName)} IS UNIQUE`;
     },
@@ -627,4 +627,17 @@ const getTemporalFieldFunctionStatement = (fieldMode, fieldStatementValue) => {
 		default:
 			return fieldStatementValue;
 	}
+};
+
+const getConstraintStatementConfig = (dbVersion) => {
+    if (dbVersion === '5.x') {
+        return {
+            FOR: 'FOR',
+            REQUIRED: 'REQUIRE',
+        };
+    }
+    return {
+        FOR: 'ON',
+        REQUIRED: 'ASSERT',
+    };
 };
