@@ -139,7 +139,7 @@ module.exports = {
 				
 				return neo4j.getConstraints(dbName, isMultiDb, modelProps.dbVersion);
 			}).then((constraints) => {
-				metaData.constraints = prepareConstraints(constraints);
+				metaData.constraints = prepareConstraints(constraints, modelProps.dbVersion);
 
 				const countConstraints = (constraints && constraints.length) || 0;
 				logger.progress({message: 'Constraints retrieved successfully ' + countConstraints + ' constraint(s)', containerName: dbName, entityName: ''});
@@ -262,7 +262,7 @@ const getNodesData = (dbName,  labels, isMultiDb, data, logger) => {
 					data.includeEmptyCollection, 
 					data.fieldInference,
 					data.indexes[labelName],
-					data.constraints[labelName] 
+					getConstraintsForEntity(labelName, 'node', data.constraints),
 				);
 				if (packageData) {
 					packages.push(packageData);
@@ -288,7 +288,9 @@ const getRelationshipData = (schema, dbName, dbVersion, recordSamplingSettings, 
 				return neo4j.getRelationshipData(chain.start, chain.relationship, chain.end, count, dbName, isMultiDb);
 			}).then((rawDocuments) => {
 				const documents = deserializeData(rawDocuments);
-				const separatedConstraints = separateConstraintsByType(constraints[chain.relationship] || []);
+				const separatedConstraints = separateConstraintsByType(
+					getConstraintsForEntity(chain.relationship, 'relationship', constraints) || [],
+				);
 				const jsonSchema = createSchemaByConstraints(documents, separatedConstraints);
 				let packageData = {
 					dbName,
@@ -385,7 +387,7 @@ const prepareIndexes3x = (indexes) => {
 
 const prepareIndexes4x = indexes => {
 	let map = {};
-	indexes.forEach((index, i) => {
+	indexes.filter(index => index.labelsOrTypes).forEach((index, i) => {
 		index.properties = index.properties || [];
 
 		const index_obj = {
@@ -394,7 +396,7 @@ const prepareIndexes4x = indexes => {
 			state: index.state,
 			type: index.type,
 			uniqueness: index.uniqueness === "UNIQUE",
-			provider: index.provider
+			provider: index.provider || index.indexProvider,
 		};
 
 		index.labelsOrTypes.forEach((label, i) => {
@@ -408,18 +410,65 @@ const prepareIndexes4x = indexes => {
 	return map;
 }
 
-const prepareConstraints = (constraints) => {
+const prepareConstraints = (constraints, dbVersion) => {
+	if (dbVersion === '5.x') {
+		return prepareConstraints5x(constraints);
+	}
+	return prepareConstraints4x(constraints);
+};
+
+const prepareConstraints5x = (constraints) => {
+	const mapConstraint = (constraint) => {
+		if (constraint.type === 'UNIQUENESS') {
+			return {
+				name: constraint.name,
+				type: 'UNIQUE',
+				key: constraint.properties,
+
+			};
+		} else if (constraint.type === 'NODE_KEY') {
+			return {
+				name: constraint.name,
+				type: 'NODE_KEY',
+				compositeNodeKey: constraint.properties,
+			};
+		} else if (['NODE_PROPERTY_EXISTENCE', 'RELATIONSHIP_PROPERTY_EXISTENCE'].includes(constraint.type)) {
+			return {
+				name: constraint.name,
+				type: 'EXISTS',
+				key: constraint.properties,
+			};
+		}
+	};
+
+	return constraints.reduce((acc, constraint) => {
+		if (!constraint.labelsOrTypes) {
+			return acc;
+		}
+		constraint.labelsOrTypes.forEach((labelName) => {
+			const entityTypeKey = constraint.entityType === 'NODE' ? 'node' : 'relationship';
+			if (!acc[entityTypeKey][labelName]) {
+				acc[entityTypeKey][labelName] = [];
+			}
+			acc[entityTypeKey][labelName].push(mapConstraint(constraint));
+		});
+
+		return acc;
+	}, { node: {}, relationship: {} });
+};
+
+const prepareConstraints4x = (constraints) => {
 	const isUnique = /^constraint\s+on\s+\([\s\S]+\:([\S\s]+)\s*\)\s+assert\s+[\s\S]+\.([\s\S]+)\s*\)\s+IS\s+UNIQUE/i;
 	const isNodeKey = /^constraint\s+on\s+\([\s\S]+\:\s*([\S\s]+)\s*\)\s+assert\s+(?:\(\s*([\s\S]+)\s*\)|[\s\S]+\.\s*([\S\s]+)\s*)\s+IS\s+NODE\s+KEY/i;
 	const isExists = /^constraint\s+on\s+\([\s\S]+\:([\s\S]+)\s*\)\s+assert\s+exists\([\s\S]+\.([\s\S]+)\s*\)/i;
-	let result = {};
+	let result = { nodeAndRelationship: {} };
 	const addToResult = (result, name, label, key, type, keyName = "key") => {
 		const labelName = label.trim();
-		if (!result[labelName]) {
-			result[labelName] = [];
+		if (!result.nodeAndRelationship[labelName]) {
+			result.nodeAndRelationship[labelName] = [];
 		}
 
-		result[labelName].push({ [keyName]: key, name, type });
+		result.nodeAndRelationship[labelName].push({ [keyName]: key, name, type });
 	};
 
 	constraints.forEach(c => {
@@ -650,4 +699,11 @@ const separateConstraintsByType = (constraints = []) => {
 
 		return result;
 	}, { 'UNIQUE': [], 'EXISTS': [], 'NODE_KEY': [] });
+};
+
+const getConstraintsForEntity = (entityName, entityType, constraints) => {
+	if (constraints.nodeAndRelationship) {
+		return constraints.nodeAndRelationship[entityName];
+	}
+	return constraints[entityType]?.[entityName];
 };
