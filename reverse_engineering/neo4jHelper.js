@@ -274,7 +274,7 @@ const getIndexes = (dbName, isMultiDb, dbVersion) => {
 
 const getConstraints = (dbName, isMultiDb, dbVersion) => {
 	if (dbVersion === '5.x') {
-		return Promise.resolve([]);
+		return execute('SHOW CONSTRAINTS', dbName, isMultiDb);
 	}
 	return execute('CALL db.constraints()', dbName, isMultiDb);
 };
@@ -437,7 +437,8 @@ const isTemporalField = (temporalFieldFormatKeys, field) => {
 
 const getConnectionURI = (info) => {
 	let host = '';
-	if (info.host?.startsWith('neo4j')) {
+	const neo4jProtocolRegex = /^neo4j(\+s|s|)(\+ssc|ssc|):\/\//i;
+	if (neo4jProtocolRegex.test(info.host)) {
 		host = info.host;
 	} else {
 		host = `bolt://${info.host}`;
