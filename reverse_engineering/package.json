@@ -4,8 +4,11 @@
   "description": "",
   "author": "Hackolade",
   "dependencies": {
-    "@hackolade/neo4j-driver": "^4.4.5-ssl",
+    "neo4j-driver": "^4.4.10",
     "tunnel-ssh": "github:hackolade/tunnel-ssh"
+  },
+  "scripts": {
+    "postinstall": "patch-package"
   },
   "installed": true
 }
