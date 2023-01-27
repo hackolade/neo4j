@@ -419,7 +419,7 @@ module.exports = {
         let entities = { collections };
         if (dbVersion !== '3.x') {
             getIndex = this.getIndex4x.bind(this);
-            if (['4.3', '5.x'].includes(dbVersion)) {
+            if (['4.3', '4.4', '5.x'].includes(dbVersion)) {
                 entities.relationships = relationships;
             }
         }

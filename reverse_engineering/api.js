@@ -307,7 +307,7 @@ const getRelationshipData = (schema, dbName, dbVersion, recordSamplingSettings, 
 					packageData.documentTemplate = getTemplate(documents);
 				}
 
-				if (dbVersion === '4.3') {
+				if (['4.3', '4.4', '5.x'].includes(dbVersion)) {
 					packageData.relationshipInfo = { index: indexes[chain.relationship] || [] };
 				}
 
