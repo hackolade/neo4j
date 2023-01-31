@@ -26,7 +26,7 @@ module.exports = {
 			logger.log('error', prepareError(error), 'Connection error');
 			
 			setTimeout(() => {
-				cb(prepareError(error));
+				cb({...prepareError(error), type: 'simpleError'});
 			}, 1000);
 		});
 	},
@@ -82,8 +82,14 @@ module.exports = {
 				error: prepareError(error)
 			}, 'Retrieving labels information');
 
+			const mappedError = {
+				...error,
+				type: !error.type && error.step === 'Connection Error' ? 'simpleError' : null,
+				message: error.message || 'Process of retrieving labels was interrupted by error'
+			};
+
 			setTimeout(() => {
-				cb(error || 'error');
+				cb(mappedError || 'error');
 			}, 1000);
 		}
 	},

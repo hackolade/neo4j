@@ -1,7 +1,7 @@
 {
 	"errors": {
 		"NO_DATABASES": "There is no databases in this Neo4j instance",
-		"WRONG_CONNECTION": "Cannot connect to Neo4j instance"
+		"WRONG_CONNECTION": "Cannot connect to Neo4j instance.\nPlease check your instance is running and the connection parameters are correct."
 	},
 	"excludeDocKind": ["id"],
 	"helpUrl": "https://hackolade.com/help/ConnecttoaNeo4jinstance.html"
