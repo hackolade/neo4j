@@ -1,5 +1,5 @@
 diff --git a/node_modules/neo4j-driver-bolt-connection/lib/channel/channel-config.js b/node_modules/neo4j-driver-bolt-connection/lib/channel/channel-config.js
-index 73dc996..5253722 100644
+index 73dc996..8166cf5 100644
 --- a/node_modules/neo4j-driver-bolt-connection/lib/channel/channel-config.js
 +++ b/node_modules/neo4j-driver-bolt-connection/lib/channel/channel-config.js
 @@ -35,7 +35,8 @@ var ALLOWED_VALUES_TRUST = [
@@ -12,6 +12,16 @@ index 73dc996..5253722 100644
  ];
  var ChannelConfig = /** @class */ (function () {
      /**
+@@ -52,6 +53,9 @@ var ChannelConfig = /** @class */ (function () {
+         this.knownHostsPath = extractKnownHostsPath(driverConfig);
+         this.connectionErrorCode = connectionErrorCode || SERVICE_UNAVAILABLE;
+         this.connectionTimeout = extractConnectionTimeout(driverConfig);
++        this.cert = driverConfig.cert;
++        this.key = driverConfig.key;
++        this.passphrase = driverConfig.passphrase;
+     }
+     return ChannelConfig;
+ }());
 diff --git a/node_modules/neo4j-driver-bolt-connection/lib/channel/node/node-channel.js b/node_modules/neo4j-driver-bolt-connection/lib/channel/node/node-channel.js
 index 5775b37..920cb62 100644
 --- a/node_modules/neo4j-driver-bolt-connection/lib/channel/node/node-channel.js
