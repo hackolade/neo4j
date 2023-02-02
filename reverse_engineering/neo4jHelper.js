@@ -471,4 +471,5 @@ module.exports = {
 	setTimeOut,
 	isTemporalTypeField,
 	getTemporalFieldSchema,
+	execute,
 };

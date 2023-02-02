@@ -8,5 +8,6 @@
 		"container": true,
 		"entity": false
 	},
-	"refresh": true
+	"refresh": true,
+	"applyScriptToInstance": true
 }

@@ -1,4 +1,5 @@
 const { dependencies, setDependencies } = require('./helpers/appDependencies');
+const applyToInstanceHelper = require('./helpers/applyToInstance');
 let _;
 const setAppDependencies = ({ lodash }) => (_ = lodash);
 
@@ -124,6 +125,34 @@ module.exports = {
 
         return script;
     },
+
+    applyToInstance(connectionInfo, logger, callback, app) {
+        setDependencies(app);
+		logger.clear();
+		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+
+		applyToInstanceHelper.applyToInstance(connectionInfo, dependencies, logger)
+			.then(result => {
+				callback(null, result);
+			})
+			.catch(error => {
+				callback({...error, type: 'simpleError'});
+			});
+	},
+
+	testConnection(connectionInfo, logger, callback, app) {
+        setDependencies(app);
+		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+		applyToInstanceHelper.testConnection(connectionInfo, dependencies)
+			.then(
+				callback,
+				(err) => {
+                    logger.log('error', err, 'Neo4j test connection error');
+                    callback({...err, type: 'simpleError'})
+                
+                }
+			);
+	},
 
     prepareData(serializedData, schema, isParentActivated) {
         const data = JSON.parse(serializedData);
@@ -467,11 +496,11 @@ module.exports = {
         switch(type) {
             case 'collections':
                 return this.commentIfDeactivated(
-                    `CREATE${indexTypeStatement}INDEX ${screen(index.name || name)} FOR (${screen(name)}:${screen(entity.collectionName)}) ON (${screen(name)}.${fields.map((field) => screen(field.name)).join(`, ${screen(name)}.`)})`,
+                    `CREATE${indexTypeStatement}INDEX ${screen(index.name || name)} IF NOT EXISTS FOR (${screen(name)}:${screen(entity.collectionName)}) ON (${screen(name)}.${fields.map((field) => screen(field.name)).join(`, ${screen(name)}.`)})`,
                     isActivated && fields.every((field) => field.isActivated));
             case 'relationships':
                 return this.commentIfDeactivated(
-                    `CREATE${indexTypeStatement}INDEX ${screen(index.name || name)} FOR ()-[${screen(name)}:${screen(entity.name)}]-() ON (${screen(name)}.${fields.map((field) => screen(field.name)).join(`, ${screen(name)}.`)})`,
+                    `CREATE${indexTypeStatement}INDEX ${screen(index.name || name)} IF NOT EXISTS FOR ()-[${screen(name)}:${screen(entity.name)}]-() ON (${screen(name)}.${fields.map((field) => screen(field.name)).join(`, ${screen(name)}.`)})`,
                     isActivated && fields.every((field) => field.isActivated));
         }
         return null;
