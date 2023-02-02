@@ -1,4 +1,4 @@
-const neo4j = require('@hackolade/neo4j-driver');
+const neo4j = require('neo4j-driver');
 let driver;
 let sshTunnel;
 const fs = require('fs');
