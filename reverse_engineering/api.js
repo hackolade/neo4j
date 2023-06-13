@@ -298,6 +298,8 @@ const getRelationshipData = (schema, dbName, dbVersion, recordSamplingSettings, 
 					getConstraintsForEntity(chain.relationship, 'relationship', constraints) || [],
 				);
 				const jsonSchema = createSchemaByConstraints(documents, separatedConstraints);
+				const preparedDocuments = documents.map(removeFunctions);
+
 				let packageData = {
 					dbName,
 					parentCollection: chain.start, 
@@ -306,11 +308,11 @@ const getRelationshipData = (schema, dbName, dbVersion, recordSamplingSettings, 
 					validation: {
 						jsonSchema
 					},
-					documents
+					documents: preparedDocuments
 				};
 
 				if (fieldInference.active === 'field') {
-					packageData.documentTemplate = getTemplate(documents);
+					packageData.documentTemplate = getTemplate(preparedDocuments);
 				}
 
 				if (['4.3', '4.4', '5.x'].includes(dbVersion)) {
@@ -333,10 +335,12 @@ const getLabelPackage = (dbName, labelName, rawDocuments, includeEmptyCollection
 	const documents = deserializeData(rawDocuments);
 	const separatedConstraints = separateConstraintsByType(constraints);
 	const jsonSchema = createSchemaByConstraints(documents, separatedConstraints);
+	const preparedDocuments = documents.map(removeFunctions);
+
 	let packageData = {
 		dbName: dbName,
 		collectionName: labelName,
-		documents,
+		documents: preparedDocuments,
 		indexes: [],
 		bucketIndexes: [],
 		views: [],
@@ -350,10 +354,10 @@ const getLabelPackage = (dbName, labelName, rawDocuments, includeEmptyCollection
 	};
 
 	if (fieldInference.active === 'field') {
-		packageData.documentTemplate = getTemplate(documents);
+		packageData.documentTemplate = getTemplate(preparedDocuments);
 	}
 
-	if (includeEmptyCollection || !isEmptyLabel(documents)) {
+	if (includeEmptyCollection || !isEmptyLabel(preparedDocuments)) {
 		return packageData;
 	} else {
 		return null;
@@ -712,4 +716,17 @@ const getConstraintsForEntity = (entityName, entityType, constraints) => {
 		return constraints.nodeAndRelationship[entityName];
 	}
 	return constraints[entityType]?.[entityName];
+};
+
+const removeFunctions = (document) => {
+	try {
+		return JSON.parse(JSON.stringify(document, (key, value) => {
+			if (typeof value === 'object' && neo4j.isTemporalTypeField(value)) {
+				return value.toString();
+			}
+			return value;
+		}));
+	} catch (e) {
+		return document;
+	}
 };
