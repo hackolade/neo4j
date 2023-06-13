@@ -83,7 +83,7 @@ module.exports = {
 			}, 'Retrieving labels information');
 
 			const mappedError = {
-				...error,
+				...prepareError(error),
 				type: !error.type && error.step === 'Connection Error' ? 'simpleError' : null,
 				message: error.message || 'Process of retrieving labels was interrupted by error'
 			};
