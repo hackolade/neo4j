@@ -112,7 +112,6 @@ module.exports = {
 		const dataBaseNames = data.collectionData.dataBaseNames;
 		const fieldInference = data.fieldInference;
 		const includeEmptyCollection = data.includeEmptyCollection;
-		const includeSystemCollection = data.includeSystemCollection;
 		const recordSamplingSettings = data.recordSamplingSettings;
 		let packages = {
 			labels: [],
@@ -208,12 +207,14 @@ const initDependencies = app => {
 	neo4j.setDependencies(dependencies);
 };
 
-const getCount = (count, recordSamplingSettings) => {
-	const per = recordSamplingSettings.relative.value;
-	const size = (recordSamplingSettings.active === 'absolute')
-		? recordSamplingSettings.absolute.value
-		: Math.round(count / 100 * per);
-	return size;
+const getSampleDocSize = (count, recordSamplingSettings) => {
+	if (recordSamplingSettings.active === 'absolute') {
+		return Number(recordSamplingSettings.absolute.value);
+	}
+
+	const limit = Math.ceil((count * recordSamplingSettings.relative.value) / 100);
+
+	return Math.min(limit, recordSamplingSettings.maxValue);
 };
 
 const isEmptyLabel = (documents) => {
@@ -254,7 +255,7 @@ const getNodesData = (dbName,  labels, isMultiDb, data, logger) => {
 			logger(labelName, 'Getting data...');
 
 			neo4j.getNodesCount(labelName, dbName, isMultiDb).then(quantity => {
-				const count = getCount(quantity, data.recordSamplingSettings);
+				const count = getSampleDocSize(quantity, data.recordSamplingSettings);
 				logger(labelName, 'Found ' + count + ' nodes');
 
 				return neo4j.getNodes(labelName, count, dbName, isMultiDb);
@@ -290,7 +291,7 @@ const getRelationshipData = (schema, dbName, dbVersion, recordSamplingSettings, 
 	return new Promise((resolve, reject) => {
 		async.map(schema, (chain, nextChain) => {
 			neo4j.getCountRelationshipsData(chain.start, chain.relationship, chain.end, dbName, isMultiDb).then((quantity) => {
-				const count = getCount(quantity, recordSamplingSettings);
+				const count = getSampleDocSize(quantity, recordSamplingSettings);
 				return neo4j.getRelationshipData(chain.start, chain.relationship, chain.end, count, dbName, isMultiDb);
 			}).then((rawDocuments) => {
 				const documents = deserializeData(rawDocuments);
