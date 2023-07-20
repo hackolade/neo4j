@@ -1,7 +1,7 @@
 {
     "name": "Neo4j",
-    "version": "0.1.50",
-    "versionDate": "2023-06-13",
+    "version": "0.1.51",
+    "versionDate": "2023-07-20",
     "author": "hackolade",
     "engines": {
         "hackolade": "6.8.5",
