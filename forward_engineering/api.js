@@ -14,7 +14,7 @@ module.exports = {
             collections = collections.map(JSON.parse);
             relationships = relationships.map(JSON.parse);
 
-            const createScript = this.generateCreateBatch(collections, relationships, jsonData);
+            const createScript = this.generateCreateBatch(collections, relationships, jsonData, logger);
             const constraints = this.generateConstraints(dbVersion, collections, relationships);
             const indexes = this.getIndexes(dbVersion, collections, relationships);
 
@@ -47,14 +47,14 @@ module.exports = {
         return script;
     },
 
-    generateCreateBatch(collections, relationships, jsonData) {
+    generateCreateBatch(collections, relationships, jsonData, logger) {
         let createdHash = {};
 
         const initBatch = collections.map((collection) => {
             createdHash[collection.collectionName] = collection.isActivated;
             let nodeData = '';
             if (jsonData[collection.GUID]) {
-                nodeData = ' ' + this.prepareData(jsonData[collection.GUID], collection, collection.isActivated);
+                nodeData = ' ' + this.prepareData(jsonData[collection.GUID], collection, collection.isActivated, logger);
             }
 
             const collectionString = `(${screen(collection.collectionName).toLowerCase()}:${screen(
@@ -80,7 +80,7 @@ module.exports = {
                 if (branchData.relationship && jsonData[branchData.relationship.GUID]) {
                     relationshipData =
                         ' ' +
-                        this.prepareData(jsonData[branchData.relationship.GUID], branchData.relationship, isActivated);
+                        this.prepareData(jsonData[branchData.relationship.GUID], branchData.relationship, isActivated, logger);
                 }
                 const relationship = `[:${screen(relationshipName)}${relationshipData}]`;
 
@@ -154,7 +154,7 @@ module.exports = {
 			);
 	},
 
-    prepareData(serializedData, schema, isParentActivated) {
+    prepareData(serializedData, schema, isParentActivated, logger) {
         const data = JSON.parse(serializedData);
         if (!Object.keys(data).length) {
             return '{}';
@@ -180,9 +180,13 @@ module.exports = {
                     isActivated: isParentActivated ? isFieldActivated : true,
                 });
             } else {
-                const isFieldActivated = _.get(schema, `properties.${field}.isActivated`, true);
+								const isFieldActivated = _.get(schema, `properties.${field}.isActivated`, true);
+								const fieldInSchema = _.get(schema, ['properties', field]) || _.get(schema, ['patternProperties', field]);
+								if (!fieldInSchema) {
+									logger.log('error', "Can't resolve field:\n", { field });
+								}
                 result.push({
-                    statement: `${screen(field)}: ${getStatementValue(_.get(schema, ['properties', field]) , data[field])}`,
+                    statement: `${screen(field)}: ${getStatementValue(fieldInSchema, data[field])}`,
                     isActivated: isParentActivated ? isFieldActivated : true,
                 });
             }
@@ -616,10 +620,12 @@ const isDBVersionLessThan4point3 = (dbVersion) => {
 
 const getStatementValue = (field, fieldData) => {
     const fieldStatementValue = JSON.stringify(fieldData);
-    if (field.type === 'temporal') {
+		if (!field) {
+			return fieldStatementValue;
+		}
+    if ([field.type, field.childType].some(type => type === 'temporal')) {
         return getTemporalFieldFunctionStatement(field.mode, fieldStatementValue);
     }
-
     return fieldStatementValue;
 }
 
