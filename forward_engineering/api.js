@@ -623,7 +623,7 @@ const getStatementValue = (field, fieldData) => {
 		if (!field) {
 			return fieldStatementValue;
 		}
-    if ([field.type, field.childType].some(type => type === 'temporal')) {
+    if ([field.type, field.childType].includes('temporal')) {
         return getTemporalFieldFunctionStatement(field.mode, fieldStatementValue);
     }
     return fieldStatementValue;
