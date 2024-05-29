@@ -124,9 +124,7 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyTooltip": "DB vendor",
 				"propertyType": "select",
-				"options": [
-					"Neo4j"
-				],
+				"options": ["Neo4j"],
 				"disabledOption": true
 			},
 			{
@@ -136,13 +134,7 @@ making sure that you maintain a proper JSON format.
 				"propertyTooltip": "DB version",
 				"propertyType": "select",
 				"defaultValue": "4.3",
-				"options": [
-					"3.x",
-					"4.0-4.2",
-					"4.3",
-					"4.4",
-					"5.x"
-				]
+				"options": ["3.x", "4.0-4.2", "4.3", "4.4", "5.x"]
 			},
 			{
 				"propertyName": "Comments",
@@ -157,110 +149,105 @@ making sure that you maintain a proper JSON format.
 	{
 		"lowerTab": "Relationships",
 		"structure": [
-		{
-			"propertyName": "Index",
-			"propertyType": "group",
-			"propertyKeyword": "index",
-			"shouldValidate": false,
-			"propertyTooltip": "Relationship indexes",
-			"dependency":{
-                    "level": "model",
-                    "key": "dbVersion",
-                    "value": "4.3"
-                },
-			"structure": [
-
-				{
-					"propertyName": "Name",
-					"propertyKeyword": "name",
-					"shouldValidate": false,
-					"propertyTooltip": "Unique index name",
-					"propertyType": "text"
+			{
+				"propertyName": "Index",
+				"propertyType": "group",
+				"propertyKeyword": "index",
+				"shouldValidate": false,
+				"propertyTooltip": "Relationship indexes",
+				"dependency": {
+					"level": "model",
+					"key": "dbVersion",
+					"value": "4.3"
 				},
-				{
-					"propertyName": "Activated",
-					"propertyKeyword": "isActivated",
-					"propertyTooltip": "Deactivated item will be not included in FE script",
-					"propertyType": "checkbox",
-					"defaultValue": true
-				},
-				{
-					"propertyName": "Key",
-					"propertyKeyword": "key",
-					"shouldValidate": false,
-					"propertyTooltip": "Index properties",
-					"propertyType": "fieldList",
-					"template": "orderedList"
-				},
-				{
-					"propertyName": "State",
-					"propertyKeyword": "state",
-					"shouldValidate": false,
-					"propertyType": "text",
-					"propertyTooltip": "State"
-				},
-				{
-					"propertyName": "Type",
-					"propertyKeyword": "type",
-					"shouldValidate": false,
-					"propertyType": "text",
-					"propertyTooltip": "Type",
-					"dependency": {
-						"type": "not",
-						"values": [
-							{
-								"level": "model",
-								"key": "dbVersion",
-								"value": "5.x"
-							}
-						]
+				"structure": [
+					{
+						"propertyName": "Name",
+						"propertyKeyword": "name",
+						"shouldValidate": false,
+						"propertyTooltip": "Unique index name",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Activated",
+						"propertyKeyword": "isActivated",
+						"propertyTooltip": "Deactivated item will be not included in FE script",
+						"propertyType": "checkbox",
+						"defaultValue": true
+					},
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "key",
+						"shouldValidate": false,
+						"propertyTooltip": "Index properties",
+						"propertyType": "fieldList",
+						"template": "orderedList"
+					},
+					{
+						"propertyName": "State",
+						"propertyKeyword": "state",
+						"shouldValidate": false,
+						"propertyType": "text",
+						"propertyTooltip": "State"
+					},
+					{
+						"propertyName": "Type",
+						"propertyKeyword": "type",
+						"shouldValidate": false,
+						"propertyType": "text",
+						"propertyTooltip": "Type",
+						"dependency": {
+							"type": "not",
+							"values": [
+								{
+									"level": "model",
+									"key": "dbVersion",
+									"value": "5.x"
+								}
+							]
+						}
+					},
+					{
+						"propertyName": "Type",
+						"propertyKeyword": "type",
+						"shouldValidate": false,
+						"propertyType": "select",
+						"propertyTooltip": "Type",
+						"defaultValue": "RANGE",
+						"options": ["RANGE", "TEXT", "POINT", "FULLTEXT"],
+						"dependency": {
+							"level": "model",
+							"key": "dbVersion",
+							"value": "5.x"
+						}
+					},
+					{
+						"propertyName": "Provider",
+						"propertyKeyword": "provider",
+						"shouldValidate": false,
+						"propertyType": "details",
+						"template": "textarea",
+						"markdown": false,
+						"propertyTooltip": "Provider"
+					},
+					{
+						"propertyName": "Description",
+						"propertyKeyword": "description",
+						"shouldValidate": false,
+						"propertyTooltip": "description",
+						"propertyType": "details",
+						"template": "textarea"
+					},
+					{
+						"propertyName": "Comments",
+						"propertyKeyword": "storedProcComments",
+						"shouldValidate": false,
+						"propertyTooltip": "comments",
+						"propertyType": "details",
+						"template": "textarea"
 					}
-				},
-				{
-					"propertyName": "Type",
-					"propertyKeyword": "type",
-					"shouldValidate": false,
-					"propertyType": "select",
-					"propertyTooltip": "Type",
-					"defaultValue": "RANGE",
-					"options": [
-						"RANGE",
-						"TEXT",
-						"POINT",
-						"FULLTEXT"
-					],
-					"dependency": {
-						"level": "model",
-						"key": "dbVersion",
-						"value": "5.x"
-					}
-				},
-				{
-					"propertyName": "Provider",
-					"propertyKeyword": "provider",
-					"shouldValidate": false,
-					"propertyType": "details",
-					"template": "textarea",
-					"markdown": false,
-					"propertyTooltip": "Provider"
-				},
-				{
-					"propertyName": "Description",
-					"propertyKeyword": "description",
-					"shouldValidate": false,
-					"propertyTooltip": "description",
-					"propertyType": "details",
-					"template": "textarea"
-				},
-				{
-					"propertyName": "Comments",
-					"propertyKeyword": "storedProcComments",
-					"shouldValidate": false,
-					"propertyTooltip": "comments",
-					"propertyType": "details",
-					"template": "textarea"
-				}
-			]
-		}]
+				]
+			}
+		]
 	}
 ]

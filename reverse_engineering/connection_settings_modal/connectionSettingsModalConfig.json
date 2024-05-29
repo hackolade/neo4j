@@ -7,7 +7,6 @@
 				"inputKeyword": "name",
 				"inputType": "text",
 				"inputPlaceholder": "Name"
-				
 			},
 			{
 				"inputLabel": "Host",
@@ -33,7 +32,6 @@
 				"inputKeyword": "username",
 				"inputType": "text",
 				"inputPlaceholder": "User Name"
-				
 			},
 			{
 				"inputLabel": "Password",
@@ -53,23 +51,28 @@
 				"inputLabel": "SSL",
 				"inputKeyword": "sslType",
 				"inputType": "select",
-				"options": [{
-					"value": "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES", 
-					"label": "SYSTEMCA"
-				}, {
-					"value": "Off", 
-					"label": "Off"
-				}, {
-					"value": "TRUST_ALL_CERTIFICATES",
-					"label": "Unvalidated"
-				},{
-					"value": "TRUST_CUSTOM_CA_SIGNED_CERTIFICATES",
-					"label": "Server validation"
-
-				},{
-					"value": "TRUST_SERVER_CLIENT_CERTIFICATES",
-					"label": "Server and client validation"
-				}]
+				"options": [
+					{
+						"value": "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES",
+						"label": "SYSTEMCA"
+					},
+					{
+						"value": "Off",
+						"label": "Off"
+					},
+					{
+						"value": "TRUST_ALL_CERTIFICATES",
+						"label": "Unvalidated"
+					},
+					{
+						"value": "TRUST_CUSTOM_CA_SIGNED_CERTIFICATES",
+						"label": "Server validation"
+					},
+					{
+						"value": "TRUST_SERVER_CLIENT_CERTIFICATES",
+						"label": "Server and client validation"
+					}
+				]
 			},
 			{
 				"inputLabel": "Certificate Authority",
@@ -162,13 +165,16 @@
 				"inputLabel": "SSH Auth Method",
 				"inputKeyword": "ssh_method",
 				"inputType": "select",
-				"options": [{
-					"value": "privateKey", 
-					"label": "Private Key"
-				}, {
-					"value": "password",
-					"label": "Password"
-				}],
+				"options": [
+					{
+						"value": "privateKey",
+						"label": "Private Key"
+					},
+					{
+						"value": "password",
+						"label": "Password"
+					}
+				],
 				"disable": {
 					"key": "ssh",
 					"value": false

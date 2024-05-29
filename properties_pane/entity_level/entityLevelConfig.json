@@ -138,8 +138,8 @@ making sure that you maintain a proper JSON format.
 					"key": "entityType",
 					"value": "sub-node"
 				},
-			    "valueType": "string",
-  				"propertyTooltip": "edge"
+				"valueType": "string",
+				"propertyTooltip": "edge"
 			},
 			{
 				"propertyName": "Sub-node key",
@@ -147,7 +147,7 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "coupled",
 				"coupledBy": "namingConvention",
 				"onCoupleAction": "onCoupleCollectionBusinessName",
-    			"shouldValidate": true,
+				"shouldValidate": true,
 				"dependency": {
 					"key": "entityType",
 					"value": "sub-node"
@@ -155,14 +155,14 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyKeyword": "parentCollection",
-				"disabledOnCondition":{
+				"disabledOnCondition": {
 					"type": "not",
 					"values": {
 						"key": "entityType",
 						"value": "sub-node"
 					}
 				},
-				"dependency":{
+				"dependency": {
 					"type": "not",
 					"values": {
 						"key": "entityType",
@@ -172,7 +172,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyKeyword": "childCollection",
-				"disabledOnCondition":{}
+				"disabledOnCondition": {}
 			},
 			{
 				"propertyKeyword": "additionalProperties"
@@ -187,176 +187,174 @@ making sure that you maintain a proper JSON format.
 				"valueType": "string"
 			},
 			{
-				"propertyName":"Entity type",
+				"propertyName": "Entity type",
 				"valueType": "string",
-				"propertyKeyword":"entityType",
+				"propertyKeyword": "entityType",
 				"hidden": true
 			}
 		]
 	},
 	{
 		"lowerTab": "Node key constraints",
-		"structure": [{
-			"propertyName": "Constraint",
-			"propertyType": "group",
-			"propertyKeyword": "constraint",
-			"shouldValidate": false,
-			"propertyTooltip": "",
-			"structure": [
-				{
-					"propertyName": "Name",
-					"propertyKeyword": "name",
-					"shouldValidate": false,
-					"propertyTooltip": "",
-					"propertyType": "text"
-				},
-				{
-					"propertyName": "Key",
-					"propertyKeyword": "compositeNodeKey",
-					"shouldValidate": false,
-					"propertyType": "primaryKeySetter",
-					"abbr": "nk"
-				},
-				{
-					"propertyName": "Id",
-					"propertyKeyword": "constraintId",
-					"shouldValidate": false,
-					"propertyTooltip": "Constraint ID",
-					"propertyType": "text"
-				},
-				{
-					"propertyName": "Description",
-					"propertyKeyword": "description",
-					"shouldValidate": false,
-					"propertyTooltip": "description",
-					"propertyType": "details",
-					"template": "textarea"
-				},
-				{
-					"propertyName": "Comments",
-					"propertyKeyword": "storedProcComments",
-					"shouldValidate": false,
-					"propertyTooltip": "comments",
-					"propertyType": "details",
-					"template": "textarea"
-				}
-			],
-			"dependency": {
-				"type": "not",
-				"values": {
-					"key": "entityType",
-					"value": "sub-node"
+		"structure": [
+			{
+				"propertyName": "Constraint",
+				"propertyType": "group",
+				"propertyKeyword": "constraint",
+				"shouldValidate": false,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Name",
+						"propertyKeyword": "name",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "compositeNodeKey",
+						"shouldValidate": false,
+						"propertyType": "primaryKeySetter",
+						"abbr": "nk"
+					},
+					{
+						"propertyName": "Id",
+						"propertyKeyword": "constraintId",
+						"shouldValidate": false,
+						"propertyTooltip": "Constraint ID",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Description",
+						"propertyKeyword": "description",
+						"shouldValidate": false,
+						"propertyTooltip": "description",
+						"propertyType": "details",
+						"template": "textarea"
+					},
+					{
+						"propertyName": "Comments",
+						"propertyKeyword": "storedProcComments",
+						"shouldValidate": false,
+						"propertyTooltip": "comments",
+						"propertyType": "details",
+						"template": "textarea"
+					}
+				],
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "entityType",
+						"value": "sub-node"
+					}
 				}
 			}
-		}]
+		]
 	},
 	{
 		"lowerTab": "Indexes",
-		"structure": [{
-			"propertyName": "Index",
-			"propertyType": "group",
-			"propertyKeyword": "index",
-			"shouldValidate": false,
-			"propertyTooltip": "",
-			"structure": [
-
-				{
-					"propertyName": "Name",
-					"propertyKeyword": "name",
-					"shouldValidate": false,
-					"propertyTooltip": "",
-					"propertyType": "text"
-				},
-				{
-					"propertyName": "Activated",
-					"propertyKeyword": "isActivated",
-					"propertyTooltip": "Deactivated item will be not included in FE script",
-					"propertyType": "checkbox",
-					"defaultValue": true
-				},
-				{
-					"propertyName": "Key",
-					"propertyKeyword": "key",
-					"shouldValidate": false,
-					"propertyType": "fieldList",
-					"template": "orderedList"
-				},
-				{
-					"propertyName": "State",
-					"propertyKeyword": "state",
-					"shouldValidate": false,
-					"propertyType": "text",
-					"propertyTooltip": "State"
-				},
-				{
-					"propertyName": "Type",
-					"propertyKeyword": "type",
-					"shouldValidate": false,
-					"propertyType": "text",
-					"propertyTooltip": "Type",
-					"dependency": {
-						"type": "not",
-						"values": [
-							{
-								"level": "model",
-								"key": "dbVersion",
-								"value": "5.x"
-							}
-						]
+		"structure": [
+			{
+				"propertyName": "Index",
+				"propertyType": "group",
+				"propertyKeyword": "index",
+				"shouldValidate": false,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Name",
+						"propertyKeyword": "name",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Activated",
+						"propertyKeyword": "isActivated",
+						"propertyTooltip": "Deactivated item will be not included in FE script",
+						"propertyType": "checkbox",
+						"defaultValue": true
+					},
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "key",
+						"shouldValidate": false,
+						"propertyType": "fieldList",
+						"template": "orderedList"
+					},
+					{
+						"propertyName": "State",
+						"propertyKeyword": "state",
+						"shouldValidate": false,
+						"propertyType": "text",
+						"propertyTooltip": "State"
+					},
+					{
+						"propertyName": "Type",
+						"propertyKeyword": "type",
+						"shouldValidate": false,
+						"propertyType": "text",
+						"propertyTooltip": "Type",
+						"dependency": {
+							"type": "not",
+							"values": [
+								{
+									"level": "model",
+									"key": "dbVersion",
+									"value": "5.x"
+								}
+							]
+						}
+					},
+					{
+						"propertyName": "Type",
+						"propertyKeyword": "type",
+						"shouldValidate": false,
+						"propertyType": "select",
+						"propertyTooltip": "Type",
+						"defaultValue": "RANGE",
+						"options": ["RANGE", "TEXT", "POINT", "FULLTEXT"],
+						"dependency": {
+							"level": "model",
+							"key": "dbVersion",
+							"value": "5.x"
+						}
+					},
+					{
+						"propertyName": "Provider",
+						"propertyKeyword": "provider",
+						"shouldValidate": false,
+						"propertyType": "details",
+						"template": "textarea",
+						"markdown": false,
+						"propertyTooltip": "Provider"
+					},
+					{
+						"propertyName": "Description",
+						"propertyKeyword": "description",
+						"shouldValidate": false,
+						"propertyTooltip": "description",
+						"propertyType": "details",
+						"template": "textarea"
+					},
+					{
+						"propertyName": "Comments",
+						"propertyKeyword": "storedProcComments",
+						"shouldValidate": false,
+						"propertyTooltip": "comments",
+						"propertyType": "details",
+						"template": "textarea"
 					}
-				},
-				{
-					"propertyName": "Type",
-					"propertyKeyword": "type",
-					"shouldValidate": false,
-					"propertyType": "select",
-					"propertyTooltip": "Type",
-					"defaultValue": "RANGE",
-					"options": [
-						"RANGE",
-						"TEXT",
-						"POINT",
-						"FULLTEXT"
-					],
-					"dependency": {
-						"level": "model",
-						"key": "dbVersion",
-						"value": "5.x"
+				],
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "entityType",
+						"value": "sub-node"
 					}
-				},
-				{
-					"propertyName": "Provider",
-					"propertyKeyword": "provider",
-					"shouldValidate": false,
-					"propertyType": "details",
-					"template": "textarea",
-					"markdown": false,
-					"propertyTooltip": "Provider"
-				},
-				{
-					"propertyName": "Description",
-					"propertyKeyword": "description",
-					"shouldValidate": false,
-					"propertyTooltip": "description",
-					"propertyType": "details",
-					"template": "textarea"
-				},
-				{
-					"propertyName": "Comments",
-					"propertyKeyword": "storedProcComments",
-					"shouldValidate": false,
-					"propertyTooltip": "comments",
-					"propertyType": "details",
-					"template": "textarea"
-				}
-			],
-			"dependency": {
-				"type": "not",
-				"values": {
-					"key": "entityType",
-					"value": "sub-node"
 				}
 			}
-		}]
+		]
 	}
 ]

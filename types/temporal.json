@@ -4,76 +4,89 @@
 	"dtdAbbreviation": "{tmp}",
 	"parentType": "string",
 	"useSample": true,
-	"sample":"2014-12-03",
+	"sample": "2014-12-03",
 	"defaultValues": {
 		"primaryKey": false,
 		"default": "",
 		"enum": [],
-		"sample":"",
-		"comments":"",
-		"pattern":"",
+		"sample": "",
+		"comments": "",
+		"pattern": "",
 		"format": "",
 		"unique": false
 	},
-	"descriptor": [{
-		"schema": {
-			"mode": "date"
+	"descriptor": [
+		{
+			"schema": {
+				"mode": "date"
+			},
+			"format": "YYYY-MM-DD"
 		},
-		"format": "YYYY-MM-DD"
-	}, {
-		"schema": {
-			"mode": "time"
+		{
+			"schema": {
+				"mode": "time"
+			},
+			"format": "hh:mm:ss"
 		},
-		"format": "hh:mm:ss"
-	}, {
-		"schema": {
-			"mode": "time"
+		{
+			"schema": {
+				"mode": "time"
+			},
+			"format": "hh:mm:ss.nnn"
 		},
-		"format": "hh:mm:ss.nnn"
-	}, {
-		"schema": {
-			"mode": "time"
+		{
+			"schema": {
+				"mode": "time"
+			},
+			"format": "hh:mm:ss.nnnnnn"
 		},
-		"format": "hh:mm:ss.nnnnnn"
-	}, {
-		"schema": {
-			"mode": "time"
+		{
+			"schema": {
+				"mode": "time"
+			},
+			"format": "hh:mm:ss.nnnnnnnnn"
 		},
-		"format": "hh:mm:ss.nnnnnnnnn"
-	}, {
-		"schema": {
-			"mode": "datetime"
+		{
+			"schema": {
+				"mode": "datetime"
+			},
+			"format": "YYYY-MM-DD hh:mm:ss"
 		},
-		"format": "YYYY-MM-DD hh:mm:ss"
-	}, {
-		"schema": {
-			"mode": "datetime"
+		{
+			"schema": {
+				"mode": "datetime"
+			},
+			"format": "YYYY-MM-DD hh:mm:ss.nnn"
 		},
-		"format": "YYYY-MM-DD hh:mm:ss.nnn"
-	}, {
-		"schema": {
-			"mode": "datetime"
+		{
+			"schema": {
+				"mode": "datetime"
+			},
+			"format": "YYYY-MM-DD hh:mm:ss.nnnnnn"
 		},
-		"format": "YYYY-MM-DD hh:mm:ss.nnnnnn"
-	}, {
-		"schema": {
-			"mode": "datetime"
+		{
+			"schema": {
+				"mode": "datetime"
+			},
+			"format": "YYYY-MM-DD hh:mm:ss.nnnnnnnnn"
 		},
-		"format": "YYYY-MM-DD hh:mm:ss.nnnnnnnnn"
-	}, {
-		"schema": {
-			"mode": "datetime"
+		{
+			"schema": {
+				"mode": "datetime"
+			},
+			"format": "YYYY-MM-DD hh:mm:ss.nnnZ"
 		},
-		"format": "YYYY-MM-DD hh:mm:ss.nnnZ"
-	}, {
-		"schema": {
-			"mode": "datetime"
+		{
+			"schema": {
+				"mode": "datetime"
+			},
+			"format": "YYYY-MM-DD hh:mm:ss.nnnnnnZ"
 		},
-		"format": "YYYY-MM-DD hh:mm:ss.nnnnnnZ"
-	}, {
-		"schema": {
-			"mode": "duration"
-		},
-		"format": "PnYnMnDTnHnMnS"
-	}]
+		{
+			"schema": {
+				"mode": "duration"
+			},
+			"format": "PnYnMnDTnHnMnS"
+		}
+	]
 }
