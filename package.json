@@ -1,6 +1,6 @@
 {
     "name": "Neo4j",
-    "version": "0.1.53",
+    "version": "0.2.0",
     "versionDate": "2024-03-15",
     "author": "hackolade",
     "engines": {
@@ -62,7 +62,8 @@
     },
     "scripts": {
         "lint": "eslint . --max-warnings=0",
-        "package": "node esbuild.package.js"
+        "package": "node esbuild.package.js",
+        "postinstall": "npx patch-package"
     },
     "devDependencies": {
         "@hackolade/hck-esbuild-plugins-pack": "0.0.1",
@@ -74,5 +75,11 @@
         "lint-staged": "14.0.1",
         "prettier": "3.2.5",
         "simple-git-hooks": "2.11.1"
+    },
+    "overrides": {
+        "tunnel-ssh": {
+            "cpu-features": "npm:-@0.0.1",
+            "ssh2": "npm:-@0.0.1"
+        }
     }
 }
