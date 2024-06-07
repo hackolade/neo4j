@@ -1,14 +1,14 @@
 const neo4jHelper = require('../../reverse_engineering/neo4jHelper');
 
 const applyToInstanceHelper = {
-	async applyToInstance(connectionInfo, dependencies, logger) {
+	async applyToInstance(connectionInfo, dependencies, logger, sshService) {
 		try {
 			logger.log('info', {
 				message: 'Applying cypher script has been started'
 			}, 'Neo4j script');	
 
 			neo4jHelper.setDependencies(dependencies);
-			await neo4jHelper.connect(connectionInfo, () => Promise.resolve());
+			await neo4jHelper.connect(connectionInfo, () => Promise.resolve(), sshService);
 			const instanceSupportMultiDb = await neo4jHelper.supportsMultiDb();
 			const dbData = connectionInfo.containerData?.[0];
 			const dbName = dbData?.code || dbData?.name || 'neo4j';
@@ -50,14 +50,14 @@ const applyToInstanceHelper = {
 			}, "Cypher script: query has been executed with error");
 			throw { ...err, type: 'simpleError', message: err.message };
 		} finally {
-			neo4jHelper.close();
+			neo4jHelper.close(sshService);
 		}
 	},
 
-	async testConnection(connectionInfo, dependencies) {
+	async testConnection(connectionInfo, dependencies, sshService) {
 		neo4jHelper.setDependencies(dependencies);
-		await neo4jHelper.connect(connectionInfo, () => Promise.resolve());
-		await neo4jHelper.close();
+		await neo4jHelper.connect(connectionInfo, () => Promise.resolve(), sshService);
+		await neo4jHelper.close(sshService);
 	},
 };
 
