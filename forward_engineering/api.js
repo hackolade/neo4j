@@ -130,8 +130,9 @@ module.exports = {
         setDependencies(app);
 		logger.clear();
 		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+        const sshService = app.require('@hackolade/ssh-service');
 
-		applyToInstanceHelper.applyToInstance(connectionInfo, dependencies, logger)
+		applyToInstanceHelper.applyToInstance(connectionInfo, dependencies, logger, sshService)
 			.then(result => {
 				callback(null, result);
 			})
@@ -143,7 +144,9 @@ module.exports = {
 	testConnection(connectionInfo, logger, callback, app) {
         setDependencies(app);
 		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
-		applyToInstanceHelper.testConnection(connectionInfo, dependencies)
+        const sshService = app.require('@hackolade/ssh-service');
+
+		applyToInstanceHelper.testConnection(connectionInfo, dependencies, sshService)
 			.then(
 				callback,
 				(err) => {
