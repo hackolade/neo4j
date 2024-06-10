@@ -73,7 +73,7 @@ const close = async (sshService) => {
 
 	if (isSshTunnel) {
 		await sshService.closeConsumer();
-		isSshTunnel = null;
+		isSshTunnel = false;
 	}
 };
 
