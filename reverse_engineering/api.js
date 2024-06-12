@@ -44,7 +44,7 @@ module.exports = {
 
 		initDependencies(app);
 		this.connect(connectionInfo, logger, (error) => {
-			this.disconnect(connectionInfo, () => {});
+			this.disconnect(connectionInfo, () => {}, app);
 			cb(error);
 		}, app);
 	},
