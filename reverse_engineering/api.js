@@ -740,7 +740,7 @@ const setDocumentInSchema = (document, jsonSchema) => {
 			if (!has(jsonSchema.properties || {}, fieldName)) {
 				jsonSchema.properties[fieldName] = {
 					type: 'number',
-					mode: value % 1 == 0 ? 'integer' : 'float',
+					mode: value % 1 === 0 ? 'integer' : 'float',
 					sample: value,
 				};
 			}
@@ -767,7 +767,7 @@ const getSchemaArrayItems = arrValue => {
 		} else if (typeof item === 'number') {
 			items.push({
 				type: 'number',
-				mode: item % 1 == 0 ? 'integer' : 'float',
+				mode: item % 1 === 0 ? 'integer' : 'float',
 				sample: item,
 			});
 			arrValue.splice(i - ofs, 1);

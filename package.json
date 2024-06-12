@@ -50,6 +50,7 @@
     "description": "Hackolade plugin for Neo4j",
     "disabled": false,
     "dependencies": {
+        "lodash": "4.17.21",
         "neo4j-driver": "4.4.10",
         "tunnel-ssh": "github:hackolade/tunnel-ssh"
     },
@@ -67,8 +68,8 @@
     },
     "devDependencies": {
         "@hackolade/hck-esbuild-plugins-pack": "0.0.1",
-        "@typescript-eslint/parser": "7.11.0",
         "@typescript-eslint/eslint-plugin": "7.11.0",
+        "@typescript-eslint/parser": "7.11.0",
         "esbuild": "0.20.2",
         "esbuild-plugin-clean": "1.0.1",
         "eslint": "8.57.0",
