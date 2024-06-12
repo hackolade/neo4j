@@ -16,9 +16,11 @@ const snippets = {
 
 module.exports = {
 	connect: function (connectionInfo, logger, cb, app) {
+		const sshService = app.require('@hackolade/ssh-service');
+
 		initDependencies(app);
 
-		neo4j.connect(connectionInfo, checkConnection(logger)).then(
+		neo4j.connect(connectionInfo, checkConnection(logger), sshService).then(
 			() => {
 				logger.log('info', 'Successfully connected to the database instance', 'Connection');
 
@@ -34,8 +36,9 @@ module.exports = {
 		);
 	},
 
-	disconnect: function (connectionInfo, cb) {
-		neo4j.close();
+	disconnect: function (connectionInfo, cb, app) {
+		const sshService = app.require('@hackolade/ssh-service');
+		neo4j.close(sshService);
 		cb();
 	},
 
@@ -47,7 +50,7 @@ module.exports = {
 			connectionInfo,
 			logger,
 			error => {
-				this.disconnect(connectionInfo, () => {});
+				this.disconnect(connectionInfo, () => {}, app);
 				cb(error);
 			},
 			app,
@@ -65,10 +68,11 @@ module.exports = {
 	getDbCollectionsNames: async function (connectionInfo, logger, cb, app) {
 		logInfo('Retrieving labels information', connectionInfo, logger);
 		try {
+			const sshService = app.require('@hackolade/ssh-service');
 			initDependencies(app);
 			neo4j.setTimeOut(connectionInfo);
 
-			await neo4j.connect(connectionInfo, checkConnection(logger));
+			await neo4j.connect(connectionInfo, checkConnection(logger), sshService);
 			logger.log('info', 'Successfully connected to the database instance', 'Connection');
 
 			const isMultiDb = await neo4j.supportsMultiDb();

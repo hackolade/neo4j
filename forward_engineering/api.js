@@ -136,9 +136,10 @@ module.exports = {
 		setDependencies(app);
 		logger.clear();
 		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+		const sshService = app.require('@hackolade/ssh-service');
 
 		applyToInstanceHelper
-			.applyToInstance(connectionInfo, dependencies, logger)
+			.applyToInstance(connectionInfo, dependencies, logger, sshService)
 			.then(result => {
 				callback(null, result);
 			})
@@ -150,7 +151,9 @@ module.exports = {
 	testConnection(connectionInfo, logger, callback, app) {
 		setDependencies(app);
 		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
-		applyToInstanceHelper.testConnection(connectionInfo, dependencies).then(callback, err => {
+		const sshService = app.require('@hackolade/ssh-service');
+
+		applyToInstanceHelper.testConnection(connectionInfo, dependencies, sshService).then(callback, err => {
 			logger.log('error', err, 'Neo4j test connection error');
 			callback({ ...err, type: 'simpleError' });
 		});
@@ -375,7 +378,11 @@ module.exports = {
 				const idempotentConstraintStatement = getOptionalIdempotentConstraintStatement(dbVersion);
 
 				return this.commentIfDeactivated(
-					`CREATE CONSTRAINT ${constraint.name ? screen(constraint.name) : ''}${idempotentConstraintStatement}${statementConfig.FOR} (${screen(varLabelName)}:${screen(labelName)}) ${statementConfig.REQUIRED} (${keys
+					`CREATE CONSTRAINT ${
+						constraint.name ? screen(constraint.name) : ''
+					}${idempotentConstraintStatement}${statementConfig.FOR} (${screen(varLabelName)}:${screen(
+						labelName,
+					)}) ${statementConfig.REQUIRED} (${keys
 						.map(key => `${screen(varLabelName)}.${screen(key.name)}`)
 						.join(', ')}) IS NODE KEY`,
 					keys.every(key => key.isActivated),
@@ -388,9 +395,13 @@ module.exports = {
 		const varLabelName = labelName.toLowerCase();
 		switch (type) {
 			case 'node':
-				return `CREATE CONSTRAINT ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT exists(${screen(varLabelName)}.${screen(fieldName)})`;
+				return `CREATE CONSTRAINT ON (${screen(varLabelName)}:${screen(labelName)}) ASSERT exists(${screen(
+					varLabelName,
+				)}.${screen(fieldName)})`;
 			case 'relationship':
-				return `CREATE CONSTRAINT ON ()-[${screen(varLabelName)}:${screen(labelName)}]-() ASSERT exists(${screen(varLabelName)}.${screen(fieldName)})`;
+				return `CREATE CONSTRAINT ON ()-[${screen(varLabelName)}:${screen(
+					labelName,
+				)}]-() ASSERT exists(${screen(varLabelName)}.${screen(fieldName)})`;
 			default:
 				return null;
 		}
@@ -401,9 +412,13 @@ module.exports = {
 		const varLabelName = labelName.toLowerCase();
 		switch (type) {
 			case 'node':
-				return `CREATE CONSTRAINT IF NOT EXISTS ${statementConfig.FOR} (${screen(varLabelName)}:${screen(labelName)}) ${statementConfig.REQUIRED} ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
+				return `CREATE CONSTRAINT IF NOT EXISTS ${statementConfig.FOR} (${screen(varLabelName)}:${screen(
+					labelName,
+				)}) ${statementConfig.REQUIRED} ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
 			case 'relationship':
-				return `CREATE CONSTRAINT IF NOT EXISTS ${statementConfig.FOR} ()-[${screen(varLabelName)}:${screen(labelName)}]-() ${statementConfig.REQUIRED} ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
+				return `CREATE CONSTRAINT IF NOT EXISTS ${statementConfig.FOR} ()-[${screen(varLabelName)}:${screen(
+					labelName,
+				)}]-() ${statementConfig.REQUIRED} ${screen(varLabelName)}.${screen(fieldName)} IS NOT NULL`;
 			default:
 				return null;
 		}
@@ -413,9 +428,9 @@ module.exports = {
 		const statementConfig = getConstraintStatementConfig(dbVersion);
 		const varLabelName = labelName.toLowerCase();
 		const idempotentConstraintStatement = getOptionalIdempotentConstraintStatement(dbVersion);
-		return `CREATE CONSTRAINT${idempotentConstraintStatement}${statementConfig.FOR} (${screen(varLabelName)}:${screen(labelName)}) ${statementConfig.REQUIRED} ${screen(
+		return `CREATE CONSTRAINT${idempotentConstraintStatement}${statementConfig.FOR} (${screen(
 			varLabelName,
-		)}.${screen(fieldName)} IS UNIQUE`;
+		)}:${screen(labelName)}) ${statementConfig.REQUIRED} ${screen(varLabelName)}.${screen(fieldName)} IS UNIQUE`;
 	},
 
 	findFields(collection, ids) {
@@ -512,12 +527,20 @@ module.exports = {
 		switch (type) {
 			case 'collections':
 				return this.commentIfDeactivated(
-					`CREATE${indexTypeStatement}INDEX ${screen(index.name || name)} IF NOT EXISTS FOR (${screen(name)}:${screen(entity.collectionName)}) ON (${screen(name)}.${fields.map(field => screen(field.name)).join(`, ${screen(name)}.`)})`,
+					`CREATE${indexTypeStatement}INDEX ${screen(index.name || name)} IF NOT EXISTS FOR (${screen(
+						name,
+					)}:${screen(entity.collectionName)}) ON (${screen(name)}.${fields
+						.map(field => screen(field.name))
+						.join(`, ${screen(name)}.`)})`,
 					isActivated && fields.every(field => field.isActivated),
 				);
 			case 'relationships':
 				return this.commentIfDeactivated(
-					`CREATE${indexTypeStatement}INDEX ${screen(index.name || name)} IF NOT EXISTS FOR ()-[${screen(name)}:${screen(entity.name)}]-() ON (${screen(name)}.${fields.map(field => screen(field.name)).join(`, ${screen(name)}.`)})`,
+					`CREATE${indexTypeStatement}INDEX ${screen(index.name || name)} IF NOT EXISTS FOR ()-[${screen(
+						name,
+					)}:${screen(entity.name)}]-() ON (${screen(name)}.${fields
+						.map(field => screen(field.name))
+						.join(`, ${screen(name)}.`)})`,
 					isActivated && fields.every(field => field.isActivated),
 				);
 		}
