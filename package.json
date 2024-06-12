@@ -50,8 +50,7 @@
     "disabled": false,
     "dependencies": {
         "lodash": "4.17.21",
-        "neo4j-driver": "4.4.10",
-        "tunnel-ssh": "github:hackolade/tunnel-ssh"
+        "neo4j-driver": "4.4.10"
     },
     "lint-staged": {
         "*.{js,json}": "prettier --write"
@@ -80,11 +79,5 @@
         "lint-staged": "14.0.1",
         "prettier": "3.2.5",
         "simple-git-hooks": "2.11.1"
-    },
-    "overrides": {
-        "tunnel-ssh": {
-            "cpu-features": "npm:-@0.0.1",
-            "ssh2": "npm:-@0.0.1"
-        }
     }
 }
