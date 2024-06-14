@@ -1,17 +1,20 @@
 {
 	"name": "point-wgs-84",
 	"parentType": "document",
-	"properties": [{
-		"name": "latitude",
-		"type": "number",
-		"mode": "float",
-		"maximum": 90,
-		"minimum": -90
-	}, {
-		"name": "longitude",
-		"type": "number",
-		"mode": "float",
-		"maximum": 90,
-		"minimum": -90
-	}]
+	"properties": [
+		{
+			"name": "latitude",
+			"type": "number",
+			"mode": "float",
+			"maximum": 90,
+			"minimum": -90
+		},
+		{
+			"name": "longitude",
+			"type": "number",
+			"mode": "float",
+			"maximum": 90,
+			"minimum": -90
+		}
+	]
 }

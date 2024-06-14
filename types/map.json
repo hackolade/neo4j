@@ -6,7 +6,7 @@
 	"sample": {},
 	"useSample": true,
 	"default": true,
-	"defaultValues": { 
+	"defaultValues": {
 		"dependencies": [],
 		"primaryKey": false,
 		"properties": [],
