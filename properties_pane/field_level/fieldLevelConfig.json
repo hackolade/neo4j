@@ -133,10 +133,12 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			{
 				"propertyName": "Unique constraint",
@@ -168,10 +170,12 @@ making sure that you maintain a proper JSON format.
 					"key": "compositeNodeKey",
 					"value": true
 				},
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			"sample",
 			"comments"
@@ -185,10 +189,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Subtype",
 				"propertyKeyword": "mode",
 				"propertyType": "select",
-				"options": [
-					"integer",
-					"float"
-				],
+				"options": ["integer", "float"],
 				"data": "options",
 				"valueType": "string"
 			},
@@ -206,10 +207,12 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			{
 				"propertyName": "Unique constraint",
@@ -242,10 +245,12 @@ making sure that you maintain a proper JSON format.
 					"key": "compositeNodeKey",
 					"value": true
 				},
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			"sample",
 			"comments"
@@ -260,10 +265,12 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			{
 				"propertyName": "Unique constraint",
@@ -295,10 +302,12 @@ making sure that you maintain a proper JSON format.
 					"key": "compositeNodeKey",
 					"value": true
 				},
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			"default",
 			"sample",
@@ -313,14 +322,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Subtype",
 				"propertyKeyword": "mode",
 				"propertyType": "select",
-				"options": [
-					"date",
-					"time",
-					"localtime",
-					"datetime",
-					"localdatetime",
-					"duration"
-				],
+				"options": ["date", "time", "localtime", "datetime", "localdatetime", "duration"],
 				"data": "options",
 				"valueType": "string"
 			},
@@ -329,10 +331,12 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			{
 				"propertyName": "Unique constraint",
@@ -364,15 +368,17 @@ making sure that you maintain a proper JSON format.
 					"key": "compositeNodeKey",
 					"value": true
 				},
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			"default",
 			"sample",
 			"comments"
-		],		
+		],
 		"map": [
 			"name",
 			"schemaId",
@@ -383,10 +389,12 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			{
 				"propertyName": "Unique constraint",
@@ -418,10 +426,12 @@ making sure that you maintain a proper JSON format.
 					"key": "compositeNodeKey",
 					"value": true
 				},
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			"minProperties",
 			"maxProperties",
@@ -438,10 +448,12 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			{
 				"propertyName": "Unique constraint",
@@ -473,10 +485,12 @@ making sure that you maintain a proper JSON format.
 					"key": "compositeNodeKey",
 					"value": true
 				},
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			"minItems",
 			"maxItems",
@@ -493,9 +507,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Mode",
 				"propertyKeyword": "mode",
 				"propertyType": "select",
-				"options": [
-					"point"
-				],
+				"options": ["point"],
 				"data": "options",
 				"valueType": "string"
 			},
@@ -505,10 +517,12 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required constraint",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			{
 				"propertyName": "Unique constraint",
@@ -540,10 +554,12 @@ making sure that you maintain a proper JSON format.
 					"key": "compositeNodeKey",
 					"value": true
 				},
-				"disabledOnCondition": [{
-					"key": "compositeNodeKey",
-					"value": true
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "compositeNodeKey",
+						"value": true
+					}
+				]
 			},
 			"comments"
 		]

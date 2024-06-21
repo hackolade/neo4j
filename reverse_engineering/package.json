@@ -1,14 +1,4 @@
 {
   "name": "NEO4J",
-  "version": "1.0.0",
-  "description": "",
-  "author": "Hackolade",
-  "dependencies": {
-    "neo4j-driver": "^4.4.10",
-    "tunnel-ssh": "github:hackolade/tunnel-ssh"
-  },
-  "scripts": {
-    "postinstall": "patch-package"
-  },
   "installed": true
 }

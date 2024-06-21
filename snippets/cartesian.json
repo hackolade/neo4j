@@ -1,13 +1,16 @@
 {
 	"name": "cartesian",
 	"parentType": "document",
-	"properties": [{
-		"name": "x",
-		"type": "number",
-		"mode": "float"
-	}, {
-		"name": "y",
-		"type": "number",
-		"mode": "float"
-	}]
+	"properties": [
+		{
+			"name": "x",
+			"type": "number",
+			"mode": "float"
+		},
+		{
+			"name": "y",
+			"type": "number",
+			"mode": "float"
+		}
+	]
 }
