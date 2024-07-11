@@ -685,16 +685,16 @@ const getTemporalFieldFunctionStatement = (fieldMode, fieldStatementValue) => {
 		}
 		case 'localtime': {
 			const localTimeStatementValue = isDefaultSample ? timeSampleValue : fieldStatementValue;
-		}
 			return `localtime(${localTimeStatementValue})`;
+		}
 		case 'time': {
 			const timeStatementValue = isDefaultSample ? timeSampleValue : fieldStatementValue;
-		}
 			return `time(${timeStatementValue})`;
+		}
 		case 'duration': {
 			const durationStatementValue = isDefaultSample ? durationSampleValue : fieldStatementValue;
-		}
 			return `duration(${durationStatementValue})`;
+		}
 		default: {
 			return fieldStatementValue;
 		}
