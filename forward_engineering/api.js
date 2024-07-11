@@ -247,9 +247,7 @@ module.exports = {
 							relationship,
 							child,
 							bidirectional:
-								relationship &&
-								relationship.customProperties &&
-								relationship.customProperties.biDirectional &&
+								relationship?.customProperties?.biDirectional &&
 								child.GUID !== parent.GUID,
 						});
 					});
@@ -483,6 +481,8 @@ module.exports = {
 				entities.relationships = relationships;
 			}
 		}
+		const getId = key => key.keyId;
+
 		Object.keys(entities).forEach(type => {
 			entities[type].forEach(entity => {
 				if (entity.index) {
@@ -490,7 +490,7 @@ module.exports = {
 						if (index.key) {
 							const fields = this.findFields(
 								entity,
-								index.key.map(key => key.keyId),
+								index.key.map(getId),
 							);
 							if (fields.length) {
 								const indexScript = getIndex({
@@ -674,23 +674,30 @@ const getTemporalFieldFunctionStatement = (fieldMode, fieldStatementValue) => {
 	const timeSampleValue = JSON.stringify('12:00');
 
 	switch (fieldMode) {
-		case 'date':
+		case 'date': {
 			return `date(${fieldStatementValue})`;
-		case 'datetime':
+		}
+		case 'datetime': {
 			return `datetime(${fieldStatementValue})`;
-		case 'localdatetime':
+		}
+		case 'localdatetime': {
 			return `localdatetime(${fieldStatementValue})`;
-		case 'localtime':
+		}
+		case 'localtime': {
 			const localTimeStatementValue = isDefaultSample ? timeSampleValue : fieldStatementValue;
+		}
 			return `localtime(${localTimeStatementValue})`;
-		case 'time':
+		case 'time': {
 			const timeStatementValue = isDefaultSample ? timeSampleValue : fieldStatementValue;
+		}
 			return `time(${timeStatementValue})`;
-		case 'duration':
+		case 'duration': {
 			const durationStatementValue = isDefaultSample ? durationSampleValue : fieldStatementValue;
+		}
 			return `duration(${durationStatementValue})`;
-		default:
+		default: {
 			return fieldStatementValue;
+		}
 	}
 };
 
