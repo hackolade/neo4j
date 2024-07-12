@@ -114,7 +114,7 @@ module.exports = {
 
 	getDbCollectionsData: async function (data, logger, cb, app) {
 		try {
-			this.getDbCollectionsDataWrapped(data, logger, cb, app);
+			await this.getDbCollectionsDataWrapped(data, logger, cb, app);
 		} catch (error) {
 			logger.log('error', prepareError(error), 'RE Get Collections Data');
 			cb(error);
@@ -483,17 +483,17 @@ const getLabelPackage = (
 
 const prepareIndexes3x = indexes => {
 	const hasProperties = /INDEX\s+ON\s+\:(.*)\((.*)\)/i;
-	let map = {};
+	const map = {};
 
 	indexes.forEach((index, i) => {
-		if (index.properties) {
-			index.properties = index.properties;
-		} else if (hasProperties.test(index.description)) {
-			let parsedDescription = index.description.match(hasProperties);
-			index.label = parsedDescription[1];
-			index.properties = parsedDescription[2].split(',').map(s => s.trim());
-		} else {
-			index.properties = [];
+		if (!index.properties) {
+			if (hasProperties.test(index.description)) {
+				const parsedDescription = index.description.match(hasProperties);
+				index.label = parsedDescription[1];
+				index.properties = parsedDescription[2].split(',').map(s => s.trim());
+			} else {
+				index.properties = [];
+			}
 		}
 
 		if (!map[index.label]) {
