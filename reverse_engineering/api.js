@@ -36,7 +36,7 @@ module.exports = {
 		);
 	},
 
-	disconnect: function (connectionInfo, cb, app) {
+	disconnect: function (connectionInfo, logger, cb, app) {
 		const sshService = app.require('@hackolade/ssh-service');
 		neo4j.close(sshService);
 		cb();
@@ -50,7 +50,7 @@ module.exports = {
 			connectionInfo,
 			logger,
 			error => {
-				this.disconnect(connectionInfo, () => {}, app);
+				this.disconnect(connectionInfo, logger, () => {}, app);
 				cb(error);
 			},
 			app,
