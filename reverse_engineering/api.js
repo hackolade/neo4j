@@ -21,6 +21,10 @@ module.exports = {
 			() => {
 				logger.log('info', 'Successfully connected to the database instance', 'Connection');
 
+				neo4j.getRawDbVersion().then(dbVersion => {
+					logger.log('info', `Database version ${dbVersion}`);
+				});
+
 				cb();
 			},
 			error => {
@@ -70,7 +74,9 @@ module.exports = {
 			neo4j.setTimeOut(connectionInfo);
 
 			await neo4j.connect(connectionInfo, checkConnection(logger), sshService);
-			logger.log('info', 'Successfully connected to the database instance', 'Connection');
+
+			const dbVersion = await neo4j.getRawDbVersion();
+			logger.log('info', `Successfully connected to the database instance: ${dbVersion}`, 'Connection');
 
 			const isMultiDb = await neo4j.supportsMultiDb();
 			logger.log('info', `Multi database support: ${isMultiDb}`, step);
@@ -139,8 +145,10 @@ module.exports = {
 		logger.log('info', '', 'Start Reverse Engineering Neo4j');
 
 		const isMultiDb = await neo4j.supportsMultiDb();
+		const dbVersion = await neo4j.getDbVersion();
+		logger.log('info', `Database version: ${dbVersion}`);
 		const modelProps = {
-			dbVersion: await neo4j.getDbVersion(),
+			dbVersion,
 		};
 
 		async.map(
