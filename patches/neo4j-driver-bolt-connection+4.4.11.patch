@@ -1,38 +1,38 @@
 diff --git a/node_modules/neo4j-driver-bolt-connection/lib/channel/channel-config.js b/node_modules/neo4j-driver-bolt-connection/lib/channel/channel-config.js
-index 804e4d2..bc78cde 100644
+index 73dc996..8166cf5 100644
 --- a/node_modules/neo4j-driver-bolt-connection/lib/channel/channel-config.js
 +++ b/node_modules/neo4j-driver-bolt-connection/lib/channel/channel-config.js
-@@ -32,7 +32,8 @@ var ALLOWED_VALUES_TRUST = [
+@@ -35,7 +35,8 @@ var ALLOWED_VALUES_TRUST = [
      undefined,
      'TRUST_ALL_CERTIFICATES',
      'TRUST_CUSTOM_CA_SIGNED_CERTIFICATES',
 -    'TRUST_SYSTEM_CA_SIGNED_CERTIFICATES'
-+	'TRUST_SYSTEM_CA_SIGNED_CERTIFICATES',
-+	'TRUST_SERVER_CLIENT_CERTIFICATES'
++    'TRUST_SYSTEM_CA_SIGNED_CERTIFICATES',
++    'TRUST_SERVER_CLIENT_CERTIFICATES'
  ];
  var ChannelConfig = /** @class */ (function () {
      /**
-@@ -51,6 +52,9 @@ var ChannelConfig = /** @class */ (function () {
+@@ -52,6 +53,9 @@ var ChannelConfig = /** @class */ (function () {
+         this.knownHostsPath = extractKnownHostsPath(driverConfig);
          this.connectionErrorCode = connectionErrorCode || SERVICE_UNAVAILABLE;
-         this.connectionTimeout = driverConfig.connectionTimeout;
-         this.clientCertificate = clientCertificate;
-+		this.cert = driverConfig.cert;
-+		this.key = driverConfig.key;
-+		this.passphrase = driverConfig.passphrase;
+         this.connectionTimeout = extractConnectionTimeout(driverConfig);
++        this.cert = driverConfig.cert;
++        this.key = driverConfig.key;
++        this.passphrase = driverConfig.passphrase;
      }
      return ChannelConfig;
  }());
 diff --git a/node_modules/neo4j-driver-bolt-connection/lib/channel/node/node-channel.js b/node_modules/neo4j-driver-bolt-connection/lib/channel/node/node-channel.js
-index fb34ce4..df00612 100644
+index 5775b37..920cb62 100644
 --- a/node_modules/neo4j-driver-bolt-connection/lib/channel/node/node-channel.js
 +++ b/node_modules/neo4j-driver-bolt-connection/lib/channel/node/node-channel.js
-@@ -113,7 +113,64 @@ var TrustStrategy = {
+@@ -104,7 +104,65 @@ var TrustStrategy = {
          });
          socket.on('error', onFailure);
          return configureSocket(socket);
 -    }
 +    },
-+	TRUST_SERVER_CLIENT_CERTIFICATES: function (config, onSuccess, onFailure) {
++    TRUST_SERVER_CLIENT_CERTIFICATES: function (config, onSuccess, onFailure) {
 +        if (!config.trustedCertificates ||
 +            config.trustedCertificates.length === 0) {
 +            onFailure((0, neo4j_driver_core_1.newError)('You are using TRUST_CUSTOM_CA_SIGNED_CERTIFICATES as the method ' +
@@ -44,7 +44,8 @@ index fb34ce4..df00612 100644
 +                '"' +
 +                'in your driver configuration.'));
 +            return;
-+        } else if (!config.key) {
++        }
++        else if (!config.key) {
 +            onFailure((0, neo4j_driver_core_1.newError)('You are using TRUST_SERVER_CLIENT_CERTIFICATES as the method ' +
 +                'to verify trust for encrypted  connections, but have not configured any' +
 +                'key. You  must specify the path to the key for this to work. Two other alternatives is to use ' +
@@ -53,7 +54,8 @@ index fb34ce4..df00612 100644
 +                '"' +
 +                'in your driver configuration.'));
 +            return;
-+        } else if (!config.cert) {
++        }
++        else if (!config.cert) {
 +            onFailure((0, neo4j_driver_core_1.newError)('You are using TRUST_SERVER_CLIENT_CERTIFICATES as the method ' +
 +                'to verify trust for encrypted  connections, but have not configured any ' +
 +                'client certificates. You  must specify the path to the client certificate for this to work. Two other alternatives is to use ' +
@@ -64,9 +66,7 @@ index fb34ce4..df00612 100644
 +            return;
 +        }
 +        var tlsOpts = Object.assign({}, newTlsOptions(config.address.host()), {
-+            ca: config.trustedCertificates.map(function (f) {
-+                return fs_1.default.readFileSync(f);
-+            }),
++            ca: config.trustedCertificates.map(function (f) { return fs_1.default.readFileSync(f); }),
 +            key: fs_1.default.readFileSync(config.key),
 +            cert: fs_1.default.readFileSync(config.cert),
 +            passphrase: config.passphrase
@@ -82,7 +82,8 @@ index fb34ce4..df00612 100644
 +                    '"`' +
 +                    ' in the driver options. Socket responded with: ' +
 +                    socket.authorizationError));
-+            } else {
++            }
++            else {
 +                onSuccess();
 +            }
 +        });
