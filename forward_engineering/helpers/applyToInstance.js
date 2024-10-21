@@ -1,7 +1,7 @@
 const neo4jHelper = require('../../reverse_engineering/neo4jHelper');
 
 const applyToInstanceHelper = {
-	async applyToInstance(connectionInfo, dependencies, logger, sshService) {
+	async applyToInstance(connectionInfo, logger, sshService) {
 		try {
 			logger.log(
 				'info',
@@ -11,7 +11,6 @@ const applyToInstanceHelper = {
 				'Neo4j script',
 			);
 
-			neo4jHelper.setDependencies(dependencies);
 			await neo4jHelper.connect(connectionInfo, () => Promise.resolve(), sshService);
 			const instanceSupportMultiDb = await neo4jHelper.supportsMultiDb();
 			const dbData = connectionInfo.containerData?.[0];
@@ -66,8 +65,7 @@ const applyToInstanceHelper = {
 		}
 	},
 
-	async testConnection(connectionInfo, dependencies, sshService) {
-		neo4jHelper.setDependencies(dependencies);
+	async testConnection(connectionInfo, sshService) {
 		await neo4jHelper.connect(connectionInfo, () => Promise.resolve(), sshService);
 		await neo4jHelper.close(sshService);
 	},

@@ -1,11 +1,10 @@
 'use strict';
 
-const { dependencies, setDependencies } = require('./appDependencies');
+const async = require('async');
+const _ = require('lodash');
 const neo4j = require('./neo4jHelper');
 const snippetsPath = '../snippets/';
 const logHelper = require('./logHelper');
-let _;
-let async;
 
 const snippets = {
 	'Cartesian 3D': require(snippetsPath + 'cartesian-3d.json'),
@@ -17,8 +16,6 @@ const snippets = {
 module.exports = {
 	connect: function (connectionInfo, logger, cb, app) {
 		const sshService = app.require('@hackolade/ssh-service');
-
-		initDependencies(app);
 
 		neo4j.connect(connectionInfo, checkConnection(logger), sshService).then(
 			() => {
@@ -45,7 +42,6 @@ module.exports = {
 	testConnection: function (connectionInfo, logger, cb, app) {
 		logInfo('Test connection', connectionInfo, logger);
 
-		initDependencies(app);
 		this.connect(
 			connectionInfo,
 			logger,
@@ -66,30 +62,33 @@ module.exports = {
 	},
 
 	getDbCollectionsNames: async function (connectionInfo, logger, cb, app) {
-		logInfo('Retrieving labels information', connectionInfo, logger);
+		const step = 'Retrieving labels information';
+
+		logInfo(step, connectionInfo, logger);
 		try {
 			const sshService = app.require('@hackolade/ssh-service');
-			initDependencies(app);
 			neo4j.setTimeOut(connectionInfo);
 
 			await neo4j.connect(connectionInfo, checkConnection(logger), sshService);
 			logger.log('info', 'Successfully connected to the database instance', 'Connection');
 
 			const isMultiDb = await neo4j.supportsMultiDb();
+			logger.log('info', `Multi database support: ${isMultiDb}`, step);
 
 			const databaseNames = await neo4j.getDatabaseName('graph.db', isMultiDb);
-			logger.log('info', 'Name of database successfully retrieved', 'Retrieving labels information');
-			const result = await Promise.all(
-				databaseNames.map(async name => {
-					return {
-						dbName: name,
-						dbCollections: await neo4j.getLabels(name, isMultiDb),
-					};
-				}),
-			);
-			logger.log('info', 'Labels successfully retrieved', 'Retrieving labels information');
-			logger.log('info', 'Information about labels successfully retrieved', 'Retrieving labels information');
-			cb(null, result);
+			logger.log('info', 'Database names are successfully retrieved', step);
+
+			const results = [];
+			for (let databaseName of databaseNames) {
+				logger.log('info', `Fetching the labels from ${databaseName}`, step);
+				results.push({
+					dbName: databaseName,
+					dbCollections: await neo4j.getLabels({ databaseName, isMultiDb, logger }),
+				});
+			}
+
+			logger.log('info', 'Labels are successfully retrieved', step);
+			cb(null, results);
 		} catch (error) {
 			logger.log(
 				'error',
@@ -97,7 +96,7 @@ module.exports = {
 					message: error.step || 'Process of retrieving labels was interrupted by error',
 					error: prepareError(error),
 				},
-				'Retrieving labels information',
+				step,
 			);
 
 			const mappedError = {
@@ -122,7 +121,6 @@ module.exports = {
 	},
 
 	getDbCollectionsDataWrapped: async function (data, logger, cb, app) {
-		initDependencies(app);
 		neo4j.setTimeOut(data);
 		logger.log('info', data, 'Retrieving schema for chosen labels', data.hiddenKeys);
 
@@ -275,13 +273,6 @@ module.exports = {
 			},
 		);
 	},
-};
-
-const initDependencies = app => {
-	setDependencies(app);
-	_ = dependencies.lodash;
-	async = dependencies.async;
-	neo4j.setDependencies(dependencies);
 };
 
 const getSampleDocSize = (count, recordSamplingSettings) => {

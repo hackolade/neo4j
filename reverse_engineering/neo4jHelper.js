@@ -1,14 +1,13 @@
 const neo4j = require('neo4j-driver');
 const fs = require('fs');
+const _ = require('lodash');
 
 let driver;
 let isSshTunnel = false;
-let _;
 
 const EXECUTE_TIME_OUT_CODE = 'EXECUTE_TIME_OUT';
 let timeout;
 
-const setDependencies = ({ lodash }) => (_ = lodash);
 const setTimeOut = data => (timeout = data?.queryRequestTimeout || 300000);
 
 const connectToInstance = (info, checkConnection) => {
@@ -137,16 +136,17 @@ const castInteger = properties => {
 	return result;
 };
 
-const getLabels = async (database, isMultiDb) => {
+const getLabels = async ({ database, isMultiDb, logger }) => {
 	try {
-		const labels = await execute('MATCH (n) RETURN DISTINCT labels(n) as label', database, isMultiDb).then(data => {
-			let labels = [];
-			data.forEach(record => {
-				labels = labels.concat(record.label);
-			});
-			return labels;
-		});
-		return labels;
+		const recordsCounter = await execute(
+			'MATCH (n) RETURN DISTINCT COUNT(labels(n)) as labelsCount',
+			database,
+			isMultiDb,
+		);
+		logger.log('info', `Found ${_.head(recordsCounter).labelsCount} labels`, 'Retrieving labels information');
+
+		const records = await execute('MATCH (n) RETURN DISTINCT labels(n) as label', database, isMultiDb);
+		return _.flatMap(records, record => record.label);
 	} catch (error) {
 		error.step = error.step || 'Error of retrieving labels';
 		throw error;
@@ -434,7 +434,6 @@ module.exports = {
 	getConstraints,
 	supportsMultiDb,
 	getDbVersion,
-	setDependencies,
 	setTimeOut,
 	isTemporalTypeField,
 	getTemporalFieldSchema,

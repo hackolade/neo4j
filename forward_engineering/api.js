@@ -1,12 +1,8 @@
-const { dependencies, setDependencies } = require('./helpers/appDependencies');
+const _ = require('lodash');
 const applyToInstanceHelper = require('./helpers/applyToInstance');
-let _;
-const setAppDependencies = ({ lodash }) => (_ = lodash);
 
 module.exports = {
-	generateContainerScript(data, logger, cb, app) {
-		setDependencies(app);
-		setAppDependencies(dependencies);
+	generateContainerScript(data, logger, cb) {
 		let { collections, relationships, jsonData } = data;
 		const dbVersion = data.modelData[0]?.dbVersion;
 		logger.clear();
@@ -24,7 +20,6 @@ module.exports = {
 			setTimeout(() => {
 				cb({ message: e.message, stack: e.stack });
 			}, 150);
-			return;
 		}
 	},
 
@@ -133,13 +128,12 @@ module.exports = {
 	},
 
 	applyToInstance(connectionInfo, logger, callback, app) {
-		setDependencies(app);
 		logger.clear();
 		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 		const sshService = app.require('@hackolade/ssh-service');
 
 		applyToInstanceHelper
-			.applyToInstance(connectionInfo, dependencies, logger, sshService)
+			.applyToInstance(connectionInfo, logger, sshService)
 			.then(result => {
 				callback(null, result);
 			})
@@ -149,11 +143,10 @@ module.exports = {
 	},
 
 	testConnection(connectionInfo, logger, callback, app) {
-		setDependencies(app);
 		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 		const sshService = app.require('@hackolade/ssh-service');
 
-		applyToInstanceHelper.testConnection(connectionInfo, dependencies, sshService).then(callback, err => {
+		applyToInstanceHelper.testConnection(connectionInfo, sshService).then(callback, err => {
 			logger.log('error', err, 'Neo4j test connection error');
 			callback({ ...err, type: 'simpleError' });
 		});
@@ -246,9 +239,7 @@ module.exports = {
 							parent,
 							relationship,
 							child,
-							bidirectional:
-								relationship?.customProperties?.biDirectional &&
-								child.GUID !== parent.GUID,
+							bidirectional: relationship?.customProperties?.biDirectional && child.GUID !== parent.GUID,
 						});
 					});
 				} else if (!hasRelationship[parent.GUID]) {
@@ -488,10 +479,7 @@ module.exports = {
 				if (entity.index) {
 					entity.index.forEach(index => {
 						if (index.key) {
-							const fields = this.findFields(
-								entity,
-								index.key.map(getId),
-							);
+							const fields = this.findFields(entity, index.key.map(getId));
 							if (fields.length) {
 								const indexScript = getIndex({
 									entity,
@@ -630,7 +618,6 @@ module.exports = {
 const screen = s => `\`${s}\``;
 
 const getProperty = (schema, field) => {
-	setAppDependencies(dependencies);
 	if (_.has(schema, `properties.${field}`)) {
 		return schema.properties[field];
 	} else if (_.has(schema, `allOf.${field}`)) {
