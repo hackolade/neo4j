@@ -148,8 +148,9 @@ const getLabels = async ({ database, isMultiDb, logger }) => {
 		const records = await execute('MATCH (n) RETURN DISTINCT labels(n) as label', database, isMultiDb);
 		return _.flatMap(records, record => record.label);
 	} catch (error) {
-		error.step = error.step || 'Error of retrieving labels';
-		throw error;
+		const errorStep = error.step || 'Error of retrieving labels';
+		logger.log('error', error, errorStep);
+		return [];
 	}
 };
 
