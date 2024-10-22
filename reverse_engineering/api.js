@@ -353,7 +353,9 @@ const getNodesData = ({ dbName, labels, isMultiDb, data, logger }) => {
 				logProgress(label, 'Package prepared');
 				packages.push(packageData);
 			} else {
-				logProgress(label, 'The package data is empty');
+				const logMessage = 'The package data is empty';
+				logProgress(label, logMessage);
+				logger.log('info', `${logMessage} for "${label}"`);
 			}
 		});
 
