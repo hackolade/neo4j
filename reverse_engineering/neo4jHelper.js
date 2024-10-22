@@ -166,7 +166,7 @@ const getLabels = async ({ database, isMultiDb, logger }) => {
 	}
 };
 
-const getSchema = (dbName, labels, isMultiDb) => {
+const getSchema = ({ dbName, labels, isMultiDb }) => {
 	return execute(`call apoc.meta.subGraph({labels: ["${labels.join('","')}]})`, dbName, isMultiDb)
 		.then(
 			result => result,

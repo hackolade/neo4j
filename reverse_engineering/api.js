@@ -195,19 +195,19 @@ module.exports = {
 						return metaData;
 					})
 					.then(metaData => {
-						return getNodesData(
+						return getNodesData({
 							dbName,
 							labels,
 							isMultiDb,
-							{
+							data: {
 								recordSamplingSettings,
 								fieldInference,
 								includeEmptyCollection,
 								indexes: metaData.indexes,
 								constraints: metaData.constraints,
 							},
-							(entityName, message) => logger.progress({ message, containerName: dbName, entityName }),
-						);
+							logger,
+						});
 					})
 					.then(labelPackages => {
 						packages.labels.push(labelPackages);
@@ -223,7 +223,7 @@ module.exports = {
 						});
 						logger.log('info', dbName, 'Start retrieving schema');
 
-						return neo4j.getSchema(dbName, labels, isMultiDb);
+						return neo4j.getSchema({ dbName, labels, isMultiDb, logger });
 					})
 					.then(schema => {
 						logger.progress({
@@ -324,32 +324,33 @@ const logInfo = (step, connectionInfo, logger) => {
 	logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 };
 
-const getNodesData = (dbName, labels, isMultiDb, data, logger) => {
+const getNodesData = ({ dbName, labels, isMultiDb, data, logger }) => {
+	const logProgress = (entityName, message) => logger.progress({ message, containerName: dbName, entityName });
 	return new Promise((resolve, reject) => {
 		let packages = [];
 		async.map(
 			labels,
-			(labelName, nextLabel) => {
-				logger(labelName, 'Getting data...');
+			(label, nextLabel) => {
+				logProgress(label, 'Getting data...');
 
 				neo4j
-					.getNodesCount(labelName, dbName, isMultiDb)
+					.getNodesCount(label, dbName, isMultiDb)
 					.then(quantity => {
 						const count = getSampleDocSize(quantity, data.recordSamplingSettings);
-						logger(labelName, 'Found ' + count + ' nodes');
-						return neo4j.getNodes({ label: labelName, limit: count, dbName, isMultiDb });
+						logProgress(label, 'Found ' + count + ' nodes');
+						return neo4j.getNodes({ label, limit: count, dbName, isMultiDb });
 					})
 					.then(documents => {
-						logger(labelName, 'Data retrieved successfully');
+						logProgress(label, 'Data retrieved successfully');
 
 						const packageData = getLabelPackage(
 							dbName,
-							labelName,
+							label,
 							documents,
 							data.includeEmptyCollection,
 							data.fieldInference,
-							data.indexes[labelName],
-							getConstraintsForEntity(labelName, 'node', data.constraints),
+							data.indexes[label],
+							getConstraintsForEntity(label, 'node', data.constraints),
 						);
 						if (packageData) {
 							packages.push(packageData);
