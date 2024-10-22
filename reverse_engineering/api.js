@@ -325,7 +325,12 @@ const logInfo = (step, connectionInfo, logger) => {
 };
 
 const getNodesData = ({ dbName, labels, isMultiDb, data, logger }) => {
-	const logProgress = (entityName, message) => logger.progress({ message, containerName: dbName, entityName });
+	const logProgress = (entityName, message) => {
+		const step = `Preparing package for "${entityName}"`;
+
+		logger.progress({ message, containerName: dbName, entityName });
+		logger.log('info', message, step);
+	};
 	return new Promise((resolve, reject) => {
 		let packages = [];
 		let labelPromises = labels.map(async label => {
@@ -334,7 +339,7 @@ const getNodesData = ({ dbName, labels, isMultiDb, data, logger }) => {
 			const quantity = await neo4j.getNodesCount(label, dbName, isMultiDb);
 			const count = getSampleDocSize(quantity, data.recordSamplingSettings);
 
-			logProgress(label, `Found ${count} nodes`);
+			logProgress(label, `Found ${count} nodes.`);
 
 			const documents = await neo4j.getNodes({ label, limit: count, dbName, isMultiDb });
 
@@ -350,12 +355,10 @@ const getNodesData = ({ dbName, labels, isMultiDb, data, logger }) => {
 				getConstraintsForEntity(label, 'node', data.constraints),
 			);
 			if (packageData) {
-				logProgress(label, 'Package prepared');
+				logProgress(label, 'Package prepared.');
 				packages.push(packageData);
 			} else {
-				const logMessage = 'The package data is empty';
-				logProgress(label, logMessage);
-				logger.log('info', `${logMessage} for "${label}"`);
+				logProgress(label, 'The package data is empty.');
 			}
 		});
 
