@@ -6,9 +6,10 @@ let driver;
 let isSshTunnel = false;
 
 const EXECUTE_TIME_OUT_CODE = 'EXECUTE_TIME_OUT';
-let timeout;
+const defaultTimeout = 300000;
+let timeout = defaultTimeout;
 
-const setTimeOut = data => (timeout = data?.queryRequestTimeout || 300000);
+const setTimeOut = data => (timeout = data?.queryRequestTimeout || defaultTimeout);
 
 const connectToInstance = (info, checkConnection) => {
 	return checkConnection(info.host, info.port).then(
@@ -84,7 +85,7 @@ const execute = async (command, database = undefined, isMultiDb = false) => {
 		database = undefined;
 	}
 	const executeTimeout = new Promise((_, reject) =>
-		setTimeout(() => reject(getExecuteTimeoutError(timeout)), timeout),
+		setTimeout(() => reject(getExecuteTimeoutError({ timeout, command })), timeout),
 	);
 	let result = [];
 	let db;
@@ -116,8 +117,8 @@ const execute = async (command, database = undefined, isMultiDb = false) => {
 	}
 };
 
-const getExecuteTimeoutError = timeout => {
-	const error = new Error(`execute timeout: ${timeout}ms exceeded`);
+const getExecuteTimeoutError = ({ timeout, command }) => {
+	const error = new Error(`Execute timeout: ${timeout}ms exceeded. Query:\n${command}`);
 	error.code = EXECUTE_TIME_OUT_CODE;
 	return error;
 };
@@ -137,16 +138,27 @@ const castInteger = properties => {
 };
 
 const getLabels = async ({ database, isMultiDb, logger }) => {
+	const step = 'Retrieving labels information';
 	try {
+		const labelsMeta = new Map();
+
+		const allLabels = await execute('CALL db.labels()', database, isMultiDb);
+		allLabels.forEach(({ label }) => labelsMeta.set(label, 0));
+
 		const recordsCounter = await execute(
-			'MATCH (n) RETURN DISTINCT COUNT(labels(n)) as labelsCount',
+			'MATCH (n) RETURN DISTINCT labels(n) as label, COUNT(*) as total ORDER BY total DESC',
 			database,
 			isMultiDb,
 		);
-		logger.log('info', `Found ${_.head(recordsCounter).labelsCount} labels`, 'Retrieving labels information');
+		recordsCounter.forEach(record => {
+			const label = _.head(record.label);
+			labelsMeta.set(label, record.total);
+		});
 
-		const records = await execute('MATCH (n) RETURN DISTINCT labels(n) as label', database, isMultiDb);
-		return _.flatMap(records, record => record.label);
+		const labelsToLog = [...labelsMeta.entries()].map(([label, total]) => `${label} (${total})`).join('\n');
+		logger.log('info', `Found ${labelsMeta.size} unique labels:\n${labelsToLog}`, step);
+
+		return [...labelsMeta.keys()];
 	} catch (error) {
 		const errorStep = error.step || 'Error of retrieving labels';
 		logger.log('error', error, errorStep);
@@ -223,13 +235,13 @@ const getActiveMultiDbsNames = async () => {
 		.map(({ name }) => name);
 };
 
-const getNodes = (label, limit = 100, dbName, isMultiDb) => {
+const getNodes = ({ label, limit = 100, dbName, isMultiDb }) => {
 	return execute(`MATCH (row:\`${label}\`) RETURN row LIMIT ${limit}`, dbName, isMultiDb).then(result => {
 		return result.map(record => castInteger(record.row.properties));
 	});
 };
 
-const getRelationshipData = (start, relationship, end, limit = 100, dbName, isMultiDb) => {
+const getRelationshipData = ({ start, relationship, end, limit = 100, dbName, isMultiDb }) => {
 	return execute(
 		`MATCH (:\`${start}\`)-[row:\`${relationship}\`]-(:\`${end}\`) RETURN row LIMIT ${limit}`,
 		dbName,

@@ -146,7 +146,7 @@ module.exports = {
 
 		const isMultiDb = await neo4j.supportsMultiDb();
 		const dbVersion = await neo4j.getDbVersion();
-		logger.log('info', `Database version: ${dbVersion}`);
+		logger.log('info', `Version: ${dbVersion}`, 'Database info');
 		const modelProps = {
 			dbVersion,
 		};
@@ -166,7 +166,7 @@ module.exports = {
 						metaData.indexes =
 							modelProps.dbVersion === '3.x' ? prepareIndexes3x(indexes) : prepareIndexes4x(indexes);
 
-						const countIndexes = (indexes && indexes.length) || 0;
+						const countIndexes = indexes?.length || 0;
 						logger.progress({
 							message: 'Indexes retrieved successfully. Found ' + countIndexes + ' index(es)',
 							containerName: dbName,
@@ -184,7 +184,7 @@ module.exports = {
 					.then(constraints => {
 						metaData.constraints = prepareConstraints(constraints, modelProps.dbVersion);
 
-						const countConstraints = (constraints && constraints.length) || 0;
+						const countConstraints = constraints?.length || 0;
 						logger.progress({
 							message: 'Constraints retrieved successfully ' + countConstraints + ' constraint(s)',
 							containerName: dbName,
@@ -276,7 +276,7 @@ module.exports = {
 				logger.log('info', '', 'Reverse-engineering completed');
 
 				setTimeout(() => {
-					cb(err, packages.labels, modelProps, [].concat.apply([], packages.relationships));
+					cb(err, packages.labels, modelProps, [].concat(...packages.relationships));
 				}, 1000);
 			},
 		);
@@ -337,8 +337,7 @@ const getNodesData = (dbName, labels, isMultiDb, data, logger) => {
 					.then(quantity => {
 						const count = getSampleDocSize(quantity, data.recordSamplingSettings);
 						logger(labelName, 'Found ' + count + ' nodes');
-
-						return neo4j.getNodes(labelName, count, dbName, isMultiDb);
+						return neo4j.getNodes({ label: labelName, limit: count, dbName, isMultiDb });
 					})
 					.then(documents => {
 						logger(labelName, 'Data retrieved successfully');
@@ -388,14 +387,14 @@ const getRelationshipData = (
 					.getCountRelationshipsData(chain.start, chain.relationship, chain.end, dbName, isMultiDb)
 					.then(quantity => {
 						const count = getSampleDocSize(quantity, recordSamplingSettings);
-						return neo4j.getRelationshipData(
-							chain.start,
-							chain.relationship,
-							chain.end,
+						return neo4j.getRelationshipData({
+							start: chain.start,
+							relationship: chain.relationship,
+							end: chain.end,
 							count,
 							dbName,
 							isMultiDb,
-						);
+						});
 					})
 					.then(rawDocuments => {
 						const documents = deserializeData(rawDocuments);
@@ -481,10 +480,10 @@ const getLabelPackage = (
 };
 
 const prepareIndexes3x = indexes => {
-	const hasProperties = /INDEX\s+ON\s+\:(.*)\((.*)\)/i;
+	const hasProperties = /INDEX\s+ON\s+:(.*)\((.*)\)/i;
 	const map = {};
 
-	indexes.forEach((index, i) => {
+	indexes.forEach(index => {
 		if (!index.properties) {
 			if (hasProperties.test(index.description)) {
 				const parsedDescription = index.description.match(hasProperties);
@@ -527,7 +526,7 @@ const prepareIndexes4x = indexes => {
 				provider: index.provider || index.indexProvider,
 			};
 
-			index.labelsOrTypes.forEach((label, i) => {
+			index.labelsOrTypes.forEach(label => {
 				if (!map[label]) {
 					map[label] = [index_obj];
 				} else {
@@ -588,10 +587,10 @@ const prepareConstraints5x = constraints => {
 };
 
 const prepareConstraints4x = constraints => {
-	const isUnique = /^constraint\s+on\s+\([\s\S]+\:([\S\s]+)\s*\)\s+assert\s+[\s\S]+\.([\s\S]+)\s*\)\s+IS\s+UNIQUE/i;
+	const isUnique = /^constraint\s+on\s+\([\s\S]+:([\S\s]+)\s*\)\s+assert\s+[\s\S]+\.([\s\S]+)\s*\)\s+IS\s+UNIQUE/i;
 	const isNodeKey =
-		/^constraint\s+on\s+\([\s\S]+\:\s*([\S\s]+)\s*\)\s+assert\s+(?:\(\s*([\s\S]+)\s*\)|[\s\S]+\.\s*([\S\s]+)\s*)\s+IS\s+NODE\s+KEY/i;
-	const isExists = /^constraint\s+on\s+\([\s\S]+\:([\s\S]+)\s*\)\s+assert\s+exists\([\s\S]+\.([\s\S]+)\s*\)/i;
+		/^constraint\s+on\s+\([\s\S]+:\s*([\S\s]+)\s*\)\s+assert\s+(?:\(\s*([\s\S]+)\s*\)|[\s\S]+\.\s*([\S\s]+)\s*)\s+IS\s+NODE\s+KEY/i;
+	const isExists = /^constraint\s+on\s+\([\s\S]+:([\s\S]+)\s*\)\s+assert\s+exists\([\s\S]+\.([\s\S]+)\s*\)/i;
 	let result = { nodeAndRelationship: {} };
 	const addToResult = (result, name, label, key, type, keyName = 'key') => {
 		const labelName = label.trim();
@@ -819,7 +818,7 @@ const getSnippetPropertiesByName = name => {
 	const properties = {};
 
 	snippet.properties.forEach(fieldSchema => {
-		properties[fieldSchema.name] = Object.assign({}, fieldSchema);
+		properties[fieldSchema.name] = { ...fieldSchema };
 		delete properties[fieldSchema.name].name;
 	});
 
@@ -829,7 +828,7 @@ const getSnippetPropertiesByName = name => {
 const separateConstraintsByType = (constraints = []) => {
 	return constraints.reduce(
 		(result, constraint) => {
-			constraint = Object.assign({}, constraint);
+			constraint = { ...constraint };
 			const type = constraint.type;
 			delete constraint.type;
 			result[type].push(constraint);
