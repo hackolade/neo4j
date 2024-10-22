@@ -328,45 +328,38 @@ const getNodesData = ({ dbName, labels, isMultiDb, data, logger }) => {
 	const logProgress = (entityName, message) => logger.progress({ message, containerName: dbName, entityName });
 	return new Promise((resolve, reject) => {
 		let packages = [];
-		async.map(
-			labels,
-			(label, nextLabel) => {
-				logProgress(label, 'Getting data...');
+		let labelPromises = labels.map(async label => {
+			logProgress(label, 'Getting data...');
 
-				neo4j
-					.getNodesCount(label, dbName, isMultiDb)
-					.then(quantity => {
-						const count = getSampleDocSize(quantity, data.recordSamplingSettings);
-						logProgress(label, 'Found ' + count + ' nodes');
-						return neo4j.getNodes({ label, limit: count, dbName, isMultiDb });
-					})
-					.then(documents => {
-						logProgress(label, 'Data retrieved successfully');
+			const quantity = await neo4j.getNodesCount(label, dbName, isMultiDb);
+			const count = getSampleDocSize(quantity, data.recordSamplingSettings);
 
-						const packageData = getLabelPackage(
-							dbName,
-							label,
-							documents,
-							data.includeEmptyCollection,
-							data.fieldInference,
-							data.indexes[label],
-							getConstraintsForEntity(label, 'node', data.constraints),
-						);
-						if (packageData) {
-							packages.push(packageData);
-						}
-						nextLabel(null);
-					})
-					.catch(nextLabel);
-			},
-			err => {
-				if (err) {
-					reject(err);
-				} else {
-					resolve(packages);
-				}
-			},
-		);
+			logProgress(label, `Found ${count} nodes`);
+
+			const documents = await neo4j.getNodes({ label, limit: count, dbName, isMultiDb });
+
+			logProgress(label, 'Nodes data retrieved successfully. Preparing packages...');
+
+			const packageData = getLabelPackage(
+				dbName,
+				label,
+				documents,
+				data.includeEmptyCollection,
+				data.fieldInference,
+				data.indexes[label],
+				getConstraintsForEntity(label, 'node', data.constraints),
+			);
+			if (packageData) {
+				logProgress(label, 'Package prepared');
+				packages.push(packageData);
+			} else {
+				logProgress(label, 'The package data is empty');
+			}
+		});
+
+		Promise.all(labelPromises)
+			.then(() => resolve(packages))
+			.catch(err => reject(err));
 	});
 };
 
