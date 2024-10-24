@@ -89,7 +89,7 @@ module.exports = {
 				logger.log('info', `Fetching the labels from ${databaseName}`, step);
 				results.push({
 					dbName: databaseName,
-					dbCollections: await neo4j.getLabels({ databaseName, isMultiDb, logger }),
+					dbCollections: await neo4j.getLabels({ database: databaseName, isMultiDb, logger }),
 				});
 			}
 
