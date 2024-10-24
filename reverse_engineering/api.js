@@ -89,7 +89,7 @@ module.exports = {
 				logger.log('info', `Fetching the labels from ${databaseName}`, step);
 				results.push({
 					dbName: databaseName,
-					dbCollections: await neo4j.getLabels({ databaseName, isMultiDb, logger }),
+					dbCollections: await neo4j.getLabels({ database: databaseName, isMultiDb, logger }),
 				});
 			}
 
@@ -324,7 +324,7 @@ const logInfo = (step, connectionInfo, logger) => {
 	logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 };
 
-const getNodesData = ({ dbName, labels, isMultiDb, data, logger }) => {
+const getNodesData = ({ dbName, labels = [], isMultiDb, data, logger }) => {
 	const logProgress = (entityName, message) => {
 		const step = `Preparing package for "${entityName}"`;
 
