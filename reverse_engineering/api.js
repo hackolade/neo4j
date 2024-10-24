@@ -324,7 +324,7 @@ const logInfo = (step, connectionInfo, logger) => {
 	logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 };
 
-const getNodesData = ({ dbName, labels, isMultiDb, data, logger }) => {
+const getNodesData = ({ dbName, labels = [], isMultiDb, data, logger }) => {
 	const logProgress = (entityName, message) => {
 		const step = `Preparing package for "${entityName}"`;
 
