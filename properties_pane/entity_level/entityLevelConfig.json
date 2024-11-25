@@ -155,6 +155,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyKeyword": "parentCollection",
+				"preserveOnCleanDependencies": true,
 				"disabledOnCondition": {
 					"type": "not",
 					"values": {
