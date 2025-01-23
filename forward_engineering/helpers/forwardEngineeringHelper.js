@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { extractCollectionProperties } = require('./extractCollectionProperties');
 
 const forwardEngineeringHelper = {
 	getScript(createScript, constraints, indexes, dbVersion) {
@@ -376,18 +377,8 @@ const forwardEngineeringHelper = {
 	},
 
 	findFields(collection, ids) {
-		let fields = [];
-		let properties;
-
-		if (collection.items) {
-			if (Array.isArray(collection.items)) {
-				properties = collection.items;
-			} else {
-				properties = [collection.items];
-			}
-		} else {
-			properties = collection.properties;
-		}
+		const fields = [];
+		const properties = extractCollectionProperties(collection);
 
 		for (let fieldName in properties) {
 			const field = properties[fieldName];
@@ -464,6 +455,7 @@ const forwardEngineeringHelper = {
 		const name = (entity.name || entity.collectionName)?.toLowerCase() || 'entity';
 		const indexType = this.getIndexType(index, dbVersion);
 		const indexTypeStatement = indexType ? ` ${indexType} ` : ' ';
+		const screenedNameSuffix = `, ${screen(name)}.`;
 
 		switch (type) {
 			case 'collections':
@@ -472,7 +464,7 @@ const forwardEngineeringHelper = {
 						name,
 					)}:${screen(entity.collectionName)}) ON (${screen(name)}.${fields
 						.map(field => screen(field.name))
-						.join(`, ${screen(name)}.`)})`,
+						.join(screenedNameSuffix)})`,
 					isActivated && fields.every(field => field.isActivated),
 				);
 			case 'relationships':
@@ -481,7 +473,7 @@ const forwardEngineeringHelper = {
 						name,
 					)}:${screen(entity.name)}]-() ON (${screen(name)}.${fields
 						.map(field => screen(field.name))
-						.join(`, ${screen(name)}.`)})`,
+						.join(screenedNameSuffix)})`,
 					isActivated && fields.every(field => field.isActivated),
 				);
 		}
