@@ -64,7 +64,7 @@
         "lint": "eslint . --max-warnings=0",
         "package": "node esbuild.package.js",
         "install": "npx patch-package",
-        "patch-beo4j-driver": "npx patch-package neo4j-driver"
+        "patch-neo4j-driver": "npx patch-package neo4j-driver"
     },
     "devDependencies": {
         "@hackolade/hck-esbuild-plugins-pack": "0.0.1",
