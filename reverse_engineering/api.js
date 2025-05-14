@@ -2,7 +2,6 @@ const async = require('async');
 const _ = require('lodash');
 const neo4j = require('./neo4jHelper');
 const snippetsPath = '../snippets/';
-const logHelper = require('./logHelper');
 
 const snippets = {
 	'Cartesian 3D': require(snippetsPath + 'cartesian-3d.json'),
