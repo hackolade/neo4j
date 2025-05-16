@@ -1,6 +1,8 @@
 const applyToInstanceHelper = require('./applyToInstanceHelper');
 
 function applyToInstance(connectionInfo, logger, callback, app) {
+	logger.clear();
+	logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 	const sshService = app.require('@hackolade/ssh-service');
 
 	applyToInstanceHelper
