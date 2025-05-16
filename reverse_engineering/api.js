@@ -1,3 +1,5 @@
+'use strict';
+
 const async = require('async');
 const _ = require('lodash');
 const neo4j = require('./neo4jHelper');
@@ -42,6 +44,8 @@ module.exports = {
 	},
 
 	testConnection: function (connectionInfo, logger, cb, app) {
+		logInfo('Test connection', connectionInfo, logger);
+
 		this.connect(
 			connectionInfo,
 			logger,
@@ -64,6 +68,7 @@ module.exports = {
 	getDbCollectionsNames: async function (connectionInfo, logger, cb, app) {
 		const step = 'Retrieving labels information';
 
+		logInfo(step, connectionInfo, logger);
 		try {
 			const sshService = app.require('@hackolade/ssh-service');
 			neo4j.setTimeOut(connectionInfo);
@@ -123,6 +128,7 @@ module.exports = {
 
 	getDbCollectionsDataWrapped: async function (data, logger, cb, app) {
 		neo4j.setTimeOut(data);
+		logger.log('info', data, 'Retrieving schema for chosen labels', data.hiddenKeys);
 
 		const collections = data.collectionData.collections;
 		const dataBaseNames = data.collectionData.dataBaseNames;
@@ -310,6 +316,12 @@ const checkConnection = logger => (host, port) => {
 			throw new Error(errorMessage);
 		},
 	);
+};
+
+const logInfo = (step, connectionInfo, logger) => {
+	logger.clear();
+	logger.log('info', logHelper.getSystemInfo(connectionInfo.appVersion), step);
+	logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 };
 
 const getNodesData = ({ dbName, labels = [], isMultiDb, data, logger }) => {
