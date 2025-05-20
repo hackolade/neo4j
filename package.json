@@ -50,6 +50,7 @@
     "disabled": false,
     "dependencies": {
         "async": "3.2.6",
+        "ip": "2.0.1",
         "lodash": "4.17.21",
         "neo4j-driver": "4.4.11"
     },

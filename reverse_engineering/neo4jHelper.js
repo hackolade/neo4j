@@ -1,6 +1,7 @@
 const neo4j = require('neo4j-driver');
 const fs = require('fs');
 const _ = require('lodash');
+const { escapeV6IpForURL } = require('./escapeV6IPForURL');
 
 let driver;
 let isSshTunnel = false;
@@ -430,10 +431,10 @@ const getConnectionURI = info => {
 	if (neo4jProtocolRegex.test(info.host)) {
 		host = info.host;
 	} else {
-		host = `bolt://${info.host}`;
+		host = `bolt://${escapeV6IpForURL({ host: info.host })}`;
 	}
 	if (info.port) {
-		host = `${host}:${info.port}`;
+		host = `${escapeV6IpForURL({ host: info.host })}:${info.port}`;
 	}
 
 	return host;
