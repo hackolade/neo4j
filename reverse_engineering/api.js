@@ -1,5 +1,3 @@
-'use strict';
-
 const async = require('async');
 const _ = require('lodash');
 const neo4j = require('./neo4jHelper');
@@ -320,7 +318,6 @@ const checkConnection = logger => (host, port) => {
 
 const logInfo = (step, connectionInfo, logger) => {
 	logger.clear();
-	logger.log('info', logHelper.getSystemInfo(connectionInfo.appVersion), step);
 	logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 };
 
