@@ -434,7 +434,7 @@ const getConnectionURI = info => {
 		host = `bolt://${escapeV6IpForURL({ host: info.host })}`;
 	}
 	if (info.port) {
-		host = `${escapeV6IpForURL({ host: info.host })}:${info.port}`;
+		host = `${host}:${info.port}`;
 	}
 
 	return host;
