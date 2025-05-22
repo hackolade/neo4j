@@ -30,7 +30,9 @@ function escapeV6IpForURL({ host }) {
 		return host;
 	}
 
-	const urlWithIpV6HostRegExp = new RegExp(/^http(s)?:\/\/(?<unescapedIpWithPort>([a-z0-9]{0,4}:?)+)/gim);
+	const urlWithIpV6HostRegExp = new RegExp(
+		/^(http(s)?|(neo4j(\+s|s|)(\+ssc|ssc|))|bolt):\/\/(?<unescapedIpWithPort>([a-z0-9]{0,4}:?)+)/gim,
+	);
 	const { unescapedIpWithPort } = urlWithIpV6HostRegExp.exec(host)?.groups ?? {};
 
 	if (!unescapedIpWithPort) {
@@ -42,7 +44,13 @@ function escapeV6IpForURL({ host }) {
 	const port = separatedIpPortionsAndPort.at(-1);
 	const escapedIpWithPort = `[${ipPortions.join(':')}]:${port}`;
 
-	return host.replace(unescapedIpWithPort, escapedIpWithPort);
+	const replacedHost = host.replace(unescapedIpWithPort, escapedIpWithPort);
+
+	if (isValidURL(replacedHost)) {
+		return replacedHost;
+	}
+
+	return host.replace(unescapedIpWithPort, `[${unescapedIpWithPort}]`);
 }
 
 /**
@@ -54,7 +62,8 @@ function isValidURL(url) {
 		new URL(url);
 
 		return true;
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return false;
 	}
 }

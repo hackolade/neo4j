@@ -431,13 +431,13 @@ const getConnectionURI = info => {
 	if (neo4jProtocolRegex.test(info.host)) {
 		host = info.host;
 	} else {
-		host = `bolt://${escapeV6IpForURL({ host: info.host })}`;
+		host = `bolt://${info.host}`;
 	}
 	if (info.port) {
 		host = `${host}:${info.port}`;
 	}
 
-	return host;
+	return escapeV6IpForURL({ host });
 };
 
 module.exports = {
