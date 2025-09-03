@@ -42,7 +42,7 @@ const forwardEngineeringHelper = {
 			if (branchData.relationship && branchData.child) {
 				let parentName = branchData.parent.collectionName;
 				let childName = branchData.child.collectionName;
-				let relationshipName = branchData.relationship.name;
+				let relationshipName = branchData.relationship.code || branchData.relationship.name;
 				let relationshipData = '';
 
 				const isParentActivated = _.get(branchData, 'parent.isActivated', true);
@@ -293,7 +293,11 @@ const forwardEngineeringHelper = {
 						result.push(
 							this.commentIfDeactivated(
 								getExistsConstraint(
-									{ labelName: relationship.name, fieldName, type: 'relationship' },
+									{
+										labelName: relationship.code || relationship.name,
+										fieldName,
+										type: 'relationship',
+									},
 									dbVersion,
 								),
 								isFieldActivated && isRelationshipActivated,
