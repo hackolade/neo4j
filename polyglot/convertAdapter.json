@@ -41,16 +41,6 @@
  */
 {
 	"modify": {
-		"field": [
-			{
-				"from": {
-					"compositeUniqueKey": true
-				},
-				"to": {
-					"unique": true
-				}
-			}
-		],
-		"relationship": [["mapEdgeRelationshipDirectionForPolyglotDerive"]]
+		"relationship": [["mapEdgeRelationshipDirectionForPolyglotConvert"]]
 	}
 }
