@@ -51,7 +51,7 @@
     "dependencies": {
         "@webpod/ip": "0.6.1",
         "async": "3.2.6",
-        "lodash": "4.17.21",
+        "lodash": "4.17.23",
         "neo4j-driver": "4.4.11"
     },
     "lint-staged": {
