@@ -54,11 +54,8 @@
         "lodash": "4.17.23",
         "neo4j-driver": "4.4.11"
     },
-    "lint-staged": {
-        "*.{js,json}": "prettier --write"
-    },
     "simple-git-hooks": {
-        "pre-commit": "npm run package && npx lint-staged",
+        "pre-commit": "npm run package && npx lint-staged --config lint-staged.config.js",
         "pre-push": "npm run lint"
     },
     "scripts": {
@@ -66,7 +63,8 @@
         "package": "node esbuild.package.js",
         "install": "npx patch-package",
         "patch-neo4j-driver": "npx patch-package neo4j-driver",
-        "lint:check": "oxlint --type-aware --type-check . || true"
+        "lint:check": "oxlint --type-aware --type-check . || true",
+        "format": "prettier --write ."
     },
     "devDependencies": {
         "@hackolade/hck-esbuild-plugins-pack": "0.0.1",
