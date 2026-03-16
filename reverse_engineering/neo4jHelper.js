@@ -319,9 +319,12 @@ const getRawDbVersion = async () => {
 		);
 		const version = _.head(versionResponse)?.version;
 
-		if (!version) {
-			throw new Error('Neo4j version is empty or undefined.');
+		if (!version || typeof version !== 'string') {
+			throw new Error(
+				`Expected Neo4j version to be a string, but got "${typeof version}" with value: ${JSON.stringify(version)}`,
+			);
 		}
+
 		return version;
 	} catch (error) {
 		error.step = 'Error in getRawDbVersion detecting Neo4j database version.';
@@ -347,7 +350,15 @@ const getDbVersion = async logger => {
 		}
 		return '3.x';
 	} catch (err) {
-		logger?.log('warn', `Error in getDbVersion ${err.message || err}`);
+		const errorObj = err instanceof Error ? { message: err.message, stack: err.stack, step: err.step } : err;
+		logger?.log(
+			'warn',
+			{
+				message: 'Error in getDbVersion',
+				error: errorObj,
+			},
+			'Database info',
+		);
 		return '3.x';
 	}
 };

@@ -27,7 +27,10 @@ module.exports = {
 					.catch(error => {
 						logger.log(
 							'warn',
-							`Could not retrieve Database version at connect phase: ${error.message}`,
+							{
+								message: error.step || 'Could not retrieve Database version at connect phase',
+								error: prepareError(error),
+							},
 							'Connection',
 						);
 					});
