@@ -313,13 +313,23 @@ const getSSLConfig = info => {
 };
 
 const getRawDbVersion = async () => {
-	const versionResponse = await execute(
-		'call dbms.components() yield versions unwind versions as version return version',
-	);
-	return _.head(versionResponse)?.version;
+	try {
+		const versionResponse = await execute(
+			'call dbms.components() yield versions unwind versions as version return version',
+		);
+		const version = _.head(versionResponse)?.version;
+
+		if (!version) {
+			throw new Error('Neo4j version is empty or undefined.');
+		}
+		return version;
+	} catch (error) {
+		error.step = 'Error in getRawDbVersion detecting Neo4j database version.';
+		throw error;
+	}
 };
 
-const getDbVersion = async () => {
+const getDbVersion = async logger => {
 	try {
 		const version = await getRawDbVersion();
 		const [major, minor] = version.split('.');
@@ -337,6 +347,7 @@ const getDbVersion = async () => {
 		}
 		return '3.x';
 	} catch (err) {
+		logger?.log('warn', `Error in getDbVersion ${err.message || err}`);
 		return '3.x';
 	}
 };
