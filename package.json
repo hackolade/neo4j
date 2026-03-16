@@ -1,6 +1,6 @@
 {
     "name": "Neo4j",
-    "version": "0.2.14",
+    "version": "0.2.15",
     "author": "hackolade",
     "engines": {
         "hackolade": "6.8.5",
